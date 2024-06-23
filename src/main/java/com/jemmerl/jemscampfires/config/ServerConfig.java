@@ -17,6 +17,8 @@ public class ServerConfig {
     public static final int soul_cf_max_fuel_ticks = 2400; // Maximum soul campfire fuel in ticks - Default 2400 ticks (2 minutes)
     public static final int cf_initial_fuel_ticks = 200; // Maximum campfire initial fuel in ticks (can't be more than config max) - Default 200 ticks (10 seconds)
     public static final int soul_cf_initial_fuel_ticks = 200; // Maximum soul campfire initial fuel in ticks (can't be more than config max) - Default 200 ticks (10 seconds)
+    public static final double cf_fuel_multiplier = 1.0; // Multiplies the burn time of fuel added to campfires - Default 1
+    public static final double soul_cf_fuel_multiplier = 1.0; // Multiplies the burn time of fuel added to soul campfires - Default 1
 
     public static final boolean cf_fuel_based_light = true; // Campfire light-level is based on its remaining fuel percent from max - Default true
     public static final boolean soul_cf_fuel_based_light = true; // Soul campfire light-level is based on its remaining fuel percent from max - Default true
@@ -55,6 +57,8 @@ public class ServerConfig {
     public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_MAX_FUEL_TICKS;
     public static ForgeConfigSpec.IntValue CAMPFIRE_INITIAL_FUEL_TICKS;
     public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_INITIAL_FUEL_TICKS;
+    public static ForgeConfigSpec.DoubleValue CAMPFIRE_FUEL_MULT;
+    public static ForgeConfigSpec.DoubleValue SOUL_CAMPFIRE_FUEL_MULT;
 
     public static ForgeConfigSpec.BooleanValue CAMPFIRE_FUEL_BASED_LIGHT;
     public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_FUEL_BASED_LIGHT;
@@ -101,6 +105,9 @@ public class ServerConfig {
         CAMPFIRE_INITIAL_FUEL_TICKS = builder
                 .comment("Maximum campfire initial fuel in ticks (can't be more than config max) - Default 200 ticks (10 seconds)")
                 .defineInRange("campfireInitialFuelTicks", cf_initial_fuel_ticks, 0, 12000);
+        CAMPFIRE_FUEL_MULT = builder
+                .comment("Multiplies the burn time of fuel added to campfires - Default 1")
+                .defineInRange("campfireBurnTimeMultiplier", cf_fuel_multiplier, 0.01, 10.0);
         builder.pop();
         builder.push("Soul Campfires");
         SOUL_CAMPFIRE_PLACE_UNLIT = builder
@@ -112,6 +119,9 @@ public class ServerConfig {
         SOUL_CAMPFIRE_INITIAL_FUEL_TICKS = builder
                 .comment("Maximum soul campfire initial fuel in ticks (can't be more than config max) - Default 200 ticks (10 seconds)")
                 .defineInRange("soulCampfireInitialFuelTicks", soul_cf_initial_fuel_ticks, 0, 12000);
+        SOUL_CAMPFIRE_FUEL_MULT = builder
+                .comment("Multiplies the burn time of fuel added to soul campfires - Default 1")
+                .defineInRange("soulCampfireBurnTimeMultiplier", soul_cf_fuel_multiplier, 0.01, 10.0);
         builder.pop();
         builder.pop();
 
