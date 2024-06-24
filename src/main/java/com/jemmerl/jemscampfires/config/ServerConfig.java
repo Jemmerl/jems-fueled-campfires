@@ -11,8 +11,6 @@ public class ServerConfig {
     public static ForgeConfigSpec SERVER_SPEC;
 
     // Default values
-    private static final boolean cf_place_unlit = true; // Player-placed campfires are not pre-lit - Default true
-    private static final boolean soul_cf_place_unlit = true; // Player-placed soul campfires are not pre-lit - Default true
     private static final int cf_max_fuel_ticks = 2400; // Maximum campfire fuel in ticks - Default 2400 ticks (2 minutes)
     private static final int soul_cf_max_fuel_ticks = 1200; // Maximum soul campfire fuel in ticks - Default 2400 ticks (2 minutes)
     private static final int cf_initial_fuel_ticks = 200; // Maximum campfire initial fuel in ticks (can't be more than config max) - Default 200 ticks (10 seconds)
@@ -50,8 +48,6 @@ public class ServerConfig {
     private static final boolean soul_cf_bright_bonfire = false; // Will soul campfires get brighter (from light-level 10 to 12) when a bonfire (needs soul fuel-based light-level enabled) - Default false
 
     // Basic
-    public static ForgeConfigSpec.BooleanValue CAMPFIRE_PLACE_UNLIT;
-    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_PLACE_UNLIT;
     public static ForgeConfigSpec.IntValue CAMPFIRE_MAX_FUEL_TICKS;
     public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_MAX_FUEL_TICKS;
     public static ForgeConfigSpec.IntValue CAMPFIRE_INITIAL_FUEL_TICKS;
@@ -97,9 +93,6 @@ public class ServerConfig {
 
         builder.push("Basic");
         builder.push("Regular Campfires");
-        CAMPFIRE_PLACE_UNLIT = builder
-                .comment("Player-placed campfires are not pre-lit - Default true")
-                .define("placeCampfiresUnlit", cf_place_unlit);
         CAMPFIRE_MAX_FUEL_TICKS = builder
                 .comment("Maximum campfire fuel in ticks - Default 2400 ticks (2 minutes)")
                 .defineInRange("campfireMaxFuelTicks", cf_max_fuel_ticks, 0, 12000);
@@ -114,9 +107,6 @@ public class ServerConfig {
                 .define("breakCampfiresUnlit", cf_break_unlit);
         builder.pop();
         builder.push("Soul Campfires");
-        SOUL_CAMPFIRE_PLACE_UNLIT = builder
-                .comment("Player-placed soul campfires are not pre-lit - Default true")
-                .define("placeSoulCampfiresUnlit", soul_cf_place_unlit);
         SOUL_CAMPFIRE_MAX_FUEL_TICKS = builder
                 .comment("Maximum soul campfire fuel in ticks - Default 2400 ticks (2 minutes)")
                 .defineInRange("soulCampfireMaxFuelTicks", soul_cf_max_fuel_ticks, 0, 12000);
