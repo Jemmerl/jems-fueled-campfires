@@ -106,7 +106,7 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
                 if (isLit && (fuelTicks > 0)) {
                     fuelTicks--;
                     if (fuelTicks <= 0) {
-                        if (ServerConfig.CAMPFIRES_BREAK_UNLIT.get()) {
+                        if (ServerConfig.SOUL_CAMPFIRE_BREAK_UNLIT.get()) {
                             breakCampfire();
                         } else {
                             extinguishCampfire();
@@ -138,7 +138,7 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
                 if (isLit && (fuelTicks > 0)) {
                     fuelTicks--;
                     if (fuelTicks <= 0) {
-                        if (ServerConfig.CAMPFIRES_BREAK_UNLIT.get()) {
+                        if (ServerConfig.CAMPFIRE_BREAK_UNLIT.get()) {
                             breakCampfire();
                         } else {
                             extinguishCampfire();

@@ -19,7 +19,8 @@ public class ServerConfig {
     private static final int soul_cf_initial_fuel_ticks = 100; // Maximum soul campfire initial fuel in ticks (can't be more than config max) - Default 200 ticks (10 seconds)
     private static final double cf_fuel_multiplier = 1.0; // Multiplies the burn time of fuel added to campfires - Default 1
     private static final double soul_cf_fuel_multiplier = 1.0; // Multiplies the burn time of fuel added to soul campfires - Default 1
-    private static final boolean cf_break_unlit = false; // Will all campfires break when they run out of fuel - Default false
+    private static final boolean cf_break_unlit = false; // Will campfires break when they run out of fuel - Default false
+    private static final boolean soul_cf_break_unlit = false; // Will soul campfires break when they run out of fuel - Default false
 
     private static final boolean cf_fuel_based_light = true; // Campfire light-level is based on its remaining fuel percent from max - Default true
     private static final boolean soul_cf_fuel_based_light = true; // Soul campfire light-level is based on its remaining fuel percent from max - Default true
@@ -57,7 +58,8 @@ public class ServerConfig {
     public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_INITIAL_FUEL_TICKS;
     public static ForgeConfigSpec.DoubleValue CAMPFIRE_FUEL_MULT;
     public static ForgeConfigSpec.DoubleValue SOUL_CAMPFIRE_FUEL_MULT;
-    public static ForgeConfigSpec.BooleanValue CAMPFIRES_BREAK_UNLIT;
+    public static ForgeConfigSpec.BooleanValue CAMPFIRE_BREAK_UNLIT;
+    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BREAK_UNLIT;
 
     // Advanced
     public static ForgeConfigSpec.BooleanValue CAMPFIRE_FUEL_BASED_LIGHT;
@@ -94,9 +96,6 @@ public class ServerConfig {
         final ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
 
         builder.push("Basic");
-        CAMPFIRES_BREAK_UNLIT = builder
-                .comment("Will all campfires break when they run out of fuel - Default false")
-                .define("breakAllCampfiresUnlit", cf_break_unlit);
         builder.push("Regular Campfires");
         CAMPFIRE_PLACE_UNLIT = builder
                 .comment("Player-placed campfires are not pre-lit - Default true")
@@ -110,6 +109,9 @@ public class ServerConfig {
         CAMPFIRE_FUEL_MULT = builder
                 .comment("Multiplies the burn time of fuel added to campfires - Default 1")
                 .defineInRange("campfireBurnTimeMultiplier", cf_fuel_multiplier, 0.01, 10.0);
+        CAMPFIRE_BREAK_UNLIT = builder
+                .comment("Will campfires break when they run out of fuel - Default false")
+                .define("breakCampfiresUnlit", cf_break_unlit);
         builder.pop();
         builder.push("Soul Campfires");
         SOUL_CAMPFIRE_PLACE_UNLIT = builder
@@ -124,6 +126,9 @@ public class ServerConfig {
         SOUL_CAMPFIRE_FUEL_MULT = builder
                 .comment("Multiplies the burn time of fuel added to soul campfires - Default 1")
                 .defineInRange("soulCampfireBurnTimeMultiplier", soul_cf_fuel_multiplier, 0.01, 10.0);
+        SOUL_CAMPFIRE_BREAK_UNLIT = builder
+                .comment("Will soul campfires break when they run out of fuel - Default false")
+                .define("breakSoulCampfiresUnlit", soul_cf_break_unlit);
         builder.pop();
         builder.pop();
 
@@ -154,7 +159,7 @@ public class ServerConfig {
 
         builder.push("Decorative Options");
         SPAWN_CAMPFIRES_ETERNAL = builder
-                .comment("All campfires spawned in structures don't burn fuel (eternal) when NOT cooking - Default: true")
+                .comment("Regular campfires spawned in structures don't burn fuel (eternal) when NOT cooking - Default: true")
                 .define("spawnedCampfiresAreEternal", spawn_eternal);
         builder.push("Regular Campfires");
         CAMPFIRE_ALLOW_ETERNAL_BURN_ITEMS = builder
