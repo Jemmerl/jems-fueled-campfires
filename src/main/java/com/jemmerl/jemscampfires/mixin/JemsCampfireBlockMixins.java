@@ -1,6 +1,7 @@
 package com.jemmerl.jemscampfires.mixin;
 
 import com.jemmerl.jemscampfires.config.ServerConfig;
+import com.jemmerl.jemscampfires.util.IFueledCampfire;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.CampfireBlock;
@@ -57,8 +58,8 @@ public abstract class JemsCampfireBlockMixins extends ContainerBlock {
     public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         if(!worldIn.isRemote()) {
             TileEntity tileentity = worldIn.getTileEntity(pos);
-            if (tileentity instanceof JemsCampfireTEMixins) {
-                JemsCampfireTEMixins cfTileEntity = (JemsCampfireTEMixins) tileentity;
+            if (tileentity instanceof IFueledCampfire) {
+                IFueledCampfire cfTileEntity = (IFueledCampfire) tileentity;
                 if (state.getBlock() == Blocks.SOUL_CAMPFIRE) {
                     cfTileEntity.setEternal(ServerConfig.PLACE_SOUL_CAMPFIRE_ETERNAL.get());
                 } else {
