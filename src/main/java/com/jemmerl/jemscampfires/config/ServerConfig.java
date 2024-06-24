@@ -19,6 +19,8 @@ public class ServerConfig {
     private static final double soul_cf_fuel_multiplier = 1.0; // Multiplies the burn time of fuel added to soul campfires - Default 1
     private static final boolean cf_break_unlit = false; // Will campfires break when they run out of fuel - Default false
     private static final boolean soul_cf_break_unlit = false; // Will soul campfires break when they run out of fuel - Default false
+    private static final boolean place_cf_eternal = false; // Campfires placed by players don't burn fuel (eternal) when NOT cooking - Default: false
+    private static final boolean place_soul_cf_eternal = false; // Soul campfires placed by players don't burn fuel (eternal) when NOT cooking - Default: false
 
     private static final boolean cf_fuel_based_light = true; // Campfire light-level is based on its remaining fuel percent from max - Default true
     private static final boolean soul_cf_fuel_based_light = true; // Soul campfire light-level is based on its remaining fuel percent from max - Default true
@@ -27,7 +29,8 @@ public class ServerConfig {
     private static final boolean cf_burn_when_sleep = false; // Campfires lose the appropriate fuel when you sleep - Default false
     private static final boolean soul_cf_burn_when_sleep = false; // Soul campfires lose the appropriate fuel when you sleep - Default false
 
-    private static final boolean spawn_eternal = true; // All campfires spawned in structures don't burn fuel (eternal) when NOT cooking - Default: true
+    private static final boolean spawn_cf_eternal = true; // Campfires spawned in structures don't burn fuel (eternal) when NOT cooking - Default: true
+    private static final boolean spawn_soul_cf_eternal = true; // Soul campfires spawned in structures don't burn fuel (eternal) when NOT cooking - Default: true
     private static final boolean cf_allow_eternal_burn_items = true; // Allow items (defined by a tag) to make campfires burn without using fuel when NOT cooking - Default true
     private static final boolean soul_cf_allow_eternal_burn_items = true; // Remove eternal status if the campfire cooks (prevent abuse of natural-spawned eternal fires) - Default true
     private static final boolean cf_lose_eternal_when_cooking = true; // Allow items (defined by a tag) to make soul campfires burn without using fuel when NOT cooking - Default true
@@ -56,6 +59,8 @@ public class ServerConfig {
     public static ForgeConfigSpec.DoubleValue SOUL_CAMPFIRE_FUEL_MULT;
     public static ForgeConfigSpec.BooleanValue CAMPFIRE_BREAK_UNLIT;
     public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BREAK_UNLIT;
+    public static ForgeConfigSpec.BooleanValue PLACE_CAMPFIRE_ETERNAL;
+    public static ForgeConfigSpec.BooleanValue PLACE_SOUL_CAMPFIRE_ETERNAL;
 
     // Advanced
     public static ForgeConfigSpec.BooleanValue CAMPFIRE_FUEL_BASED_LIGHT;
@@ -66,7 +71,8 @@ public class ServerConfig {
     public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BURN_WHEN_SLEEP;
 
     // Decorative
-    public static ForgeConfigSpec.BooleanValue SPAWN_CAMPFIRES_ETERNAL;
+    public static ForgeConfigSpec.BooleanValue SPAWN_CAMPFIRE_ETERNAL;
+    public static ForgeConfigSpec.BooleanValue SPAWN_SOUL_CAMPFIRE_ETERNAL;
     public static ForgeConfigSpec.BooleanValue CAMPFIRE_ALLOW_ETERNAL_BURN_ITEMS;
     public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_ALLOW_ETERNAL_BURN_ITEMS;
     public static ForgeConfigSpec.BooleanValue CAMPFIRE_LOSE_ETERNAL_WHEN_COOKING;
@@ -105,6 +111,10 @@ public class ServerConfig {
         CAMPFIRE_BREAK_UNLIT = builder
                 .comment("Will campfires break when they run out of fuel - Default false")
                 .define("breakCampfiresUnlit", cf_break_unlit);
+        PLACE_CAMPFIRE_ETERNAL = builder
+                .comment("Regular campfires placed by players don't burn fuel (eternal) when NOT cooking - Default: true")
+                .define("placedCampfiresAreEternal", place_cf_eternal);
+        builder.push("Regular Campfires");
         builder.pop();
         builder.push("Soul Campfires");
         SOUL_CAMPFIRE_MAX_FUEL_TICKS = builder
@@ -119,6 +129,10 @@ public class ServerConfig {
         SOUL_CAMPFIRE_BREAK_UNLIT = builder
                 .comment("Will soul campfires break when they run out of fuel - Default false")
                 .define("breakSoulCampfiresUnlit", soul_cf_break_unlit);
+        PLACE_SOUL_CAMPFIRE_ETERNAL = builder
+                .comment("Soul campfires placed by players don't burn fuel (eternal) when NOT cooking - Default: true")
+                .define("placedCampfiresAreEternal", place_soul_cf_eternal);
+        builder.push("Regular Campfires");
         builder.pop();
         builder.pop();
 
@@ -148,9 +162,9 @@ public class ServerConfig {
         builder.pop();
 
         builder.push("Decorative Options");
-        SPAWN_CAMPFIRES_ETERNAL = builder
+        SPAWN_CAMPFIRE_ETERNAL = builder
                 .comment("Regular campfires spawned in structures don't burn fuel (eternal) when NOT cooking - Default: true")
-                .define("spawnedCampfiresAreEternal", spawn_eternal);
+                .define("spawnedCampfiresAreEternal", spawn_cf_eternal);
         builder.push("Regular Campfires");
         CAMPFIRE_ALLOW_ETERNAL_BURN_ITEMS = builder
                 .comment("Allow items (defined by a tag) to make campfires burn without using fuel when NOT cooking - Default true")
@@ -160,6 +174,10 @@ public class ServerConfig {
                 .define("removeEternalCampfireIfCook", cf_lose_eternal_when_cooking);
         builder.pop();
         builder.push("Soul Campfires");
+        SPAWN_SOUL_CAMPFIRE_ETERNAL = builder
+                .comment("Soul campfires spawned in structures don't burn fuel (eternal) when NOT cooking - Default: true")
+                .define("spawnedCampfiresAreEternal", spawn_soul_cf_eternal);
+        builder.push("Regular Campfires");
         SOUL_CAMPFIRE_ALLOW_ETERNAL_BURN_ITEMS = builder
                 .comment("Allow items (defined by a tag) to make soul campfires burn without using fuel when NOT cooking - Default true")
                 .define("allowEternalSoulCampfireItems", soul_cf_allow_eternal_burn_items);

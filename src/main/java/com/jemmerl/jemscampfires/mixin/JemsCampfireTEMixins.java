@@ -53,10 +53,10 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
 
 
 
-    @Inject(at = @At("RETURN"), method = "<init>*")
-    protected void initEdit(CallbackInfo ci) {
-        isEternal = ServerConfig.SPAWN_CAMPFIRES_ETERNAL.get();
-    }
+//    @Inject(at = @At("RETURN"), method = "<init>*")
+//    protected void initEdit(CallbackInfo ci) {
+//
+//    }
 
     @Override
     public int getFuelTicks() {
@@ -89,6 +89,16 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
         //super.onLoad();
         if (!this.world.isRemote()) {
             isSoul = (this.getBlockState().getBlock() == Blocks.SOUL_CAMPFIRE.getBlock());
+
+            System.out.println("loaded TE");
+
+            // This is the first load of the campfire TE
+            if (fuelTicks < 0) {
+                // This isEternal gets overridden if the block is placed by a player, else it has been world-genned
+                isEternal = isSoul ? ServerConfig.SPAWN_SOUL_CAMPFIRE_ETERNAL.get() : ServerConfig.SPAWN_CAMPFIRE_ETERNAL.get();
+                fuelTicks = isSoul ? ServerConfig.SOUL_CAMPFIRE_INITIAL_FUEL_TICKS.get() : ServerConfig.CAMPFIRE_INITIAL_FUEL_TICKS.get();
+            }
+
         }
     }
 
@@ -98,11 +108,6 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
             boolean isLit = this.getBlockState().get(CampfireBlock.LIT);
 
             if (isSoul) {
-                // This is the first load of the campfire TE
-                if (fuelTicks < 0) {
-                    fuelTicks = ServerConfig.SOUL_CAMPFIRE_INITIAL_FUEL_TICKS.get();
-                }
-
                 if (isLit && (fuelTicks > 0)) {
                     fuelTicks--;
                     if (fuelTicks <= 0) {
@@ -130,10 +135,6 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
 
             } else {
                 //regular campfire
-                // This is the first load of the campfire TE
-                if (fuelTicks < 0) {
-                    fuelTicks = ServerConfig.SOUL_CAMPFIRE_INITIAL_FUEL_TICKS.get();
-                }
 
                 if (isLit && (fuelTicks > 0)) {
                     fuelTicks--;
