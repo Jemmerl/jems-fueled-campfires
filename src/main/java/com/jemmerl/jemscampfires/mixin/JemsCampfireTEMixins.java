@@ -1,7 +1,9 @@
 package com.jemmerl.jemscampfires.mixin;
 
+import com.jemmerl.jemscampfires.config.ServerConfig;
 import com.jemmerl.jemscampfires.util.IFueledCampfire;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.CampfireTileEntity;
 import net.minecraft.tileentity.TileEntity;
@@ -14,12 +16,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = CampfireTileEntity.class, priority = 0)
 public abstract class JemsCampfireTEMixins extends TileEntity implements IFueledCampfire {
+    private boolean isSoul;
+    private int fuelTicks = -1;
+    private boolean isEternal = false;
+
     public JemsCampfireTEMixins(TileEntityType<?> tileEntityTypeIn) {
         super(tileEntityTypeIn);
     }
 
-    private int fuelTicks = 0;
-    private boolean isEternal = false;
+    @Inject(at = @At("RETURN"), method = "<init>*")
+    protected void initEdit(CallbackInfo ci) {
+        isEternal = ServerConfig.SPAWN_CAMPFIRES_ETERNAL.get();
+    }
 
     @Override
     public int getFuelTicks() {
@@ -46,6 +54,30 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
         isEternal = eternal;
     }
 
+
+    @Override
+    public void onLoad() {
+        //super.onLoad();
+        if(!this.world.isRemote()) {
+            isSoul = (this.getBlockState().getBlock() == Blocks.SOUL_CAMPFIRE.getBlock());
+        }
+    }
+
+    @Inject(at = @At("RETURN"), method = "tick()V")
+    private void tick(CallbackInfo ci) {
+        if(this.world != null) {
+            // This is the first load of the campfire TE
+            if(!this.world.isRemote()) {
+                if (fuelTicks < 0) {
+                    fuelTicks = isSoul ? ServerConfig.SOUL_CAMPFIRE_INITIAL_FUEL_TICKS.get() : ServerConfig.CAMPFIRE_INITIAL_FUEL_TICKS.get();
+                }
+            }
+
+
+        }
+
+
+    }
 
     @Inject(at = @At("RETURN"), method = "read(Lnet/minecraft/block/BlockState;Lnet/minecraft/nbt/CompoundNBT;)V")
     public void readFueled(BlockState state, CompoundNBT nbt, CallbackInfo ci) {
