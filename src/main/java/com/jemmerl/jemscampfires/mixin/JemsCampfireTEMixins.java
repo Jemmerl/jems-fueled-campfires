@@ -113,6 +113,8 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     @Inject(at = @At("RETURN"), method = "tick()V")
     private void tick(CallbackInfo ci) {
         if ((this.world != null) && (!this.world.isRemote())) {
+            if (isEternal) return;
+
             boolean isLit = this.getBlockState().get(CampfireBlock.LIT);
 
             if (isSoul) {
