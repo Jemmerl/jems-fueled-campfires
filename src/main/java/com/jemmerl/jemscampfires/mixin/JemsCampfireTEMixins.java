@@ -34,6 +34,16 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
 
 
     // option to not drop when extinguished?
+    private void extinguishCampfire(boolean drops) {
+        if ((this.world != null) && (!this.world.isRemote)) {
+            this.world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, 1.0F, 1.0F);
+            if (drops) {
+                CampfireBlock.extinguish(this.world, pos, this.getBlockState());
+            }
+            this.world.setBlockState(this.pos, this.getBlockState().with(CampfireBlock.LIT, false));
+        }
+    }
+
     private void extinguishCampfire() {
         if ((this.world != null) && (!this.world.isRemote)) {
             this.world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, 1.0F, 1.0F);
@@ -90,8 +100,6 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
         if (!this.world.isRemote()) {
             isSoul = (this.getBlockState().getBlock() == Blocks.SOUL_CAMPFIRE.getBlock());
 
-            System.out.println("loaded TE");
-
             // This is the first load of the campfire TE
             if (fuelTicks < 0) {
                 // This isEternal gets overridden if the block is placed by a player, else it has been world-genned
@@ -108,9 +116,15 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
             boolean isLit = this.getBlockState().get(CampfireBlock.LIT);
 
             if (isSoul) {
-                if (isLit && (fuelTicks > 0)) {
+                if (isLit) {
+                    if (fuelTicks == 0) {
+                        extinguishCampfire(false);
+                        return;
+                    }
+
                     fuelTicks--;
                     if (fuelTicks <= 0) {
+                        fuelTicks = 0;
                         if (ServerConfig.SOUL_CAMPFIRE_BREAK_UNLIT.get()) {
                             breakCampfire();
                         } else {
@@ -122,13 +136,8 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
 
 //                if (!isEternal) {
 //                    if ((ServerConfig.SOUL_CAMPFIRE_CAN_BONFIRE.get()) && (fuelTicks > ServerConfig.SOUL_CAMPFIRE_MAX_FUEL_TICKS.get())) {
-//
 //                    } else {
-//
 //                    }
-//
-//
-//
 //                }
 
 
@@ -136,9 +145,15 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
             } else {
                 //regular campfire
 
-                if (isLit && (fuelTicks > 0)) {
+                if (isLit) {
+                    if (fuelTicks == 0) {
+                        extinguishCampfire(false);
+                        return;
+                    }
+
                     fuelTicks--;
                     if (fuelTicks <= 0) {
+                        fuelTicks = 0;
                         if (ServerConfig.CAMPFIRE_BREAK_UNLIT.get()) {
                             breakCampfire();
                         } else {

@@ -6,7 +6,7 @@ plugins {
     id 'org.spongepowered.mixin' version '[0.7,)'
     }
 
-version = '1.16.5-0.5'
+version = '1.16.5-0.6'
 group = 'com.jemmerl.jemscampfires'
 
 base {
