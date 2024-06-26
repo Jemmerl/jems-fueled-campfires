@@ -22,21 +22,23 @@ public class ServerConfig {
     private static final boolean cf_break_unlit = false; // Will campfires break when they run out of fuel - Default false
     private static final boolean soul_cf_break_unlit = false; // Will soul campfires break when they run out of fuel - Default false
     private static final boolean place_cf_eternal = false; // Campfires placed by players don't burn fuel (eternal) when NOT cooking - Default: false
-    private static final boolean place_soul_cf_eternal = true; // Soul campfires placed by players don't burn fuel (eternal) when NOT cooking - Default: false
+    private static final boolean place_soul_cf_eternal = false; // Soul campfires placed by players don't burn fuel (eternal) when NOT cooking - Default: false
 
     private static final boolean cf_fuel_based_light = true; // Campfire light-level is based on its remaining fuel percent from max - Default true
     private static final boolean soul_cf_fuel_based_light = true; // Soul campfire light-level is based on its remaining fuel percent from max - Default true
-    private static final int cf_rain_fuel_tick_loss = 400; // Campfire fuel lost per tick from rain (-1 for instant burnout without loss) - Default 200 ticks
-    private static final int soul_cf_rain_fuel_tick_loss = 100; // Soul campfire fuel lost per tick from rain (-1 for instant burnout without loss) - Default 200 ticks
+    private static final int cf_rain_fuel_tick_loss = 5; // Campfire fuel lost per tick from rain (-1 for instant burnout without loss) - Default 10 ticks
+    private static final int soul_cf_rain_fuel_tick_loss = 5; // Soul campfire fuel lost per tick from rain (-1 for instant burnout without loss) - Default 2 ticks
     private static final boolean cf_burn_when_sleep = false; // Campfires lose the appropriate fuel when you sleep - Default false
     private static final boolean soul_cf_burn_when_sleep = false; // Soul campfires lose the appropriate fuel when you sleep - Default false
 
-    private static final boolean spawn_cf_eternal = false; // Campfires spawned in structures don't burn fuel (eternal) when NOT cooking - Default: true
+    private static final boolean spawn_cf_eternal = true; // Campfires spawned in structures don't burn fuel (eternal) when NOT cooking - Default: true
     private static final boolean spawn_soul_cf_eternal = true; // Soul campfires spawned in structures don't burn fuel (eternal) when NOT cooking - Default: true
     private static final boolean cf_allow_eternal_burn_items = true; // Allow items (defined by a tag) to make campfires burn without using fuel when NOT cooking - Default true
     private static final boolean soul_cf_allow_eternal_burn_items = true; // Remove eternal status if the campfire cooks (prevent abuse of natural-spawned eternal fires) - Default true
     private static final boolean cf_lose_eternal_when_cooking = true; // Allow items (defined by a tag) to make soul campfires burn without using fuel when NOT cooking - Default true
     private static final boolean soul_cf_lose_eternal_when_cooking = true; // Remove eternal status if the soul campfire cooks (prevent abuse of natural-spawned eternal fires) - Default true
+    private static final boolean cf_rain_affect_eternal = false; // Will rain affect eternal-burning campfires (lose fuel, get put out) - Default false
+    private static final boolean soul_cf_rain_affect_eternal = false; // Will rain affect eternal-burning soul campfires (lose fuel, get put out) - Default false
 
     private static final boolean cf_can_bonfire = false; // Will regular campfires become a bonfire if over-fueled - Default false
     private static final boolean soul_cf_can_bonfire = false; // Will soul campfires become a bonfire if over-fueled - Default false
@@ -53,34 +55,36 @@ public class ServerConfig {
     private static final boolean soul_cf_bright_bonfire = false; // Will soul campfires get brighter (from light-level 10 to 12) when a bonfire (needs soul fuel-based light-level enabled) - Default false
 
     // Basic
-    public static ForgeConfigSpec.BooleanValue PLACE_CAMPFIRE_LIT;
-    public static ForgeConfigSpec.BooleanValue PLACE_SOUL_CAMPFIRE_LIT;
+    public static ForgeConfigSpec.BooleanValue PLACE_CAMPFIRE_LIT; //done
+    public static ForgeConfigSpec.BooleanValue PLACE_SOUL_CAMPFIRE_LIT; //done
     public static ForgeConfigSpec.IntValue CAMPFIRE_MAX_FUEL_TICKS;
     public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_MAX_FUEL_TICKS;
-    public static ForgeConfigSpec.IntValue CAMPFIRE_INITIAL_FUEL_TICKS;
-    public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_INITIAL_FUEL_TICKS;
+    public static ForgeConfigSpec.IntValue CAMPFIRE_INITIAL_FUEL_TICKS; //done
+    public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_INITIAL_FUEL_TICKS; //done
     public static ForgeConfigSpec.DoubleValue CAMPFIRE_FUEL_MULT;
     public static ForgeConfigSpec.DoubleValue SOUL_CAMPFIRE_FUEL_MULT;
-    public static ForgeConfigSpec.BooleanValue CAMPFIRE_BREAK_UNLIT;
-    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BREAK_UNLIT;
-    public static ForgeConfigSpec.BooleanValue PLACE_CAMPFIRE_ETERNAL;
-    public static ForgeConfigSpec.BooleanValue PLACE_SOUL_CAMPFIRE_ETERNAL;
+    public static ForgeConfigSpec.BooleanValue CAMPFIRE_BREAK_UNLIT; //done
+    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BREAK_UNLIT; //done
+    public static ForgeConfigSpec.BooleanValue PLACE_CAMPFIRE_ETERNAL; //done
+    public static ForgeConfigSpec.BooleanValue PLACE_SOUL_CAMPFIRE_ETERNAL; //done
 
     // Advanced
     public static ForgeConfigSpec.BooleanValue CAMPFIRE_FUEL_BASED_LIGHT;
     public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_FUEL_BASED_LIGHT;
-    public static ForgeConfigSpec.IntValue CAMPFIRE_RAIN_FUEL_TICK_LOSS;
-    public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_RAIN_FUEL_TICK_LOSS;
+    public static ForgeConfigSpec.IntValue CAMPFIRE_RAIN_FUEL_TICK_LOSS; //done
+    public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_RAIN_FUEL_TICK_LOSS; //done
     public static ForgeConfigSpec.BooleanValue CAMPFIRE_BURN_WHEN_SLEEP;
     public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BURN_WHEN_SLEEP;
 
     // Decorative
-    public static ForgeConfigSpec.BooleanValue SPAWN_CAMPFIRE_ETERNAL;
-    public static ForgeConfigSpec.BooleanValue SPAWN_SOUL_CAMPFIRE_ETERNAL;
+    public static ForgeConfigSpec.BooleanValue SPAWN_CAMPFIRE_ETERNAL; //done
+    public static ForgeConfigSpec.BooleanValue SPAWN_SOUL_CAMPFIRE_ETERNAL; //done
     public static ForgeConfigSpec.BooleanValue CAMPFIRE_ALLOW_ETERNAL_BURN_ITEMS;
     public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_ALLOW_ETERNAL_BURN_ITEMS;
     public static ForgeConfigSpec.BooleanValue CAMPFIRE_LOSE_ETERNAL_WHEN_COOKING;
     public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_LOSE_ETERNAL_WHEN_COOKING;
+    public static ForgeConfigSpec.BooleanValue CAMPFIRE_RAIN_AFFECT_ETERNAL; //done
+    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_RAIN_AFFECT_ETERNAL; //done
 
     // Bonfire
     public static ForgeConfigSpec.BooleanValue CAMPFIRE_CAN_BONFIRE;
@@ -180,6 +184,9 @@ public class ServerConfig {
         CAMPFIRE_LOSE_ETERNAL_WHEN_COOKING = builder
                 .comment("Remove eternal status if the campfire cooks (prevent abuse of natural-spawned eternal fires) - Default true")
                 .define("removeEternalCampfireIfCook", cf_lose_eternal_when_cooking);
+        CAMPFIRE_RAIN_AFFECT_ETERNAL = builder
+                .comment("Will rain affect eternal-burning campfires (lose fuel, get put out) - Default false")
+                .define("doesRainAffectEternalCampfire", cf_rain_affect_eternal);
         builder.pop();
         builder.push("Soul Campfires");
         SPAWN_SOUL_CAMPFIRE_ETERNAL = builder
@@ -191,6 +198,9 @@ public class ServerConfig {
         SOUL_CAMPFIRE_LOSE_ETERNAL_WHEN_COOKING = builder
                 .comment("Remove eternal status if the soul campfire cooks (prevent abuse of natural-spawned eternal fires) - Default true")
                 .define("removeEternalSoulCampfireIfCook", soul_cf_lose_eternal_when_cooking);
+        SOUL_CAMPFIRE_RAIN_AFFECT_ETERNAL = builder
+                .comment("Will rain affect eternal-burning soul campfires (lose fuel, get put out) - Default false")
+                .define("doesRainAffectEternalSoulCampfire", soul_cf_rain_affect_eternal);
         builder.pop();
         builder.pop();
 
