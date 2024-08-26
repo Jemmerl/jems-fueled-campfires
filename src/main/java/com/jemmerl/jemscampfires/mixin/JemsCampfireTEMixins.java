@@ -32,80 +32,11 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     public abstract void dropAllItems();
 
 
-
-    private void extinguishCampfire(boolean drops) {
-        this.world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, 1.0F, 1.0F);
-        if (drops) {
-            CampfireBlock.extinguish(this.world, pos, this.getBlockState());
-        }
-        this.world.setBlockState(this.pos, this.getBlockState().with(CampfireBlock.LIT, false));
-    }
-
-    private void breakCampfire() {
-        this.world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, 1.0F, 1.0F);
-        this.dropAllItems();
-        this.world.setBlockState(this.pos, Blocks.AIR.getDefaultState());
-    }
-
-    private boolean feelTheRainOnYourCampfire(boolean isSoul) {
-        if (world.isRainingAt(this.pos.up())) {
-            int fuelLoss = isSoul ? ServerConfig.SOUL_CAMPFIRE_RAIN_FUEL_TICK_LOSS.get() : ServerConfig.CAMPFIRE_RAIN_FUEL_TICK_LOSS.get();
-            if (fuelLoss == -1) {
-                extinguishCampfire(false);
-                return true;
-            } else {
-                fuelTicks -= fuelLoss;
-            }
-        }
-        return false;
-    }
-
-
-
-    @Override
-    public int getFuelTicks() {
-        return fuelTicks;
-    }
-
-    @Override
-    public void setFuelTicks(int setTicks) {
-        this.fuelTicks = setTicks;
-    }
-
-    @Override
-    public void addFuelTicks(int addTicks) {
-        this.fuelTicks += addTicks;
-    }
-
-    @Override
-    public boolean getEternal() {
-        return isEternal;
-    }
-
-    @Override
-    public void setEternal(boolean eternal) {
-        isEternal = eternal;
-    }
-
-
-    @Override
-    public void onLoad() {
-        //super.onLoad();
-        if (!this.world.isRemote()) {
-            isSoul = (this.getBlockState().getBlock() == Blocks.SOUL_CAMPFIRE.getBlock());
-
-            // This is the first load of the campfire TE
-            if (fuelTicks < 0) {
-                // This isEternal gets overridden if the block is placed by a player, else it has been world-genned
-                isEternal = isSoul ? ServerConfig.SPAWN_SOUL_CAMPFIRE_ETERNAL.get() : ServerConfig.SPAWN_CAMPFIRE_ETERNAL.get();
-                fuelTicks = isSoul ? ServerConfig.SOUL_CAMPFIRE_INITIAL_FUEL_TICKS.get() : ServerConfig.CAMPFIRE_INITIAL_FUEL_TICKS.get();
-            }
-
-        }
-    }
-
     @Inject(at = @At("TAIL"), method = "tick()V")
     private void tick(CallbackInfo ci) {
+
+
+
         if ((this.world != null) && (!this.world.isRemote()) && (this.getBlockState().get(CampfireBlock.LIT))) {
             if (isSoul) {
                 if (isEternal && !ServerConfig.SOUL_CAMPFIRE_RAIN_AFFECT_ETERNAL.get()) {
@@ -115,9 +46,9 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
                     return;
                 }
 
-               if (feelTheRainOnYourCampfire(true)) {
-                   return;
-               }
+                if (feelTheRainOnYourCampfire(true)) {
+                    return;
+                }
 
                 fuelTicks--;
                 if (fuelTicks <= 0) {
@@ -162,14 +93,78 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
             }
 
 
-
-
-
-
-
         }
 
+    }
 
+
+
+    private void extinguishCampfire(boolean drops) {
+        this.world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, 1.0F, 1.0F);
+        if (drops) {
+            CampfireBlock.extinguish(this.world, pos, this.getBlockState());
+        }
+        this.world.setBlockState(this.pos, this.getBlockState().with(CampfireBlock.LIT, false));
+    }
+
+    private void breakCampfire() {
+        this.world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, 1.0F, 1.0F);
+        this.dropAllItems();
+        this.world.setBlockState(this.pos, Blocks.AIR.getDefaultState());
+    }
+
+    private boolean feelTheRainOnYourCampfire(boolean isSoul) {
+        if (world.isRainingAt(this.pos.up())) {
+            int fuelLoss = isSoul ? ServerConfig.SOUL_CAMPFIRE_RAIN_FUEL_TICK_LOSS.get() : ServerConfig.CAMPFIRE_RAIN_FUEL_TICK_LOSS.get();
+            if (fuelLoss == -1) {
+                extinguishCampfire(false);
+                return true;
+            } else {
+                fuelTicks -= fuelLoss;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public int getFuelTicks() {
+        return this.fuelTicks;
+    }
+
+    @Override
+    public void setFuelTicks(int setTicks) {
+        this.fuelTicks = setTicks;
+    }
+
+    @Override
+    public void addFuelTicks(int addTicks) {
+        this.fuelTicks += addTicks;
+    }
+
+    @Override
+    public boolean getEternal() {
+        return this.isEternal;
+    }
+
+    @Override
+    public void setEternal(boolean eternal) {
+        this.isEternal = eternal;
+    }
+
+
+    @Override
+    public void onLoad() {
+        //super.onLoad();
+        if (!this.world.isRemote()) {
+            isSoul = (this.getBlockState().getBlock() == Blocks.SOUL_CAMPFIRE.getBlock());
+
+            // This is the first load of the campfire TE
+            if (fuelTicks < 0) {
+                // This isEternal gets overridden if the block is placed by a player, else it has been world-genned
+                isEternal = isSoul ? ServerConfig.SPAWN_SOUL_CAMPFIRE_ETERNAL.get() : ServerConfig.SPAWN_CAMPFIRE_ETERNAL.get();
+                fuelTicks = isSoul ? ServerConfig.SOUL_CAMPFIRE_INITIAL_FUEL_TICKS.get() : ServerConfig.CAMPFIRE_INITIAL_FUEL_TICKS.get();
+            }
+        }
     }
 
     @Inject(at = @At("RETURN"), method = "read(Lnet/minecraft/block/BlockState;Lnet/minecraft/nbt/CompoundNBT;)V")
