@@ -62,22 +62,22 @@ public class ServerConfig {
     // Basic
     public static ForgeConfigSpec.BooleanValue PLACE_CAMPFIRE_LIT; //done
     public static ForgeConfigSpec.BooleanValue PLACE_SOUL_CAMPFIRE_LIT; //done
-    public static ForgeConfigSpec.IntValue CAMPFIRE_MAX_FUEL_TICKS;
-    public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_MAX_FUEL_TICKS;
+    public static ForgeConfigSpec.IntValue CAMPFIRE_MAX_FUEL_TICKS; //done
+    public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_MAX_FUEL_TICKS; //done
     public static ForgeConfigSpec.IntValue CAMPFIRE_INITIAL_FUEL_TICKS; //done
     public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_INITIAL_FUEL_TICKS; //done
-    public static ForgeConfigSpec.DoubleValue CAMPFIRE_FUEL_MULT;
-    public static ForgeConfigSpec.DoubleValue SOUL_CAMPFIRE_FUEL_MULT;
-    public static ForgeConfigSpec.BooleanValue CAMPFIRE_ALWAYS_BURN_FUEL_ITEMS;
-    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_ALWAYS_BURN_FUEL_ITEMS;
+    public static ForgeConfigSpec.DoubleValue CAMPFIRE_FUEL_MULT; //done
+    public static ForgeConfigSpec.DoubleValue SOUL_CAMPFIRE_FUEL_MULT; //done
+    public static ForgeConfigSpec.BooleanValue CAMPFIRE_ALWAYS_BURN_FUEL_ITEMS; //done
+    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_ALWAYS_BURN_FUEL_ITEMS; //done
     public static ForgeConfigSpec.BooleanValue CAMPFIRE_BREAK_UNLIT; //done
     public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BREAK_UNLIT; //done
     public static ForgeConfigSpec.BooleanValue PLACE_CAMPFIRE_ETERNAL; //done
     public static ForgeConfigSpec.BooleanValue PLACE_SOUL_CAMPFIRE_ETERNAL; //done
 
     // Advanced
-    //public static ForgeConfigSpec.BooleanValue CAMPFIRE_FUEL_BASED_LIGHT;
-    //public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_FUEL_BASED_LIGHT;
+    //public static ForgeConfigSpec.BooleanValue CAMPFIRE_FUEL_BASED_LIGHT; //postponed
+    //public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_FUEL_BASED_LIGHT; //postponed
     public static ForgeConfigSpec.IntValue CAMPFIRE_RAIN_FUEL_TICK_LOSS; //done
     public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_RAIN_FUEL_TICK_LOSS; //done
     public static ForgeConfigSpec.BooleanValue CAMPFIRE_BURN_WHEN_SLEEP;
@@ -94,8 +94,8 @@ public class ServerConfig {
     public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_RAIN_AFFECT_ETERNAL; //done
 
     // Bonfire
-    public static ForgeConfigSpec.BooleanValue CAMPFIRE_CAN_BONFIRE;
-    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_CAN_BONFIRE;
+    public static ForgeConfigSpec.BooleanValue CAMPFIRE_CAN_BONFIRE; //done
+    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_CAN_BONFIRE; //done
     public static ForgeConfigSpec.BooleanValue CAMPFIRE_BONFIRE_EXTRA_PARTICLES;
     public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BONFIRE_EXTRA_PARTICLES;
     public static ForgeConfigSpec.IntValue CAMPFIRE_BONFIRE_EXTRA_MAX_FUEL_TICKS;

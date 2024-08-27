@@ -10,9 +10,7 @@ import net.minecraft.block.CampfireBlock;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.particles.ParticleTypes;
 import net.minecraft.tileentity.CampfireTileEntity;
-import net.minecraft.tileentity.IHopper;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.EntityPredicates;
@@ -28,7 +26,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Mixin(value = CampfireTileEntity.class, priority = 0)
 public abstract class JemsCampfireTEMixins extends TileEntity implements IFueledCampfire {
@@ -107,20 +104,14 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
                 // server stuff
                 if (!this.world.isRemote) {
                     int itemCount = itemStack.getCount();
-                    if (alwaysBurnFuelItems && this.getBlockState().get(CampfireBlock.LIT)) {
-                        baseBurnTicks *= itemCount;
-                        burnFuelItem(baseBurnTicks, maxFuelTicks, maxOverFuelTicks, canBonfire, isSoul);
-                        itemEntity.remove();
-                    } else {
-                        if (burnFuelItem(baseBurnTicks, maxFuelTicks, maxOverFuelTicks, canBonfire, isSoul)) {;
-                            int newCount = itemCount - 1;
-                            if (newCount <= 0) {
-                                itemEntity.remove();
-                            } else {
-                                ItemStack stackCopy = itemStack.copy();
-                                stackCopy.setCount(newCount);
-                                itemEntity.setItem(stackCopy);
-                            }
+                    if (burnFuelItem(baseBurnTicks)) {
+                        int newCount = itemCount - 1;
+                        if (newCount <= 0) {
+                            itemEntity.remove();
+                        } else {
+                            ItemStack stackCopy = itemStack.copy();
+                            stackCopy.setCount(newCount);
+                            itemEntity.setItem(stackCopy);
                         }
                     }
                 }
@@ -133,24 +124,27 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
                 .offset(pos.getX(), pos.getY(), pos.getZ()), EntityPredicates.IS_ALIVE);
     }
 
-    private boolean burnFuelItem(int baseBurnTicks, int maxFuelTicks, int maxOverFuelTicks, boolean canBonfire, boolean isSoul) {
+    // TODO items with very high fuel values are generally unusable in campfires. fix? config?
+    // TODO make the "max fuel" check based on bonfire extra ticks if the campfire can bonfire
+    private boolean burnFuelItem(int baseBurnTicks) {
         int adjBurnTicks = (int) Math.ceil(baseBurnTicks * fuelMult);
         int newCurrFuelTicks = getFuelTicks() + adjBurnTicks;
         if (newCurrFuelTicks > maxFuelTicks) {
+            if (alwaysBurnFuelItems && this.getBlockState().get(CampfireBlock.LIT)) {
+                setFuelTicks(maxFuelTicks);
+                return true;
+            }
             if (canBonfire) {
-                System.out.println("but bonfire!");
+                System.out.println("bonfire!");
+                // Bonfires will *always* consume fuel on them. Maybe I'll configure this is someone complains.
                 setFuelTicks(Math.min(newCurrFuelTicks, maxOverFuelTicks));
                 //cfTileEntity.setBonfire(true);
                 return true;
-            } else {
-                //System.out.println("return");
-                return false;
             }
-        } else {
-            System.out.println("under normal max");
-            setFuelTicks(newCurrFuelTicks);
-            return true;
+            return false;
         }
+        setFuelTicks(newCurrFuelTicks);
+        return true;
     }
 
     private void useFuel() {
