@@ -99,18 +99,22 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     @Inject(at = @At("TAIL"), method = "tick()V")
     private void tick(CallbackInfo ci) {
         if (world == null) return;
-        getFuel();
         if (!this.getBlockState().get(CampfireBlock.LIT)) return;
+        getFuel();
         normalStuff();
         if (isBonfire) bonfireStuff();
     }
 
     private void getFuel() {
-        // This will ensure fuel is distributed to each campfire equally, if fuel is touching multiple at once
-        int mod = Util.mod(pos.getX(), 2) + ((Util.mod(pos.getZ(), 2) + 1) * 2) - 2;
-        if ((this.world.getGameTime() % 4) != mod) {
-            return;
+        // This will ensure fuel is distributed to each campfire equally when lit, if items touch multiple campfires
+        // It however will not do the 1/4 tick check if it is freshly lit (lit, but no fuel) to ensure it will get fuel
+        if (fuelTicks > 0) {
+            int mod = Util.mod(pos.getX(), 2) + ((Util.mod(pos.getZ(), 2) + 1) * 2) - 2;
+            if ((this.world.getGameTime() % 4) != mod) {
+                return;
+            }
         }
+
 
         for(ItemEntity itemEntity : getCaptureItems()) {
             ItemStack itemStack = itemEntity.getItem();
