@@ -14,6 +14,7 @@ public class ServerConfig {
     //  Would need to send packets between server and client.
 
     // Default values
+    // Basic
     private static final boolean place_cf_lit = false; // Are campfires placed by players initially lit - Default: false
     private static final boolean place_soul_cf_lit = false; // Are soul campfires placed by players initially lit - Default: false
     private static final int cf_max_fuel_ticks = 2400; // Maximum campfire fuel in ticks - Default 2400 ticks (2 minutes)
@@ -26,9 +27,10 @@ public class ServerConfig {
     private static final boolean soul_cf_burn_fuel_items_when_full = false; // Will lit soul campfires consume fuel items even when full - Default true
     private static final boolean cf_break_unlit = false; // Will campfires break when they run out of fuel - Default false
     private static final boolean soul_cf_break_unlit = false; // Will soul campfires break when they run out of fuel - Default false
-    private static final boolean place_cf_eternal = false; // Campfires placed by players don't burn fuel (eternal) when NOT cooking - Default: false
-    private static final boolean place_soul_cf_eternal = false; // Soul campfires placed by players don't burn fuel (eternal) when NOT cooking - Default: false
+    private static final boolean cf_firespread = false; // Will campfires spread fire to adjacent flammable blocks - Default false
+    private static final boolean soul_cf_firespread = true; // Will soul campfires spread fire to adjacent flammable blocks - Default false
 
+    // Advanced
     //private static final boolean cf_fuel_based_light = true; // Campfire light-level is based on its remaining fuel percent from max - Default true
     //private static final boolean soul_cf_fuel_based_light = false; // Soul campfire light-level is based on its remaining fuel percent from max - Default true
     private static final int cf_rain_fuel_tick_loss = 5; // Campfire fuel lost per tick from rain (-1 for instant burnout without loss) - Default 10 ticks
@@ -36,6 +38,9 @@ public class ServerConfig {
     private static final boolean cf_burn_when_sleep = false; // Campfires lose the appropriate fuel when you sleep - Default false
     private static final boolean soul_cf_burn_when_sleep = false; // Soul campfires lose the appropriate fuel when you sleep - Default false
 
+    // Decorative
+    private static final boolean place_cf_eternal = false; // Campfires placed by players don't burn fuel (eternal) when NOT cooking - Default: false
+    private static final boolean place_soul_cf_eternal = false; // Soul campfires placed by players don't burn fuel (eternal) when NOT cooking - Default: false
     private static final boolean spawn_cf_eternal = true; // Campfires spawned in structures don't burn fuel (eternal) when NOT cooking - Default: true
     private static final boolean spawn_soul_cf_eternal = true; // Soul campfires spawned in structures don't burn fuel (eternal) when NOT cooking - Default: true
     private static final boolean cf_allow_eternal_burn_items = true; // Allow items (defined by a tag) to make campfires burn without using fuel when NOT cooking - Default true
@@ -45,6 +50,7 @@ public class ServerConfig {
     private static final boolean cf_rain_affect_eternal = false; // Will rain affect eternal-burning campfires (lose fuel, get put out) - Default false
     private static final boolean soul_cf_rain_affect_eternal = false; // Will rain affect eternal-burning soul campfires (lose fuel, get put out) - Default false
 
+    // Bonfire
     private static final boolean cf_can_bonfire = true; // Will regular campfires become a bonfire if over-fueled - Default false
     private static final boolean soul_cf_can_bonfire = false; // Will soul campfires become a bonfire if over-fueled - Default false
     private static final boolean cf_bonfire_extra_particles = true; // Will campfire bonfires make more particles - Default true
@@ -59,6 +65,8 @@ public class ServerConfig {
     private static final boolean soul_cf_bonfire_firespread = true; // Will soul campfire bonfires spread fire - Default true
     //private static final boolean soul_cf_bright_bonfire = false; // Will soul campfires get brighter (from light-level 10 to 12) when a bonfire (needs soul fuel-based light-level enabled) - Default false
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     // Basic
     public static ForgeConfigSpec.BooleanValue PLACE_CAMPFIRE_LIT; //done
     public static ForgeConfigSpec.BooleanValue PLACE_SOUL_CAMPFIRE_LIT; //done
@@ -72,8 +80,8 @@ public class ServerConfig {
     public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_ALWAYS_BURN_FUEL_ITEMS; //done
     public static ForgeConfigSpec.BooleanValue CAMPFIRE_BREAK_UNLIT; //done
     public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BREAK_UNLIT; //done
-    public static ForgeConfigSpec.BooleanValue PLACE_CAMPFIRE_ETERNAL; //done
-    public static ForgeConfigSpec.BooleanValue PLACE_SOUL_CAMPFIRE_ETERNAL; //done
+    public static ForgeConfigSpec.BooleanValue CAMPFIRE_FIRESPREAD; //done
+    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_FIRESPREAD; //done
 
     // Advanced
     //public static ForgeConfigSpec.BooleanValue CAMPFIRE_FUEL_BASED_LIGHT; //postponed
@@ -84,6 +92,8 @@ public class ServerConfig {
     public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BURN_WHEN_SLEEP;
 
     // Decorative
+    public static ForgeConfigSpec.BooleanValue PLACE_CAMPFIRE_ETERNAL; //done
+    public static ForgeConfigSpec.BooleanValue PLACE_SOUL_CAMPFIRE_ETERNAL; //done
     public static ForgeConfigSpec.BooleanValue SPAWN_CAMPFIRE_ETERNAL; //done
     public static ForgeConfigSpec.BooleanValue SPAWN_SOUL_CAMPFIRE_ETERNAL; //done
     public static ForgeConfigSpec.BooleanValue CAMPFIRE_ALLOW_ETERNAL_BURN_ITEMS;
@@ -98,21 +108,21 @@ public class ServerConfig {
     public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_CAN_BONFIRE; //done
     public static ForgeConfigSpec.BooleanValue CAMPFIRE_BONFIRE_EXTRA_PARTICLES;
     public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BONFIRE_EXTRA_PARTICLES;
-    public static ForgeConfigSpec.IntValue CAMPFIRE_BONFIRE_EXTRA_MAX_FUEL_TICKS;
-    public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_BONFIRE_EXTRA_MAX_FUEL_TICKS;
-    public static ForgeConfigSpec.IntValue CAMPFIRE_BONFIRE_BURN_MULT;
-    public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_BONFIRE_BURN_MULT;
+    public static ForgeConfigSpec.IntValue CAMPFIRE_BONFIRE_EXTRA_MAX_FUEL_TICKS; //done
+    public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_BONFIRE_EXTRA_MAX_FUEL_TICKS; //done
+    public static ForgeConfigSpec.IntValue CAMPFIRE_BONFIRE_BURN_MULT; //done
+    public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_BONFIRE_BURN_MULT; //done
     public static ForgeConfigSpec.IntValue CAMPFIRE_BONFIRE_COOKING_MULT;
     public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_BONFIRE_COOKING_MULT;
-    public static ForgeConfigSpec.BooleanValue CAMPFIRE_BONFIRE_FIRESPREAD;
-    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BONFIRE_FIRESPREAD;
+    public static ForgeConfigSpec.BooleanValue CAMPFIRE_BONFIRE_FIRESPREAD; //done
+    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BONFIRE_FIRESPREAD; //done
     //public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BRIGHT_BONFIRE;
 
 
     static {
         final ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
 
-        builder.push("Basic");
+        builder.push("Basic Options");
         builder.push("Regular Campfires");
         PLACE_CAMPFIRE_LIT = builder
                 .comment("Are campfires placed by players initially lit - Default: false")
@@ -132,9 +142,9 @@ public class ServerConfig {
         CAMPFIRE_BREAK_UNLIT = builder
                 .comment("Will campfires break when they run out of fuel - Default false")
                 .define("breakCampfiresUnlit", cf_break_unlit);
-        PLACE_CAMPFIRE_ETERNAL = builder
-                .comment("Regular campfires placed by players don't burn fuel (eternal) when NOT cooking - Default: true")
-                .define("placedCampfiresAreEternal", place_cf_eternal);
+        CAMPFIRE_FIRESPREAD = builder
+                .comment("Will campfires spread fire to adjacent flammable blocks - Default false")
+                .define("campfiresSpreadFire", cf_firespread);
         builder.pop();
         builder.push("Soul Campfires");
         PLACE_SOUL_CAMPFIRE_LIT = builder
@@ -155,13 +165,12 @@ public class ServerConfig {
         SOUL_CAMPFIRE_BREAK_UNLIT = builder
                 .comment("Will soul campfires break when they run out of fuel - Default false")
                 .define("breakSoulCampfiresUnlit", soul_cf_break_unlit);
-        PLACE_SOUL_CAMPFIRE_ETERNAL = builder
-                .comment("Soul campfires placed by players don't burn fuel (eternal) when NOT cooking - Default: true")
-                .define("placedCampfiresAreEternal", place_soul_cf_eternal);
+        SOUL_CAMPFIRE_FIRESPREAD = builder
+                .comment("Will soul campfires spread fire to adjacent flammable blocks - Default false")
+                .define("soulCampfiresSpreadFire", soul_cf_firespread);
         builder.pop();
         builder.pop();
-
-        builder.push("Advanced");
+        builder.push("Advanced Options");
         builder.push("Regular Campfires");
 //        CAMPFIRE_FUEL_BASED_LIGHT = builder
 //                .comment("Campfire light-level is based on its remaining fuel percent from max - Default true")
@@ -188,6 +197,9 @@ public class ServerConfig {
 
         builder.push("Decorative Options");
         builder.push("Regular Campfires");
+        PLACE_CAMPFIRE_ETERNAL = builder
+                .comment("Regular campfires placed by players don't burn fuel (eternal) when NOT cooking - Default: true")
+                .define("placedCampfiresAreEternal", place_cf_eternal);
         SPAWN_CAMPFIRE_ETERNAL = builder
                 .comment("Regular campfires spawned in structures don't burn fuel (eternal) when NOT cooking - Default: true")
                 .define("spawnedCampfiresAreEternal", spawn_cf_eternal);
@@ -202,6 +214,9 @@ public class ServerConfig {
                 .define("doesRainAffectEternalCampfire", cf_rain_affect_eternal);
         builder.pop();
         builder.push("Soul Campfires");
+        PLACE_SOUL_CAMPFIRE_ETERNAL = builder
+                .comment("Soul campfires placed by players don't burn fuel (eternal) when NOT cooking - Default: true")
+                .define("placedCampfiresAreEternal", place_soul_cf_eternal);
         SPAWN_SOUL_CAMPFIRE_ETERNAL = builder
                 .comment("Soul campfires spawned in structures don't burn fuel (eternal) when NOT cooking - Default: true")
                 .define("spawnedCampfiresAreEternal", spawn_soul_cf_eternal);
@@ -230,7 +245,7 @@ public class ServerConfig {
                 .defineInRange("campfireBonfireFuelOverMax", cf_bonfire_extra_max_fuel_ticks, 300, 12000);
         CAMPFIRE_BONFIRE_BURN_MULT = builder
                 .comment("Campfire bonfire fuel use multiplier - Default 2")
-                .defineInRange("campfireBonfireFuelMultiplier", cf_bonfire_burn_mult, 1, 5);
+                .defineInRange("campfireBonfireFuelUseMultiplier", cf_bonfire_burn_mult, 1, 5);
         CAMPFIRE_BONFIRE_COOKING_MULT = builder
                 .comment("Campfire bonfire cooking speed multiplier - Default 2")
                 .defineInRange("campfireCookSpeedMultiplier", cf_bonfire_cooking_mult, 1, 5);
@@ -250,7 +265,7 @@ public class ServerConfig {
                 .defineInRange("soulCampfireBonfireFuelOverMax", soul_cf_bonfire_extra_max_fuel_ticks, 300, 12000);
         SOUL_CAMPFIRE_BONFIRE_BURN_MULT = builder
                 .comment("Soul campfire bonfire fuel use multiplier - Default 2")
-                .defineInRange("soulCampfireBonfireFuelMultiplier", soul_cf_bonfire_burn_mult, 1, 5);
+                .defineInRange("soulCampfireBonfireFuelUseMultiplier", soul_cf_bonfire_burn_mult, 1, 5);
         SOUL_CAMPFIRE_BONFIRE_COOKING_MULT = builder
                 .comment("Soul campfire bonfire cooking speed multiplier - Default 2")
                 .defineInRange("soulCampfireCookSpeedMultiplier", soul_cf_bonfire_cooking_mult, 1, 5);

@@ -44,11 +44,26 @@ public abstract class JemsCampfireBlockMixins extends ContainerBlock {
 
 
     @Inject(at = @At("RETURN"), method = "getStateForPlacement(Lnet/minecraft/item/BlockItemUseContext;)Lnet/minecraft/block/BlockState;", cancellable = true)
-    public void placementState(BlockItemUseContext context, CallbackInfoReturnable<BlockState> cir) {
+    private void placementState(BlockItemUseContext context, CallbackInfoReturnable<BlockState> cir) {
         cir.setReturnValue(cir.getReturnValue()
                 .with(CampfireBlock.LIT, ((this.getDefaultState().getBlock() == Blocks.SOUL_CAMPFIRE) ?
                         ServerConfig.PLACE_SOUL_CAMPFIRE_LIT.get() : ServerConfig.PLACE_CAMPFIRE_LIT.get())));
     }
+
+//    @Inject(at = @At("HEAD"), method = "canBeLit(Lnet.minecraft.block.BlockState;)B", cancellable = true)
+//    public static boolean canBeLit(BlockState state, CallbackInfoReturnable<boolean> cir) {
+//        if () {
+//            cir.setReturnValue(false);
+//        }
+//    }
+
+//    @Overwrite
+//    public static boolean canBeLit(BlockState state) {
+//        return state.isInAndMatches(BlockTags.CAMPFIRES, (stateIn) -> {
+//            return stateIn.hasProperty(BlockStateProperties.WATERLOGGED) && stateIn.hasProperty(BlockStateProperties.LIT);
+//        }) && !state.get(BlockStateProperties.WATERLOGGED) && !state.get(BlockStateProperties.LIT)
+//                && hasFuel();
+//    }
 
 
 

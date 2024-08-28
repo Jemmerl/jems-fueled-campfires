@@ -6,7 +6,7 @@ plugins {
     id 'org.spongepowered.mixin' version '[0.7,)'
     }
 
-version = '1.16.5-1.0'
+version = '1.16.5-1.1'
 group = 'com.jemmerl.jemscampfires'
 
 base {
@@ -101,7 +101,11 @@ tasks.named('processResources', ProcessResources).configure {
             forge_version: "36.2.42", forge_version_range: "[36,)",
             loader_version_range: "[36,)",
             mod_id: "jemscampfires", mod_name: "Jem's Fueled Campfires", mod_license: "MIT", mod_version: version,
-            mod_authors: "Jemmerl", mod_description: "Campfires need fuel tossed on them, but not too much!"
+            mod_authors: "Jemmerl",
+            mod_description:
+                    "   A highly configurable fueled campfire mod. \n" +
+                            "Campfires need fuel tossed on them to burn-- but not too much! \n\n" +
+                            "(Marshmallows not included.)"
     ]
     inputs.properties replaceProperties
 
