@@ -20,6 +20,7 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraftforge.common.ForgeHooks;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -49,6 +50,7 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
 
     private boolean canBonfire;
     private int bonfireFuelUse;
+    private int bonfireCookMult;
     private boolean bonfireFireSpread;
     private boolean bonfireExtraParticles;
 
@@ -59,6 +61,9 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     public JemsCampfireTEMixins(TileEntityType<?> tileEntityTypeIn) {
         super(tileEntityTypeIn);
     }
+
+    @Shadow
+    private int[] cookingTimes;
 
     @Shadow
     public abstract void dropAllItems();
@@ -86,6 +91,7 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
             fuelMult = isSoul ? ServerConfig.SOUL_CAMPFIRE_FUEL_MULT.get() : ServerConfig.CAMPFIRE_FUEL_MULT.get();
             canBonfire = isSoul ? ServerConfig.SOUL_CAMPFIRE_CAN_BONFIRE.get() : ServerConfig.CAMPFIRE_CAN_BONFIRE.get();
             bonfireFuelUse = isSoul ? ServerConfig.SOUL_CAMPFIRE_BONFIRE_BURN_MULT.get() : ServerConfig.CAMPFIRE_BONFIRE_BURN_MULT.get();
+            bonfireCookMult = isSoul ? ServerConfig.SOUL_CAMPFIRE_BONFIRE_COOKING_MULT.get() : ServerConfig.CAMPFIRE_BONFIRE_COOKING_MULT.get();
             bonfireFireSpread = isSoul ? ServerConfig.SOUL_CAMPFIRE_BONFIRE_FIRESPREAD.get() : ServerConfig.CAMPFIRE_BONFIRE_FIRESPREAD.get();
             bonfireExtraParticles = isSoul ? ServerConfig.SOUL_CAMPFIRE_BONFIRE_EXTRA_PARTICLES.get() : ServerConfig.CAMPFIRE_BONFIRE_EXTRA_PARTICLES.get();
             stdMaxFuelTicks = isSoul ? ServerConfig.SOUL_CAMPFIRE_MAX_FUEL_TICKS.get() : ServerConfig.CAMPFIRE_MAX_FUEL_TICKS.get();
@@ -104,6 +110,14 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
         getFuel();
         normalStuff();
         if (isBonfire) bonfireStuff();
+    }
+
+    @Inject(at = @At(value = "JUMP", opcode = Opcodes.IF_ICMPLT, ordinal = 0), locals = LocalCapture.CAPTURE_FAILHARD, method = "cookAndDrop()V")
+    private void cookAndDrop(CallbackInfo ci, int i, ItemStack itemstack, int j) {
+        if (isBonfire) {
+            this.cookingTimes[i] += (bonfireCookMult - 1);
+            j = cookingTimes[i];
+        }
     }
 
     private void getFuel() {
@@ -223,12 +237,6 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
             }
         }
     }
-
-//      locals = LocalCapture.PRINT
-//    @Inject(at = @At(value = "JUMP", opcode = Opcodes.IFGE, ordinal = 0), locals = LocalCapture.CAPTURE_FAILHARD, method = "addParticles()V")
-//    private void addParticles(CallbackInfo ci, World world, BlockPos blockpos) {
-//
-//    }
 
     private void ignitePos(BlockPos blockPos, boolean ignoreFlammable) {
         Material material = this.world.getBlockState(blockPos).getMaterial();

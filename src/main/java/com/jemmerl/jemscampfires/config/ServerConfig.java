@@ -58,8 +58,8 @@ public class ServerConfig {
     private static final int cf_bonfire_extra_max_fuel_ticks = 600; // Campfire bonfire fuel over normal max - Default 600 ticks
     private static final int soul_cf_bonfire_extra_max_fuel_ticks = 300; // Soul campfire bonfire fuel over normal max - Default 600 ticks
     private static final int cf_bonfire_burn_mult = 2; // Campfire bonfire fuel use multiplier - Default 2
-    private static final int soul_cf_bonfire_burn_mult = 2; // Soul campfire bonfire fuel use multiplier - Default 2
-    private static final int cf_bonfire_cooking_mult = 2; // Campfire bonfire cooking speed multiplier - Default 2
+    private static final int soul_cf_bonfire_burn_mult = 5; // Soul campfire bonfire fuel use multiplier - Default 2
+    private static final int cf_bonfire_cooking_mult = 5; // Campfire bonfire cooking speed multiplier - Default 2
     private static final int soul_cf_bonfire_cooking_mult = 2; // Soul campfire bonfire cooking speed multiplier - Default 2
     private static final boolean cf_bonfire_firespread = true; // Will campfire bonfires spread fire - Default true
     private static final boolean soul_cf_bonfire_firespread = true; // Will soul campfire bonfires spread fire - Default true
@@ -114,8 +114,8 @@ public class ServerConfig {
     public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_BONFIRE_EXTRA_MAX_FUEL_TICKS; //done
     public static ForgeConfigSpec.IntValue CAMPFIRE_BONFIRE_BURN_MULT; //done
     public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_BONFIRE_BURN_MULT; //done
-    public static ForgeConfigSpec.IntValue CAMPFIRE_BONFIRE_COOKING_MULT;
-    public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_BONFIRE_COOKING_MULT;
+    public static ForgeConfigSpec.IntValue CAMPFIRE_BONFIRE_COOKING_MULT; //done
+    public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_BONFIRE_COOKING_MULT; //done
     public static ForgeConfigSpec.BooleanValue CAMPFIRE_BONFIRE_FIRESPREAD; //done
     public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BONFIRE_FIRESPREAD; //done
     //public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BRIGHT_BONFIRE;
