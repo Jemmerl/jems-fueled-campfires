@@ -46,6 +46,7 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
 
     private boolean breakWhenUnlit;
     private boolean rainAffectEternal;
+    private boolean loseEternalWhenCook;
     private int rainFuelLoss;
 
     private boolean canBonfire;
@@ -85,6 +86,7 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
             // Get setting that can change if the server config is changed
             rainAffectEternal = isSoul ? ServerConfig.SOUL_CAMPFIRE_RAIN_AFFECT_ETERNAL.get() : ServerConfig.CAMPFIRE_RAIN_AFFECT_ETERNAL.get();
             rainFuelLoss = isSoul ? ServerConfig.SOUL_CAMPFIRE_RAIN_FUEL_TICK_LOSS.get() : ServerConfig.CAMPFIRE_RAIN_FUEL_TICK_LOSS.get();
+            loseEternalWhenCook = isSoul ? ServerConfig.SOUL_CAMPFIRE_LOSE_ETERNAL_WHEN_COOKING.get() : ServerConfig.CAMPFIRE_LOSE_ETERNAL_WHEN_COOKING.get();
             igniteAround = isSoul ? ServerConfig.SOUL_CAMPFIRE_FIRESPREAD.get() : ServerConfig.CAMPFIRE_FIRESPREAD.get();
             breakWhenUnlit = isSoul ? ServerConfig.SOUL_CAMPFIRE_BREAK_UNLIT.get() : ServerConfig.CAMPFIRE_BREAK_UNLIT.get();
             alwaysBurnFuelItems = isSoul ? ServerConfig.SOUL_CAMPFIRE_ALWAYS_BURN_FUEL_ITEMS.get() : ServerConfig.CAMPFIRE_ALWAYS_BURN_FUEL_ITEMS.get();
@@ -114,6 +116,10 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
 
     @Inject(at = @At(value = "JUMP", opcode = Opcodes.IF_ICMPLT, ordinal = 0), locals = LocalCapture.CAPTURE_FAILHARD, method = "cookAndDrop()V")
     private void cookAndDrop(CallbackInfo ci, int i, ItemStack itemstack, int j) {
+        if (isEternal && loseEternalWhenCook) {
+            this.isEternal = false;
+        }
+
         if (isBonfire) {
             this.cookingTimes[i] += (bonfireCookMult - 1);
             j = cookingTimes[i];

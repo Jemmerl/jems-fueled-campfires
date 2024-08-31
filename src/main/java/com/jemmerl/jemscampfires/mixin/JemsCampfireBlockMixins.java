@@ -51,32 +51,6 @@ public abstract class JemsCampfireBlockMixins extends ContainerBlock {
                         ServerConfig.PLACE_SOUL_CAMPFIRE_LIT.get() : ServerConfig.PLACE_CAMPFIRE_LIT.get())));
     }
 
-//    @Inject(at = @At("HEAD"), method = "canBeLit(Lnet.minecraft.block.BlockState;)B", cancellable = true)
-//    public static boolean canBeLit(BlockState state, CallbackInfoReturnable<boolean> cir) {
-//        if () {
-//            cir.setReturnValue(false);
-//        }
-//    }
-
-//    @Overwrite
-//    public static boolean canBeLit(BlockState state) {
-//        return state.isInAndMatches(BlockTags.CAMPFIRES, (stateIn) -> {
-//            return stateIn.hasProperty(BlockStateProperties.WATERLOGGED) && stateIn.hasProperty(BlockStateProperties.LIT);
-//        }) && !state.get(BlockStateProperties.WATERLOGGED) && !state.get(BlockStateProperties.LIT)
-//                && hasFuel();
-//    }
-
-
-
-    //    @Inject(at = @At("HEAD"), method = "onEntityCollision(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/Entity;)V")
-    //    public void onEntityCollision(BlockState state, World worldIn, BlockPos pos, Entity entityIn, CallbackInfo callbackInfo) {
-    //
-    //    }
-
-
-//            if (worldIn.isRemote && isLit(state) && rawBurnTime > 0)
-//                worldIn.addParticle(ParticleTypes.SMOKE, entityIn.getPosX(), entityIn.getPosY() + 0.25D, entityIn.getPosZ(), 0, 0.05D, 0);
-
     //    @Override
     //    // ...Never mind. Can't access the TE from the client-side, packets would just be expensive for no reason.
     //    public int getLightValue(BlockState state, IBlockReader world, BlockPos pos) {
