@@ -67,6 +67,8 @@ public class ServerConfig {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    //todo eternal stuff may need a revisit
+
     // Basic
     public static ForgeConfigSpec.BooleanValue PLACE_CAMPFIRE_LIT; //done
     public static ForgeConfigSpec.BooleanValue PLACE_SOUL_CAMPFIRE_LIT; //done
@@ -106,8 +108,8 @@ public class ServerConfig {
     // Bonfire
     public static ForgeConfigSpec.BooleanValue CAMPFIRE_CAN_BONFIRE; //done
     public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_CAN_BONFIRE; //done
-    public static ForgeConfigSpec.BooleanValue CAMPFIRE_BONFIRE_EXTRA_PARTICLES;
-    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BONFIRE_EXTRA_PARTICLES;
+    public static ForgeConfigSpec.BooleanValue CAMPFIRE_BONFIRE_EXTRA_PARTICLES; //done
+    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BONFIRE_EXTRA_PARTICLES; //done
     public static ForgeConfigSpec.IntValue CAMPFIRE_BONFIRE_EXTRA_MAX_FUEL_TICKS; //done
     public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_BONFIRE_EXTRA_MAX_FUEL_TICKS; //done
     public static ForgeConfigSpec.IntValue CAMPFIRE_BONFIRE_BURN_MULT; //done

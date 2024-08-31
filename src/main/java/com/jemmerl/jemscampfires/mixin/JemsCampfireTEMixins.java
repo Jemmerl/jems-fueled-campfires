@@ -18,12 +18,14 @@ import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraftforge.common.ForgeHooks;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.List;
 import java.util.Random;
@@ -32,12 +34,9 @@ import java.util.Random;
 public abstract class JemsCampfireTEMixins extends TileEntity implements IFueledCampfire {
     private static final VoxelShape COLLECTION_AREA_SHAPE = Block.makeCuboidShape(0.0D, 7.0D, 0.0D, 16.0D, 16.0D, 16.0D);
 
-    // First-time only settings
-    private boolean isSoul = false; // Just in case somehow it is not initialized
-    private boolean isEternal = false;
+    private boolean isSoul;
+    private boolean isBonfire = false;
 
-
-    // General settings
     private int stdMaxFuelTicks; // Maximum fuel assuming without bonfire
     private int trueMaxFuelTicks; // Maximum fuel BASED ON if it can become a bonfire. Trust me this simplifies stuff.
     private double fuelMult;
@@ -51,11 +50,11 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     private boolean canBonfire;
     private int bonfireFuelUse;
     private boolean bonfireFireSpread;
+    private boolean bonfireExtraParticles;
 
     // Properties
     private int fuelTicks = -1;
-    private boolean isBonfire = false;
-
+    private boolean isEternal = false;
 
     public JemsCampfireTEMixins(TileEntityType<?> tileEntityTypeIn) {
         super(tileEntityTypeIn);
@@ -68,10 +67,11 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     public void onLoad() {
         //super.onLoad();
         if (!this.world.isRemote()) {
+            isSoul = (this.getBlockState().getBlock() == Blocks.SOUL_CAMPFIRE.getBlock());
+
             // This is the first load of the campfire TE
-            // Get settings that only matter when the campfire is first placed
+            // Get settings that only matter or are needed when the campfire is first placed
             if (fuelTicks < 0) {
-                isSoul = (this.getBlockState().getBlock() == Blocks.SOUL_CAMPFIRE.getBlock());
                 // This isEternal gets overridden if the block is placed by a player, else it has been world-genned
                 isEternal = isSoul ? ServerConfig.SPAWN_SOUL_CAMPFIRE_ETERNAL.get() : ServerConfig.SPAWN_CAMPFIRE_ETERNAL.get();
                 fuelTicks = isSoul ? ServerConfig.SOUL_CAMPFIRE_INITIAL_FUEL_TICKS.get() : ServerConfig.CAMPFIRE_INITIAL_FUEL_TICKS.get();
@@ -87,6 +87,7 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
             canBonfire = isSoul ? ServerConfig.SOUL_CAMPFIRE_CAN_BONFIRE.get() : ServerConfig.CAMPFIRE_CAN_BONFIRE.get();
             bonfireFuelUse = isSoul ? ServerConfig.SOUL_CAMPFIRE_BONFIRE_BURN_MULT.get() : ServerConfig.CAMPFIRE_BONFIRE_BURN_MULT.get();
             bonfireFireSpread = isSoul ? ServerConfig.SOUL_CAMPFIRE_BONFIRE_FIRESPREAD.get() : ServerConfig.CAMPFIRE_BONFIRE_FIRESPREAD.get();
+            bonfireExtraParticles = isSoul ? ServerConfig.SOUL_CAMPFIRE_BONFIRE_EXTRA_PARTICLES.get() : ServerConfig.CAMPFIRE_BONFIRE_EXTRA_PARTICLES.get();
             stdMaxFuelTicks = isSoul ? ServerConfig.SOUL_CAMPFIRE_MAX_FUEL_TICKS.get() : ServerConfig.CAMPFIRE_MAX_FUEL_TICKS.get();
             trueMaxFuelTicks = stdMaxFuelTicks;
             if (canBonfire) {
@@ -115,21 +116,15 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
             }
         }
 
-
         for(ItemEntity itemEntity : getCaptureItems()) {
             ItemStack itemStack = itemEntity.getItem();
             int baseBurnTicks = ForgeHooks.getBurnTime(itemStack, null);
 
             if (baseBurnTicks > 0) {
-                // client stuff
-                if (this.world.isRemote) {
-
-                }
-
-                // server stuff
                 if (!this.world.isRemote) {
                     int itemCount = itemStack.getCount();
                     if (burnFuelItem(baseBurnTicks)) {
+                        itemEntity.playSound(SoundEvents.ENTITY_GENERIC_BURN, 0.4F, 2.0F + world.rand.nextFloat() * 0.4F);
                         int newCount = itemCount - 1;
                         if (newCount <= 0) {
                             itemEntity.remove();
@@ -164,7 +159,7 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     }
 
     private void normalStuff() {
-        if ((!this.world.isRemote())) {
+        if (!this.world.isRemote()) {
             if (isEternal && !rainAffectEternal) {
                 return;
             } else if (fuelTicks == 0) {
@@ -180,9 +175,15 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
             //todo add option to remove excess bonfire fuel when extinguished?
 
             isBonfire = canBonfire && (fuelTicks > stdMaxFuelTicks);
-            if (igniteAround && !isBonfire && (this.world.rand.nextInt(70) == 0)) {
-                Direction dir = Direction.byHorizontalIndex(world.rand.nextInt(4));
-                ignitePos(pos.offset(dir), false);
+            if (!isBonfire) {
+                if (bonfireExtraParticles && this.getBlockState().get(CampfireBlock.SIGNAL_FIRE) && !this.world.getBlockState(pos.down()).matchesBlock(Blocks.HAY_BLOCK)) {
+                    this.world.setBlockState(this.pos, this.getBlockState().with(CampfireBlock.SIGNAL_FIRE, false));
+                }
+
+                if (igniteAround && (this.world.rand.nextInt(70) == 0)) {
+                    Direction dir = Direction.byHorizontalIndex(world.rand.nextInt(4));
+                    ignitePos(pos.offset(dir), false);
+                }
             }
 
             fuelTicks -= isBonfire ? bonfireFuelUse : 1;
@@ -203,33 +204,43 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
         }
     }
 
-
     private void bonfireStuff() {
-        if (bonfireFireSpread) {
+        if (!this.world.isRemote()) {
             Random rand = this.world.rand;
-            if (rand.nextInt(25) != 0) return;
-            Direction dir1 = Direction.byHorizontalIndex(rand.nextInt(4));
-            Direction dir2 = Direction.getRandomDirection(rand);
-            if ((dir2.getOpposite() == dir1) || (dir2.getHorizontalIndex() < 0)) {
-                ignitePos(pos.offset(dir1), true);
-            } else {
-                ignitePos(pos.offset(dir1).offset(dir2), true);
+            if (bonfireExtraParticles) {
+                this.world.setBlockState(this.pos, this.getBlockState().with(CampfireBlock.SIGNAL_FIRE, true));
+            }
+
+            if (bonfireFireSpread) {
+                if (rand.nextInt(30) != 0) return;
+                Direction dir1 = Direction.byHorizontalIndex(rand.nextInt(4));
+                Direction dir2 = Direction.getRandomDirection(rand);
+                if ((dir2.getOpposite() == dir1) || (dir2.getHorizontalIndex() < 0)) {
+                    ignitePos(pos.offset(dir1), true);
+                } else {
+                    ignitePos(pos.offset(dir1).offset(dir2), true);
+                }
             }
         }
     }
 
-    private boolean ignitePos(BlockPos blockPos, boolean ignoreFlammable) {
+//      locals = LocalCapture.PRINT
+//    @Inject(at = @At(value = "JUMP", opcode = Opcodes.IFGE, ordinal = 0), locals = LocalCapture.CAPTURE_FAILHARD, method = "addParticles()V")
+//    private void addParticles(CallbackInfo ci, World world, BlockPos blockpos) {
+//
+//    }
+
+    private void ignitePos(BlockPos blockPos, boolean ignoreFlammable) {
         Material material = this.world.getBlockState(blockPos).getMaterial();
         if (material.isReplaceable() && !material.isLiquid()) {
             BlockState downState = this.world.getBlockState(blockPos.down());
             if (downState.isOpaqueCube(this.world, blockPos.down()) &&
                     (ignoreFlammable || downState.isFlammable(world, pos, Direction.UP))) {
-                return this.world.setBlockState(blockPos, AbstractFireBlock.getFireForPlacement(this.world, blockPos));
+                this.world.setBlockState(blockPos, AbstractFireBlock.getFireForPlacement(this.world, blockPos));
             }
         }
-        return false;
+        //return false;
     }
-
 
 
     private void extinguishCampfire(boolean drops) {
@@ -257,6 +268,7 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
         }
         return false;
     }
+
 
     @Override
     public int getFuelTicks() {
