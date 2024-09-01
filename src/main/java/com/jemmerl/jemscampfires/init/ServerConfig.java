@@ -7,11 +7,7 @@ import net.minecraftforge.common.ForgeConfigSpec;
 import java.nio.file.Path;
 
 public class ServerConfig {
-
     public static ForgeConfigSpec SERVER_SPEC;
-
-    // TODO: Maybe add fuel-based lighting in the future as a resource-expensive optional setting.
-    //  Would need to send packets between server and client.
 
     // Default values
     // General
@@ -51,12 +47,11 @@ public class ServerConfig {
     private static final boolean soul_cf_rain_affect_eternal = false; // Will rain affect eternal-burning soul campfires (lose fuel, get put out) - Default false
     private static final boolean cf_eternal_bonfire = false; // Can eternal campfires do bonfire behavior - Default false
     private static final boolean soul_cf_eternal_bonfire = false; // Can eternal soul campfires do bonfire behavior - Default false
+    private static final boolean allow_client_packets = true; // Will allow the server to send packets for client-side particles and light-levels - Default true
 
     // Bonfire
     private static final boolean cf_can_bonfire = true; // Will regular campfires become a bonfire if over-fueled - Default false
     private static final boolean soul_cf_can_bonfire = true; // Will soul campfires become a bonfire if over-fueled - Default false
-    private static final boolean cf_bonfire_extra_particles = true; // Will campfire bonfires make more particles - Default true
-    private static final boolean soul_cf_bonfire_extra_particles = true; // Will soul campfire bonfires make more particles - Default true
     private static final int cf_bonfire_extra_max_fuel_ticks = 600; // Campfire bonfire fuel over normal max - Default 600 ticks
     private static final int soul_cf_bonfire_extra_max_fuel_ticks = 600; // Soul campfire bonfire fuel over normal max - Default 600 ticks
     private static final int cf_bonfire_burn_mult = 2; // Campfire bonfire fuel use multiplier - Default 2
@@ -108,12 +103,11 @@ public class ServerConfig {
     public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_RAIN_AFFECT_ETERNAL; //done
     public static ForgeConfigSpec.BooleanValue CAMPFIRE_ETERNAL_BONFIRE; //done
     public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_ETERNAL_BONFIRE; //done
+    public static ForgeConfigSpec.BooleanValue ALLOW_CLIENT_PACKETS; //done
 
     // Bonfire
     public static ForgeConfigSpec.BooleanValue CAMPFIRE_CAN_BONFIRE; //done
     public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_CAN_BONFIRE; //done
-    public static ForgeConfigSpec.BooleanValue CAMPFIRE_BONFIRE_EXTRA_PARTICLES; //done
-    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BONFIRE_EXTRA_PARTICLES; //done
     public static ForgeConfigSpec.IntValue CAMPFIRE_BONFIRE_EXTRA_MAX_FUEL_TICKS; //done
     public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_BONFIRE_EXTRA_MAX_FUEL_TICKS; //done
     public static ForgeConfigSpec.IntValue CAMPFIRE_BONFIRE_BURN_MULT; //done
@@ -204,6 +198,9 @@ public class ServerConfig {
 //        builder.pop();
 
         builder.push("Decorative Options");
+        ALLOW_CLIENT_PACKETS = builder
+                .comment("Will allow the server to send packets for client-side particles and light-levels - Default true")
+                .define("allowClientUpdatePackets", allow_client_packets);
         builder.push("Regular Campfires");
         PLACE_CAMPFIRE_ETERNAL = builder
                 .comment("Regular campfires placed by players don't burn fuel (eternal) when NOT cooking - Default: true")
@@ -251,9 +248,6 @@ public class ServerConfig {
         CAMPFIRE_CAN_BONFIRE = builder
                 .comment("Will regular campfires become a bonfire if over-fueled - Default false")
                 .define("enableCampfiresBonfire", cf_can_bonfire);
-        CAMPFIRE_BONFIRE_EXTRA_PARTICLES = builder
-                .comment("Will campfire bonfires make more particles - Default true")
-                .define("campfireBonfireExtraParticles", cf_bonfire_extra_particles);
         CAMPFIRE_BONFIRE_EXTRA_MAX_FUEL_TICKS = builder
                 .comment("Campfire bonfire fuel over normal max - Default 600 ticks")
                 .defineInRange("campfireBonfireFuelOverMax", cf_bonfire_extra_max_fuel_ticks, 300, 12000);
@@ -271,9 +265,6 @@ public class ServerConfig {
         SOUL_CAMPFIRE_CAN_BONFIRE = builder
                 .comment("Will soul campfires become a bonfire if over-fueled - Default false")
                 .define("enableSoulCampfiresBonfire", soul_cf_can_bonfire);
-        SOUL_CAMPFIRE_BONFIRE_EXTRA_PARTICLES = builder
-                .comment("Will soul campfires make more particles when a bonfire - Default true")
-                .define("soulCampfireBonfireExtraParticles", soul_cf_bonfire_extra_particles);
         SOUL_CAMPFIRE_BONFIRE_EXTRA_MAX_FUEL_TICKS = builder
                 .comment("Soul campfire bonfire fuel over normal max - Default 600 ticks")
                 .defineInRange("soulCampfireBonfireFuelOverMax", soul_cf_bonfire_extra_max_fuel_ticks, 300, 12000);

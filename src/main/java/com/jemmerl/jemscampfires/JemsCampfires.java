@@ -1,5 +1,6 @@
 package com.jemmerl.jemscampfires;
 
+import com.jemmerl.jemscampfires.init.ClientConfig;
 import com.jemmerl.jemscampfires.init.ServerConfig;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -30,6 +31,7 @@ public class JemsCampfires
 
         MinecraftForge.EVENT_BUS.register(this);
 
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ClientConfig.CLIENT_SPEC);
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ServerConfig.SERVER_SPEC);
         ServerConfig.loadConfig(ServerConfig.SERVER_SPEC, FMLPaths.GAMEDIR.get()
                 .resolve(FMLConfig.defaultConfigPath()).resolve(MOD_ID + "-server.toml"));

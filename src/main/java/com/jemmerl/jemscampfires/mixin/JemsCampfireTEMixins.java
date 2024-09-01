@@ -9,6 +9,8 @@ import net.minecraft.block.material.Material;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.CampfireTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
@@ -59,11 +61,19 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     private int bonfireFuelUse;
     private int bonfireCookMult;
     private boolean bonfireFireSpread;
-    private boolean bonfireExtraParticles;
 
+    // **TODO BOARD** //
     //todo add option to remove excess bonfire fuel when extinguished?
+
     //todo add option to lose eternal when extinguished
+
     // TODO items with very high fuel values are generally unusable in campfires unless always burn fuel. maybe fix?
+
+    //TODO bug when reloading world, occasionally resets values to "placed by world" defaults.
+    //  happens when unloading as a bonfire
+
+    // TODO: Maybe add fuel-based lighting in the future as a resource-expensive optional setting.
+    //  Would need to send packets between server and client.
 
     public JemsCampfireTEMixins(TileEntityType<?> tileEntityTypeIn) {
         super(tileEntityTypeIn);
@@ -96,7 +106,6 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
             bonfireFuelUse = isSoul ? ServerConfig.SOUL_CAMPFIRE_BONFIRE_BURN_MULT.get() : ServerConfig.CAMPFIRE_BONFIRE_BURN_MULT.get();
             bonfireCookMult = isSoul ? ServerConfig.SOUL_CAMPFIRE_BONFIRE_COOKING_MULT.get() : ServerConfig.CAMPFIRE_BONFIRE_COOKING_MULT.get();
             bonfireFireSpread = isSoul ? ServerConfig.SOUL_CAMPFIRE_BONFIRE_FIRESPREAD.get() : ServerConfig.CAMPFIRE_BONFIRE_FIRESPREAD.get();
-            bonfireExtraParticles = isSoul ? ServerConfig.SOUL_CAMPFIRE_BONFIRE_EXTRA_PARTICLES.get() : ServerConfig.CAMPFIRE_BONFIRE_EXTRA_PARTICLES.get();
             stdMaxFuelTicks = isSoul ? ServerConfig.SOUL_CAMPFIRE_MAX_FUEL_TICKS.get() : ServerConfig.CAMPFIRE_MAX_FUEL_TICKS.get();
             trueMaxFuelTicks = stdMaxFuelTicks;
             if (canBonfire) {
@@ -192,7 +201,7 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     private boolean burnFuelItem(int baseBurnTicks, boolean eternalItem) {
         if (eternalItem) {
             isEternal = true;
-            isBonfire = false;
+            setBonfire(false);
             if (baseBurnTicks <= 0) return true;
         }
 
@@ -216,11 +225,8 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
                 return;
             }
 
-            isBonfire = canBonfire && (!isEternal || allowEternalBonfire) && (fuelTicks > stdMaxFuelTicks);
+            setBonfire(canBonfire && (!isEternal || allowEternalBonfire) && (fuelTicks > stdMaxFuelTicks));
             if (!isBonfire) {
-                if (bonfireExtraParticles && this.getBlockState().get(CampfireBlock.SIGNAL_FIRE) && !this.world.getBlockState(pos.down()).matchesBlock(Blocks.HAY_BLOCK)) {
-                    this.world.setBlockState(this.pos, this.getBlockState().with(CampfireBlock.SIGNAL_FIRE, false));
-                }
 
                 if (igniteAround && (this.world.rand.nextInt(70) == 0)) {
                     Direction dir = Direction.byHorizontalIndex(world.rand.nextInt(4));
@@ -234,21 +240,12 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
                 fuelTicks = 0;
                 outOfFuel(true);
             }
-
-//                if (!isEternal) {
-//                    if ((ServerConfig.SOUL_CAMPFIRE_CAN_BONFIRE.get()) && (fuelTicks > ServerConfig.SOUL_CAMPFIRE_MAX_FUEL_TICKS.get())) {
-//                    } else {
-//                    }
-//                }
         }
     }
 
     private void bonfireStuff() {
         if (!this.world.isRemote()) {
             Random rand = this.world.rand;
-            if (bonfireExtraParticles) {
-                this.world.setBlockState(this.pos, this.getBlockState().with(CampfireBlock.SIGNAL_FIRE, true));
-            }
 
             if (bonfireFireSpread) {
                 if (rand.nextInt(20) != 0) return;
@@ -316,6 +313,11 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
         }
     }
 
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                            Getters and Setters                                              //
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     @Override
     public int getFuelTicks() {
         return this.fuelTicks;
@@ -338,14 +340,46 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
 
     @Override
     public boolean getBonfire() {
-        return this.isEternal;
+        return this.isBonfire;
     }
 
     @Override
     public void setBonfire(boolean bonfire) {
-        this.isBonfire = bonfire;
+        if (this.isBonfire != bonfire) {
+            this.isBonfire = bonfire;
+            if (ServerConfig.ALLOW_CLIENT_PACKETS.get() && (!world.isRemote)) {
+                BlockState state = this.getBlockState();
+                world.notifyBlockUpdate(pos, state, state, 18); // Uses 2 client updates, and 16 no observers
+            }
+        }
     }
 
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                            Data Handling Stuff                                              //
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Override
+    // Send packet from server
+    public SUpdateTileEntityPacket getUpdatePacket(){
+        if (ServerConfig.ALLOW_CLIENT_PACKETS.get()) {
+            CompoundNBT nbtTag = new CompoundNBT();
+            //nbtTag.putInt("FuelTicks", this.fuelTicks);
+            //nbtTag.putBoolean("IsEternal", this.isEternal);
+            nbtTag.putBoolean("IsBonfire", this.isBonfire);
+            return new SUpdateTileEntityPacket(pos, -1, nbtTag);
+        }
+        return null;
+    }
+
+    @Override
+    // Receive packet from client
+    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt){
+        CompoundNBT nbtTag = pkt.getNbtCompound();
+        if (nbtTag.contains("IsBonfire", 99)) {
+            setBonfire(nbtTag.getBoolean("IsBonfire"));
+        }
+    }
 
     @Inject(at = @At("RETURN"), method = "read(Lnet/minecraft/block/BlockState;Lnet/minecraft/nbt/CompoundNBT;)V")
     private void readFueled(BlockState state, CompoundNBT nbt, CallbackInfo ci) {
@@ -356,7 +390,7 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
             setEternal(nbt.getBoolean("IsEternal"));
         }
         if (nbt.contains("IsBonfire", 99)) {
-            setEternal(nbt.getBoolean("IsBonfire"));
+            setBonfire(nbt.getBoolean("IsBonfire"));
         }
     }
 
