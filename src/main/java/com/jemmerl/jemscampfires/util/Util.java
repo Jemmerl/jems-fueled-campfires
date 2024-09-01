@@ -6,5 +6,4 @@ public class Util {
         return (a % b + b) % b;
     }
 
-
 }

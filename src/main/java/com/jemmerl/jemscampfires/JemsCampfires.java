@@ -1,7 +1,8 @@
 package com.jemmerl.jemscampfires;
 
-import com.jemmerl.jemscampfires.config.ServerConfig;
+import com.jemmerl.jemscampfires.init.ServerConfig;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -23,8 +24,9 @@ public class JemsCampfires
     private static final Logger LOGGER = LogManager.getLogger();
 
     public JemsCampfires() {
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
+        IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        eventBus.addListener(this::setup);
+        eventBus.addListener(this::doClientStuff);
 
         MinecraftForge.EVENT_BUS.register(this);
 

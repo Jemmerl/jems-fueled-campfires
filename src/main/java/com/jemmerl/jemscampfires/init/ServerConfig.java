@@ -1,4 +1,4 @@
-package com.jemmerl.jemscampfires.config;
+package com.jemmerl.jemscampfires.init;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
@@ -35,8 +35,8 @@ public class ServerConfig {
     //private static final boolean soul_cf_fuel_based_light = false; // Soul campfire light-level is based on its remaining fuel percent from max - Default true
     private static final int cf_rain_fuel_tick_loss = 2; // Campfire fuel lost per tick from rain (-1 for instant burnout without loss) - Default 10 ticks
     private static final int soul_cf_rain_fuel_tick_loss = 2; // Soul campfire fuel lost per tick from rain (-1 for instant burnout without loss) - Default 2 ticks
-    private static final boolean cf_burn_when_sleep = false; // Campfires lose the appropriate fuel when you sleep - Default false
-    private static final boolean soul_cf_burn_when_sleep = false; // Soul campfires lose the appropriate fuel when you sleep - Default false
+    //private static final boolean cf_burn_when_sleep = false; // Campfires lose the appropriate fuel when you sleep - Default false
+    //private static final boolean soul_cf_burn_when_sleep = false; // Soul campfires lose the appropriate fuel when you sleep - Default false
 
     // Decorative
     private static final boolean place_cf_eternal = false; // Campfires placed by players don't burn fuel (eternal) when NOT cooking - Default: false
@@ -90,8 +90,8 @@ public class ServerConfig {
     //public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_FUEL_BASED_LIGHT; //postponed
     public static ForgeConfigSpec.IntValue CAMPFIRE_RAIN_FUEL_TICK_LOSS; //done
     public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_RAIN_FUEL_TICK_LOSS; //done
-    public static ForgeConfigSpec.BooleanValue CAMPFIRE_BURN_WHEN_SLEEP;
-    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BURN_WHEN_SLEEP;
+    //public static ForgeConfigSpec.BooleanValue CAMPFIRE_BURN_WHEN_SLEEP; //postponed
+    //public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BURN_WHEN_SLEEP; //postponed
 
     // Decorative
     public static ForgeConfigSpec.BooleanValue PLACE_CAMPFIRE_ETERNAL; //done
@@ -180,9 +180,9 @@ public class ServerConfig {
         CAMPFIRE_RAIN_FUEL_TICK_LOSS = builder
                 .comment("Campfire fuel lost per tick from rain (-1 for instant burnout without loss) - Default 200 ticks")
                 .defineInRange("campfireRainFuelLoss", cf_rain_fuel_tick_loss, -1, 24000);
-        CAMPFIRE_BURN_WHEN_SLEEP = builder
-                .comment("Campfires lose the appropriate fuel when you sleep - Default false")
-                .define("campfiresBurnFuelWhenSleep", cf_burn_when_sleep);
+//        CAMPFIRE_BURN_WHEN_SLEEP = builder
+//                .comment("Campfires lose the appropriate fuel when you sleep - Default false")
+//                .define("campfiresBurnFuelWhenSleep", cf_burn_when_sleep);
         builder.pop();
         builder.push("Soul Campfires");
 //        SOUL_CAMPFIRE_FUEL_BASED_LIGHT = builder
@@ -191,9 +191,9 @@ public class ServerConfig {
         SOUL_CAMPFIRE_RAIN_FUEL_TICK_LOSS = builder
                 .comment("Soul campfire fuel lost per tick from rain (-1 for instant burnout without loss) - Default 200 ticks")
                 .defineInRange("soulCampfireRainFuelLoss", soul_cf_rain_fuel_tick_loss, -1, 24000);
-        SOUL_CAMPFIRE_BURN_WHEN_SLEEP = builder
-                .comment("Soul campfires lose the appropriate fuel when you sleep - Default false")
-                .define("soulCampfiresBurnFuelWhenSleep", soul_cf_burn_when_sleep);
+//        SOUL_CAMPFIRE_BURN_WHEN_SLEEP = builder
+//                .comment("Soul campfires lose the appropriate fuel when you sleep - Default false")
+//                .define("soulCampfiresBurnFuelWhenSleep", soul_cf_burn_when_sleep);
         builder.pop();
         builder.pop();
 

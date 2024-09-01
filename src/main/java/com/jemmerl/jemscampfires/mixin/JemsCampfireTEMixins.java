@@ -1,6 +1,7 @@
 package com.jemmerl.jemscampfires.mixin;
 
-import com.jemmerl.jemscampfires.config.ServerConfig;
+import com.jemmerl.jemscampfires.init.JCTags;
+import com.jemmerl.jemscampfires.init.ServerConfig;
 import com.jemmerl.jemscampfires.util.IFueledCampfire;
 import com.jemmerl.jemscampfires.util.Util;
 import net.minecraft.block.*;
@@ -20,7 +21,6 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraftforge.common.ForgeHooks;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -48,6 +48,8 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     private boolean rainAffectEternal;
     private boolean loseEternalWhenCook;
     private int rainFuelLoss;
+    private boolean allowEternalFuels;
+    //private long prevDayTime = 0L;
 
     private boolean canBonfire;
     private int bonfireFuelUse;
@@ -74,6 +76,7 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
         //super.onLoad();
         if (!this.world.isRemote()) {
             isSoul = (this.getBlockState().getBlock() == Blocks.SOUL_CAMPFIRE.getBlock());
+            //prevDayTime = world.getDayTime();
 
             // This is the first load of the campfire TE
             // Get settings that only matter or are needed when the campfire is first placed
@@ -87,6 +90,7 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
             rainAffectEternal = isSoul ? ServerConfig.SOUL_CAMPFIRE_RAIN_AFFECT_ETERNAL.get() : ServerConfig.CAMPFIRE_RAIN_AFFECT_ETERNAL.get();
             rainFuelLoss = isSoul ? ServerConfig.SOUL_CAMPFIRE_RAIN_FUEL_TICK_LOSS.get() : ServerConfig.CAMPFIRE_RAIN_FUEL_TICK_LOSS.get();
             loseEternalWhenCook = isSoul ? ServerConfig.SOUL_CAMPFIRE_LOSE_ETERNAL_WHEN_COOKING.get() : ServerConfig.CAMPFIRE_LOSE_ETERNAL_WHEN_COOKING.get();
+            allowEternalFuels = isSoul ? ServerConfig.SOUL_CAMPFIRE_ALLOW_ETERNAL_ITEMS.get() : ServerConfig.CAMPFIRE_ALLOW_ETERNAL_ITEMS.get();
             igniteAround = isSoul ? ServerConfig.SOUL_CAMPFIRE_FIRESPREAD.get() : ServerConfig.CAMPFIRE_FIRESPREAD.get();
             breakWhenUnlit = isSoul ? ServerConfig.SOUL_CAMPFIRE_BREAK_UNLIT.get() : ServerConfig.CAMPFIRE_BREAK_UNLIT.get();
             alwaysBurnFuelItems = isSoul ? ServerConfig.SOUL_CAMPFIRE_ALWAYS_BURN_FUEL_ITEMS.get() : ServerConfig.CAMPFIRE_ALWAYS_BURN_FUEL_ITEMS.get();
@@ -105,13 +109,30 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
         }
     }
 
+
     @Inject(at = @At("TAIL"), method = "tick()V")
     private void tick(CallbackInfo ci) {
         if (world == null) return;
-        if (!this.getBlockState().get(CampfireBlock.LIT)) return;
+        if (!this.getBlockState().get(CampfireBlock.LIT)) {
+            return;
+        }
+
+//        long dayTime = world.getDayTime();
+//        System.out.println(prevDayTime + " " + dayTime);
+//        if ((fuelTicks > 0) && ((dayTime - prevDayTime) != 1)) {
+//            long diff = 24000L - prevDayTime + dayTime;
+//            fuelTicks = Math.max(fuelTicks-(int)diff, 0);
+//            if (fuelTicks == 0) {
+//                outOfFuel(false); // No sounds, like it happened in your sleep
+//                prevDayTime = dayTime;
+//                return;
+//            }
+//        }
+
         getFuel();
         normalStuff();
         if (isBonfire) bonfireStuff();
+        //prevDayTime = dayTime;
     }
 
     @Inject(at = @At(value = "JUMP", opcode = Opcodes.IF_ICMPLT, ordinal = 0), locals = LocalCapture.CAPTURE_FAILHARD, method = "cookAndDrop()V")
@@ -127,23 +148,24 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     }
 
     private void getFuel() {
-        // This will ensure fuel is distributed to each campfire equally when lit, if items touch multiple campfires
-        // It however will not do the 1/4 tick check if it is freshly lit (lit, but no fuel) to ensure it will get fuel
-        if (fuelTicks > 0) {
-            int mod = Util.mod(pos.getX(), 2) + ((Util.mod(pos.getZ(), 2) + 1) * 2) - 2;
-            if ((this.world.getGameTime() % 4) != mod) {
-                return;
+        if (!this.world.isRemote) {
+            // This will ensure fuel is distributed to each campfire equally when lit, if items touch multiple campfires
+            // It however will not do the 1/4 tick check if it is freshly lit (lit, but no fuel) to ensure it will get fuel
+            if (fuelTicks > 0) {
+                int mod = Util.mod(pos.getX(), 2) + ((Util.mod(pos.getZ(), 2) + 1) * 2) - 2;
+                if ((this.world.getGameTime() % 4) != mod) {
+                    return;
+                }
             }
-        }
 
-        for(ItemEntity itemEntity : getCaptureItems()) {
-            ItemStack itemStack = itemEntity.getItem();
-            int baseBurnTicks = ForgeHooks.getBurnTime(itemStack, null);
+            for(ItemEntity itemEntity : getCaptureItems()) {
+                ItemStack itemStack = itemEntity.getItem();
+                int baseBurnTicks = ForgeHooks.getBurnTime(itemStack, null);
+                boolean eternalItem = allowEternalFuels && itemStack.getItem().isIn(JCTags.JC_ETERNAL) && (!isEternal);
 
-            if (baseBurnTicks > 0) {
-                if (!this.world.isRemote) {
+                if ((baseBurnTicks > 0) || eternalItem) {
                     int itemCount = itemStack.getCount();
-                    if (burnFuelItem(baseBurnTicks)) {
+                    if (burnFuelItem(baseBurnTicks, eternalItem)) {
                         itemEntity.playSound(SoundEvents.ENTITY_GENERIC_BURN, 0.4F, 2.0F + world.rand.nextFloat() * 0.4F);
                         int newCount = itemCount - 1;
                         if (newCount <= 0) {
@@ -165,7 +187,12 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     }
 
     // TODO items with very high fuel values are generally unusable in campfires. fix? config?
-    private boolean burnFuelItem(int baseBurnTicks) {
+    private boolean burnFuelItem(int baseBurnTicks, boolean eternalItem) {
+        if (eternalItem) {
+            isEternal = true;
+            if (baseBurnTicks <= 0) return true;
+        }
+
         int newCurrFuelTicks = getFuelTicks() + (int) Math.ceil(baseBurnTicks * fuelMult);
         if (newCurrFuelTicks < trueMaxFuelTicks) {
             setFuelTicks(newCurrFuelTicks);
@@ -183,7 +210,7 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
             if (isEternal && !rainAffectEternal) {
                 return;
             } else if (fuelTicks == 0) {
-                extinguishCampfire(false);
+                extinguishCampfire(true, false);
                 return;
             }
 
@@ -209,11 +236,7 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
             fuelTicks -= isBonfire ? bonfireFuelUse : 1;
             if (fuelTicks <= 0) {
                 fuelTicks = 0;
-                if (breakWhenUnlit) {
-                    breakCampfire();
-                } else {
-                    extinguishCampfire(true);
-                }
+                outOfFuel(true);
             }
 
 //                if (!isEternal) {
@@ -257,16 +280,20 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     }
 
 
-    private void extinguishCampfire(boolean drops) {
-        this.world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, 1.0F, 1.0F);
+    private void extinguishCampfire(boolean sound, boolean drops) {
+        if (sound) {
+            this.world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, 1.0F, 1.0F);
+        }
         if (drops) {
             CampfireBlock.extinguish(this.world, pos, this.getBlockState());
         }
         this.world.setBlockState(this.pos, this.getBlockState().with(CampfireBlock.LIT, false));
     }
 
-    private void breakCampfire() {
-        this.world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, 1.0F, 1.0F);
+    private void breakCampfire(boolean sound) {
+        if (sound) {
+            this.world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, 1.0F, 1.0F);
+        }
         this.dropAllItems();
         this.world.setBlockState(this.pos, Blocks.AIR.getDefaultState());
     }
@@ -274,7 +301,7 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     private boolean feelTheRainOnYourCampfire() {
         if (world.isRainingAt(this.pos.up())) {
             if (rainFuelLoss == -1) {
-                extinguishCampfire(false);
+                extinguishCampfire(true, false);
                 return true;
             } else {
                 fuelTicks -= rainFuelLoss;
@@ -283,6 +310,13 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
         return false;
     }
 
+    private void outOfFuel(boolean sound) {
+        if (breakWhenUnlit) {
+            breakCampfire(sound);
+        } else {
+            extinguishCampfire(sound, true);
+        }
+    }
 
     @Override
     public int getFuelTicks() {
