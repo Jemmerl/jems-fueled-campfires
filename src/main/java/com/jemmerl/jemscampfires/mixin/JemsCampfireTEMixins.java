@@ -7,7 +7,10 @@ import com.jemmerl.jemscampfires.util.Util;
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.inventory.InventoryHelper;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
@@ -20,6 +23,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
@@ -37,7 +41,7 @@ import java.util.Random;
 
 @Mixin(value = CampfireTileEntity.class, priority = 0)
 public abstract class JemsCampfireTEMixins extends TileEntity implements IFueledCampfire {
-    private static final VoxelShape COLLECTION_AREA_SHAPE = Block.makeCuboidShape(0.0D, 7.0D, 0.0D, 16.0D, 16.0D, 16.0D);
+    private static final VoxelShape COLLECTION_AREA_SHAPE = Block.makeCuboidShape(0.0D, 3.0D, 0.0D, 16.0D, 16.0D, 16.0D);
 
     // Properties
     private boolean isSoul;
@@ -48,8 +52,6 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
 
     // **TODO BOARD** //
     //todo add option to remove excess bonfire fuel when extinguished?
-
-    //TODO bucketed fuel items like lava?
 
     // TODO: Maybe add fuel-based lighting in the future as a resource-expensive optional setting.
     //  Would need to send packets between server and client.
@@ -125,6 +127,8 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
                 int itemCount = itemStack.getCount();
                 if (burnFuelItem(baseBurnTicks, eternalItem)) {
                     itemEntity.playSound(SoundEvents.ENTITY_GENERIC_BURN, 0.4F, 2.0F + world.rand.nextFloat() * 0.4F);
+                    doFuelInContainer(itemStack.getItem());
+
                     int newCount = itemCount - 1;
                     if (newCount <= 0) {
                         itemEntity.remove();
@@ -160,6 +164,14 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
             return true;
         }
         return false;
+    }
+
+    // To-do use this separated class for mod compat-stuff with other fuels in containers (ex: lava buckets)
+    // Modders can mixin to this class with ease, make sure to inject at RETURN and not include any early returns!
+    private void doFuelInContainer(Item item) {
+        if (item == Items.LAVA_BUCKET) {
+            InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(Items.BUCKET));
+        }
     }
 
     private void normalStuff() {
@@ -331,7 +343,6 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     private static boolean getBonfireFirespread(boolean soul) {
         return soul ? ServerConfig.SOUL_CAMPFIRE_BONFIRE_FIRESPREAD.get() : ServerConfig.CAMPFIRE_BONFIRE_FIRESPREAD.get();
     }
-
 
     @Override
     public int getFuelTicks() {

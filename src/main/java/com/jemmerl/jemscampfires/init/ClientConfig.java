@@ -1,10 +1,6 @@
 package com.jemmerl.jemscampfires.init;
 
-import com.electronwill.nightconfig.core.file.CommentedFileConfig;
-import com.electronwill.nightconfig.core.io.WritingMode;
 import net.minecraftforge.common.ForgeConfigSpec;
-
-import java.nio.file.Path;
 
 public class ClientConfig {
     public static ForgeConfigSpec CLIENT_SPEC;

@@ -66,8 +66,6 @@ public class ServerConfig {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    //todo eternal stuff may need a revisit
-
     // General
     public static ForgeConfigSpec.BooleanValue PLACE_CAMPFIRE_LIT;
     public static ForgeConfigSpec.BooleanValue PLACE_SOUL_CAMPFIRE_LIT;

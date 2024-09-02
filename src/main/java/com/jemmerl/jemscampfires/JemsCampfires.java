@@ -2,6 +2,7 @@ package com.jemmerl.jemscampfires;
 
 import com.jemmerl.jemscampfires.init.ClientConfig;
 import com.jemmerl.jemscampfires.init.ServerConfig;
+import com.jemmerl.jemscampfires.items.ModItems;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -29,6 +30,8 @@ public class JemsCampfires
         eventBus.addListener(this::setup);
         eventBus.addListener(this::doClientStuff);
 
+        ModItems.register(eventBus);
+
         MinecraftForge.EVENT_BUS.register(this);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ClientConfig.CLIENT_SPEC);
@@ -39,6 +42,5 @@ public class JemsCampfires
 
     private void setup(final FMLCommonSetupEvent event) {}
     private void doClientStuff(final FMLClientSetupEvent event) {}
-
 
 }

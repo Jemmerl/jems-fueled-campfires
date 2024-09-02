@@ -3,6 +3,7 @@ package com.jemmerl.jemscampfires.mixin;
 import com.jemmerl.jemscampfires.init.ClientConfig;
 import com.jemmerl.jemscampfires.init.ServerConfig;
 import com.jemmerl.jemscampfires.util.IFueledCampfire;
+import com.jemmerl.jemscampfires.util.Util;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.CampfireBlock;
@@ -11,7 +12,6 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particles.ParticleTypes;
-import net.minecraft.tileentity.CampfireTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
@@ -52,7 +52,7 @@ public abstract class JemsCampfireBlockMixins extends ContainerBlock {
     }
 
     private boolean checkBonfire(World worldIn, BlockPos posIn) {
-        IFueledCampfire cfTileEntity = getCFTE(worldIn, posIn);
+        IFueledCampfire cfTileEntity = Util.getCFTE(worldIn, posIn);
         if (cfTileEntity != null) {
             return cfTileEntity.getBonfire();
         }
@@ -75,7 +75,7 @@ public abstract class JemsCampfireBlockMixins extends ContainerBlock {
     @Override
     public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         if(!worldIn.isRemote()) {
-            IFueledCampfire cfTileEntity = getCFTE(worldIn, pos);
+            IFueledCampfire cfTileEntity = Util.getCFTE(worldIn, pos);
             if (cfTileEntity != null) {
                 // Override world-genned eternal status when placed by a player
                 if (state.getBlock() == Blocks.SOUL_CAMPFIRE) {
@@ -113,13 +113,5 @@ public abstract class JemsCampfireBlockMixins extends ContainerBlock {
     //        }
     //        return super.getLightValue(state, world, pos);
     //    }
-
-    private IFueledCampfire getCFTE(World worldIn, BlockPos posIn) {
-        TileEntity tileentity = worldIn.getTileEntity(posIn);
-        if (tileentity instanceof IFueledCampfire) {
-            return (IFueledCampfire) tileentity;
-        }
-        return null;
-    }
 
 }
