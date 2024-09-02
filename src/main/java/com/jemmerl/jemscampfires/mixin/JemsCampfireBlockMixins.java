@@ -34,7 +34,7 @@ public abstract class JemsCampfireBlockMixins extends ContainerBlock {
 
     @Shadow
     private boolean smokey;
-
+    
     @Inject(at = @At(value = "JUMP", opcode = Opcodes.IFEQ, ordinal = 1), locals = LocalCapture.CAPTURE_FAILHARD, method = "animateTick(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Ljava/util/Random;)V")
     private void animateTick(BlockState stateIn, World worldIn, BlockPos pos, Random rand, CallbackInfo ci) {
         if (this.smokey && ClientConfig.BONFIRE_EXTRA_PARTICLES.get() && checkBonfire(worldIn, pos)) {
