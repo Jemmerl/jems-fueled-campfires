@@ -11,8 +11,10 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particles.ParticleTypes;
+import net.minecraft.tileentity.CampfireTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
@@ -34,7 +36,7 @@ public abstract class JemsCampfireBlockMixins extends ContainerBlock {
 
     @Shadow
     private boolean smokey;
-    
+
     @Inject(at = @At(value = "JUMP", opcode = Opcodes.IFEQ, ordinal = 1), locals = LocalCapture.CAPTURE_FAILHARD, method = "animateTick(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Ljava/util/Random;)V")
     private void animateTick(BlockState stateIn, World worldIn, BlockPos pos, Random rand, CallbackInfo ci) {
         if (this.smokey && ClientConfig.BONFIRE_EXTRA_PARTICLES.get() && checkBonfire(worldIn, pos)) {
@@ -56,6 +58,19 @@ public abstract class JemsCampfireBlockMixins extends ContainerBlock {
         }
         return false;
     }
+
+
+
+    @Inject(at = @At(value = "INVOKE", target = "net/minecraft/tileentity/CampfireTileEntity.dropAllItems()V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD,
+            method = "extinguish(Lnet/minecraft/world/IWorld;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)V")
+    private static void extinguishEternal(IWorld world, BlockPos pos, BlockState state, CallbackInfo ci, TileEntity tileentity) {
+        if (!world.isRemote()) {
+            ((IFueledCampfire)tileentity).doExtinguished();
+        }
+    }
+
+
+
 
     @Override
     public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {

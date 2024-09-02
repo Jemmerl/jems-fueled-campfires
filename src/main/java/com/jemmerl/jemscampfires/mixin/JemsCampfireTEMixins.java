@@ -20,10 +20,10 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -31,6 +31,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Random;
 
@@ -47,10 +48,6 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
 
     // **TODO BOARD** //
     //todo add option to remove excess bonfire fuel when extinguished?
-
-    //todo add option to lose eternal when extinguished
-
-    // TODO items with very high fuel values are generally unusable in campfires unless always burn fuel. maybe fix?
 
     //TODO bucketed fuel items like lava?
 
@@ -100,7 +97,7 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
 
     @Inject(at = @At(value = "JUMP", opcode = Opcodes.IF_ICMPLT, ordinal = 0), locals = LocalCapture.CAPTURE_FAILHARD, method = "cookAndDrop()V")
     private void cookAndDrop(CallbackInfo ci, int i, ItemStack itemstack, int j) {
-        if (isEternal && getLooseEternalCook(isSoul)) {
+        if (isEternal && getLoseEternalCook(isSoul)) {
             this.isEternal = false;
         }
         if (isBonfire) {
@@ -168,7 +165,7 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     private void normalStuff() {
         // If the campfire is already out of fuel (was lit without refueling) or it is raining, try to extinguish
         if ((!isEternal && (fuelTicks <= 0)) || ((!isEternal || getRainEternal(isSoul)) && feelTheRainOnYourCampfire())) {
-            extinguishCampfire(true, false);
+            extinguishCampfire(false);
             return;
         }
 
@@ -185,7 +182,7 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
         fuelTicks -= isBonfire ? getBonfireFuelUse(isSoul) : 1;
         if (fuelTicks <= 0) {
             fuelTicks = 0;
-            outOfFuel(true);
+            outOfFuel();
         }
     }
 
@@ -196,7 +193,6 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
         // AFAIK this is the only way I can ensure players see the correct bonfire behavior
         // Bonfire updates are still sent as normal through setBonfire, but this may change
         if (ServerConfig.ALLOW_CLIENT_PACKETS.get() && (world.getGameTime() % 20L == 0L)) {
-            System.out.println("doit");
             BlockState state = this.getBlockState();
             world.notifyBlockUpdate(pos, state, state, 18); // Uses 2 client updates, and 16 no observers
         }
@@ -226,25 +222,6 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
         //return false;
     }
 
-
-    private void extinguishCampfire(boolean sound, boolean drops) {
-        if (sound) {
-            this.world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, 1.0F, 1.0F);
-        }
-        if (drops) {
-            CampfireBlock.extinguish(this.world, pos, this.getBlockState());
-        }
-        this.world.setBlockState(this.pos, this.getBlockState().with(CampfireBlock.LIT, false));
-    }
-
-    private void breakCampfire(boolean sound) {
-        if (sound) {
-            this.world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, 1.0F, 1.0F);
-        }
-        this.dropAllItems();
-        this.world.setBlockState(this.pos, Blocks.AIR.getDefaultState());
-    }
-
     // Returns true if the rain extinguishes the campfire
     private boolean feelTheRainOnYourCampfire() {
         if (world.isRainingAt(this.pos.up())) {
@@ -258,12 +235,36 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
         return false;
     }
 
-    private void outOfFuel(boolean sound) {
+    private void outOfFuel() {
         if (getBreakUnlit(isSoul)) {
-            breakCampfire(sound);
+            breakCampfire();
         } else {
-            extinguishCampfire(sound, true);
+            extinguishCampfire(true);
         }
+    }
+
+    private void extinguishCampfire(boolean drops) {
+        this.world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, 1.0F, 1.0F);
+        if (drops) {
+            CampfireBlock.extinguish(this.world, pos, this.getBlockState());
+            // doExtinguished is called from the campfire block normally to handle other extinguishing factors,
+            // like shovels and water bottles, so it is not called here.
+        } else {
+            this.world.setBlockState(this.pos, this.getBlockState().with(CampfireBlock.LIT, false));
+            doExtinguished();
+        }
+    }
+
+    public void doExtinguished() {
+        if (isEternal && getLoseEternalExtinguish(isSoul)) {
+            isEternal = false;
+        }
+    }
+
+    private void breakCampfire() {
+        this.world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, 1.0F, 1.0F);
+        this.dropAllItems();
+        this.world.setBlockState(this.pos, Blocks.AIR.getDefaultState());
     }
 
 
@@ -304,8 +305,11 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     private static boolean getAllowEternalItems(boolean soul) {
         return soul ? ServerConfig.SOUL_CAMPFIRE_ALLOW_ETERNAL_ITEMS.get() : ServerConfig.CAMPFIRE_ALLOW_ETERNAL_ITEMS.get();
     }
-    private static boolean getLooseEternalCook(boolean soul) {
+    private static boolean getLoseEternalCook(boolean soul) {
         return soul ? ServerConfig.SOUL_CAMPFIRE_LOSE_ETERNAL_WHEN_COOKING.get() : ServerConfig.CAMPFIRE_LOSE_ETERNAL_WHEN_COOKING.get();
+    }
+    private static boolean getLoseEternalExtinguish(boolean soul) {
+        return soul ? ServerConfig.SOUL_CAMPFIRE_LOSE_ETERNAL_WHEN_EXTINGUISH.get() : ServerConfig.CAMPFIRE_LOSE_ETERNAL_WHEN_EXTINGUISH.get();
     }
     private static boolean getRainEternal(boolean soul) {
         return soul ? ServerConfig.SOUL_CAMPFIRE_RAIN_AFFECT_ETERNAL.get() : ServerConfig.CAMPFIRE_RAIN_AFFECT_ETERNAL.get();
@@ -370,18 +374,17 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     //                                            Data Handling Stuff                                              //
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    @Override
-    // Send packet from server
-    public SUpdateTileEntityPacket getUpdatePacket(){
+    @Overwrite
+    @Nullable
+    public SUpdateTileEntityPacket getUpdatePacket() {
         if (ServerConfig.ALLOW_CLIENT_PACKETS.get()) {
-            CompoundNBT nbtTag = new CompoundNBT();
+            CompoundNBT nbtTag = this.getUpdateTag();
             //nbtTag.putInt("FuelTicks", this.fuelTicks);
             //nbtTag.putBoolean("IsEternal", this.isEternal);
             nbtTag.putBoolean("IsBonfire", this.isBonfire);
-            System.out.println("sending: " + isBonfire);
-            return new SUpdateTileEntityPacket(pos, -1, nbtTag);
+            return new SUpdateTileEntityPacket(pos, 13, nbtTag);
         }
-        return null;
+        return new SUpdateTileEntityPacket(this.pos, 13, this.getUpdateTag());
     }
 
     @Override
@@ -391,7 +394,7 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
         if (nbtTag.contains("IsBonfire", 99)) {
             setBonfire(nbtTag.getBoolean("IsBonfire"));
         }
-        System.out.println("recieving: " + isBonfire);
+        super.onDataPacket(net, pkt);
     }
 
     @Inject(at = @At("RETURN"), method = "read(Lnet/minecraft/block/BlockState;Lnet/minecraft/nbt/CompoundNBT;)V")

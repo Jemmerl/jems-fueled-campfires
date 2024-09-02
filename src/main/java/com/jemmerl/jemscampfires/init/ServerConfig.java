@@ -43,6 +43,8 @@ public class ServerConfig {
     private static final boolean soul_cf_allow_eternal_items = true; // Remove eternal status if the campfire cooks (prevent abuse of natural-spawned eternal fires) - Default true
     private static final boolean cf_lose_eternal_when_cooking = true; // Allow items (defined by a tag) to make soul campfires burn without using fuel when NOT cooking - Default true
     private static final boolean soul_cf_lose_eternal_when_cooking = true; // Remove eternal status if the soul campfire cooks (prevent abuse of natural-spawned eternal fires) - Default true
+    private static final boolean cf_lose_eternal_extinguish = true; // Will campfires lose eternal status if extinguished or put out - Default true
+    private static final boolean soul_cf_lose_eternal_extinguish = false; // Will soul campfires lose eternal status if extinguished or put out - Default true
     private static final boolean cf_rain_affect_eternal = true; // Will rain affect eternal-burning campfires (lose fuel, get put out) - Default false
     private static final boolean soul_cf_rain_affect_eternal = false; // Will rain affect eternal-burning soul campfires (lose fuel, get put out) - Default false
     private static final boolean cf_eternal_bonfire = false; // Can eternal campfires do bonfire behavior - Default false
@@ -67,22 +69,22 @@ public class ServerConfig {
     //todo eternal stuff may need a revisit
 
     // General
-    public static ForgeConfigSpec.BooleanValue PLACE_CAMPFIRE_LIT; //done
-    public static ForgeConfigSpec.BooleanValue PLACE_SOUL_CAMPFIRE_LIT; //done
-    public static ForgeConfigSpec.IntValue CAMPFIRE_MAX_FUEL_TICKS; //done
-    public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_MAX_FUEL_TICKS; //done
-    public static ForgeConfigSpec.IntValue CAMPFIRE_INITIAL_FUEL_TICKS; //done
-    public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_INITIAL_FUEL_TICKS; //done
-    public static ForgeConfigSpec.DoubleValue CAMPFIRE_FUEL_MULT; //done
-    public static ForgeConfigSpec.DoubleValue SOUL_CAMPFIRE_FUEL_MULT; //done
-    public static ForgeConfigSpec.BooleanValue CAMPFIRE_ALWAYS_BURN_FUEL_ITEMS; //done
-    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_ALWAYS_BURN_FUEL_ITEMS; //done
-    public static ForgeConfigSpec.BooleanValue CAMPFIRE_BREAK_UNLIT; //done
-    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BREAK_UNLIT; //done
-    public static ForgeConfigSpec.BooleanValue CAMPFIRE_FIRESPREAD; //done
-    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_FIRESPREAD; //done
-    public static ForgeConfigSpec.IntValue CAMPFIRE_RAIN_FUEL_TICK_LOSS; //done
-    public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_RAIN_FUEL_TICK_LOSS; //done
+    public static ForgeConfigSpec.BooleanValue PLACE_CAMPFIRE_LIT;
+    public static ForgeConfigSpec.BooleanValue PLACE_SOUL_CAMPFIRE_LIT;
+    public static ForgeConfigSpec.IntValue CAMPFIRE_MAX_FUEL_TICKS;
+    public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_MAX_FUEL_TICKS;
+    public static ForgeConfigSpec.IntValue CAMPFIRE_INITIAL_FUEL_TICKS;
+    public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_INITIAL_FUEL_TICKS;
+    public static ForgeConfigSpec.DoubleValue CAMPFIRE_FUEL_MULT;
+    public static ForgeConfigSpec.DoubleValue SOUL_CAMPFIRE_FUEL_MULT;
+    public static ForgeConfigSpec.BooleanValue CAMPFIRE_ALWAYS_BURN_FUEL_ITEMS;
+    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_ALWAYS_BURN_FUEL_ITEMS;
+    public static ForgeConfigSpec.BooleanValue CAMPFIRE_BREAK_UNLIT;
+    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BREAK_UNLIT;
+    public static ForgeConfigSpec.BooleanValue CAMPFIRE_FIRESPREAD;
+    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_FIRESPREAD;
+    public static ForgeConfigSpec.IntValue CAMPFIRE_RAIN_FUEL_TICK_LOSS;
+    public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_RAIN_FUEL_TICK_LOSS;
 
     // Postponed
     //public static ForgeConfigSpec.BooleanValue CAMPFIRE_FUEL_BASED_LIGHT; //postponed
@@ -91,31 +93,33 @@ public class ServerConfig {
     //public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BURN_WHEN_SLEEP; //postponed
 
     // Decorative
-    public static ForgeConfigSpec.BooleanValue PLACE_CAMPFIRE_ETERNAL; //done
-    public static ForgeConfigSpec.BooleanValue PLACE_SOUL_CAMPFIRE_ETERNAL; //done
-    public static ForgeConfigSpec.BooleanValue SPAWN_CAMPFIRE_ETERNAL; //done
-    public static ForgeConfigSpec.BooleanValue SPAWN_SOUL_CAMPFIRE_ETERNAL; //done
+    public static ForgeConfigSpec.BooleanValue PLACE_CAMPFIRE_ETERNAL;
+    public static ForgeConfigSpec.BooleanValue PLACE_SOUL_CAMPFIRE_ETERNAL;
+    public static ForgeConfigSpec.BooleanValue SPAWN_CAMPFIRE_ETERNAL;
+    public static ForgeConfigSpec.BooleanValue SPAWN_SOUL_CAMPFIRE_ETERNAL;
     public static ForgeConfigSpec.BooleanValue CAMPFIRE_ALLOW_ETERNAL_ITEMS;
     public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_ALLOW_ETERNAL_ITEMS;
-    public static ForgeConfigSpec.BooleanValue CAMPFIRE_LOSE_ETERNAL_WHEN_COOKING; //done
-    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_LOSE_ETERNAL_WHEN_COOKING; //done
-    public static ForgeConfigSpec.BooleanValue CAMPFIRE_RAIN_AFFECT_ETERNAL; //done
-    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_RAIN_AFFECT_ETERNAL; //done
-    public static ForgeConfigSpec.BooleanValue CAMPFIRE_ETERNAL_BONFIRE; //done
-    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_ETERNAL_BONFIRE; //done
-    public static ForgeConfigSpec.BooleanValue ALLOW_CLIENT_PACKETS; //done
+    public static ForgeConfigSpec.BooleanValue CAMPFIRE_LOSE_ETERNAL_WHEN_COOKING;
+    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_LOSE_ETERNAL_WHEN_COOKING;
+    public static ForgeConfigSpec.BooleanValue CAMPFIRE_LOSE_ETERNAL_WHEN_EXTINGUISH;
+    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_LOSE_ETERNAL_WHEN_EXTINGUISH;
+    public static ForgeConfigSpec.BooleanValue CAMPFIRE_RAIN_AFFECT_ETERNAL;
+    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_RAIN_AFFECT_ETERNAL;
+    public static ForgeConfigSpec.BooleanValue CAMPFIRE_ETERNAL_BONFIRE;
+    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_ETERNAL_BONFIRE;
+    public static ForgeConfigSpec.BooleanValue ALLOW_CLIENT_PACKETS;
 
     // Bonfire
-    public static ForgeConfigSpec.BooleanValue CAMPFIRE_CAN_BONFIRE; //done
-    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_CAN_BONFIRE; //done
-    public static ForgeConfigSpec.IntValue CAMPFIRE_BONFIRE_EXTRA_MAX_FUEL_TICKS; //done
-    public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_BONFIRE_EXTRA_MAX_FUEL_TICKS; //done
-    public static ForgeConfigSpec.IntValue CAMPFIRE_BONFIRE_BURN_MULT; //done
-    public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_BONFIRE_BURN_MULT; //done
-    public static ForgeConfigSpec.IntValue CAMPFIRE_BONFIRE_COOKING_MULT; //done
-    public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_BONFIRE_COOKING_MULT; //done
-    public static ForgeConfigSpec.BooleanValue CAMPFIRE_BONFIRE_FIRESPREAD; //done
-    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BONFIRE_FIRESPREAD; //done
+    public static ForgeConfigSpec.BooleanValue CAMPFIRE_CAN_BONFIRE;
+    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_CAN_BONFIRE;
+    public static ForgeConfigSpec.IntValue CAMPFIRE_BONFIRE_EXTRA_MAX_FUEL_TICKS;
+    public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_BONFIRE_EXTRA_MAX_FUEL_TICKS;
+    public static ForgeConfigSpec.IntValue CAMPFIRE_BONFIRE_BURN_MULT;
+    public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_BONFIRE_BURN_MULT;
+    public static ForgeConfigSpec.IntValue CAMPFIRE_BONFIRE_COOKING_MULT;
+    public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_BONFIRE_COOKING_MULT;
+    public static ForgeConfigSpec.BooleanValue CAMPFIRE_BONFIRE_FIRESPREAD;
+    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BONFIRE_FIRESPREAD;
     //public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BRIGHT_BONFIRE;
 
 
@@ -176,6 +180,7 @@ public class ServerConfig {
                 .defineInRange("soulCampfireRainFuelLoss", soul_cf_rain_fuel_tick_loss, -1, 24000);
         builder.pop();
         builder.pop();
+
 //        builder.push("Advanced Options");
 ////        builder.push("Regular Campfires");
 //////        CAMPFIRE_FUEL_BASED_LIGHT = builder
@@ -214,6 +219,9 @@ public class ServerConfig {
         CAMPFIRE_LOSE_ETERNAL_WHEN_COOKING = builder
                 .comment("Remove eternal status if the campfire cooks (prevent abuse of natural-spawned eternal fires) - Default true")
                 .define("removeEternalCampfireIfCook", cf_lose_eternal_when_cooking);
+        CAMPFIRE_LOSE_ETERNAL_WHEN_EXTINGUISH = builder
+                .comment("Will campfires lose eternal status if extinguished or put out - Default true")
+                .define("removeEternalCampfireIfOut", cf_lose_eternal_extinguish);
         CAMPFIRE_RAIN_AFFECT_ETERNAL = builder
                 .comment("Will rain affect eternal-burning campfires (lose fuel, get put out) - Default false")
                 .define("doesRainAffectEternalCampfire", cf_rain_affect_eternal);
@@ -234,6 +242,9 @@ public class ServerConfig {
         SOUL_CAMPFIRE_LOSE_ETERNAL_WHEN_COOKING = builder
                 .comment("Remove eternal status if the soul campfire cooks (prevent abuse of natural-spawned eternal fires) - Default true")
                 .define("removeEternalSoulCampfireIfCook", soul_cf_lose_eternal_when_cooking);
+        SOUL_CAMPFIRE_LOSE_ETERNAL_WHEN_EXTINGUISH = builder
+                .comment("Will soul campfires lose eternal status if extinguished or put out - Default true")
+                .define("removeEternalSoulCampfireIfOut", soul_cf_lose_eternal_extinguish);
         SOUL_CAMPFIRE_RAIN_AFFECT_ETERNAL = builder
                 .comment("Will rain affect eternal-burning soul campfires (lose fuel, get put out) - Default false")
                 .define("doesRainAffectEternalSoulCampfire", soul_cf_rain_affect_eternal);
