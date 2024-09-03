@@ -45,9 +45,9 @@ public class FirePoker extends Item {
                                     (random.nextFloat() / 2.0F), 3.0E-5D, (random.nextFloat() / 2.0F));
                         }
                     } else {
-                        ITextComponent msg = new StringTextComponent(" The campfire is a" +
-                                (cfTileEntity.getEternal() ? "n eternal " : " regular ") +
-                                (cfTileEntity.getBonfire() ? "bon" : "") + "fire with " +
+                        ITextComponent msg = new StringTextComponent(" A" +
+                                (cfTileEntity.getEternal() ? "n eternal " : " ") +
+                                (cfTileEntity.getBonfire() ? "bon" : "cozy ") + "fire with " +
                                 (cfTileEntity.getFuelTicks() / 20) + " seconds of fuel left (" +
                                 (cfTileEntity.getFuelTicks()) + " ticks).");
                         player.sendMessage(msg, player.getUUID(player.getGameProfile()));

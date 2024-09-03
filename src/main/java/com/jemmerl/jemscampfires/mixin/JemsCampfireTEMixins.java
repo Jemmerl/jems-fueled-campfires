@@ -92,14 +92,15 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
         }
     }
 
-    @Inject(at = @At(value = "JUMP", opcode = Opcodes.IF_ICMPLT, ordinal = 0), locals = LocalCapture.CAPTURE_FAILHARD, method = "cookAndDrop()V")
-    private void cookAndDrop(CallbackInfo ci, int i, ItemStack itemstack, int j) {
+    //@Inject(at = @At(value = "JUMP", opcode = Opcodes.IF_ICMPLT, ordinal = 0), locals = LocalCapture.PRINT, method = "cookAndDrop()V")
+    @Inject(at = @At(value = "FIELD", target = "net/minecraft/tileentity/CampfireTileEntity.cookingTimes:[I", opcode = Opcodes.GETFIELD, args = "array=get", ordinal = 0, shift = At.Shift.BY, by = -2), locals = LocalCapture.CAPTURE_FAILHARD, method = "cookAndDrop()V")
+    private void cookAndDrop(CallbackInfo ci, int i, ItemStack itemstack) {
         if (isEternal && getLoseEternalCook(isSoul)) {
             this.isEternal = false;
         }
         if (isBonfire) {
             this.cookingTimes[i] += (getBonfireCookMult(isSoul) - 1);
-            j = cookingTimes[i];
+            //j = cookingTimes[i];
         }
     }
 
@@ -379,6 +380,10 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     //                                            Data Handling Stuff                                              //
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    /**
+     * @author Jemmerl
+     * @reason Overriding was not working.
+     */
     @Overwrite
     @Nullable
     public SUpdateTileEntityPacket getUpdatePacket() {
