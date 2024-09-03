@@ -59,8 +59,6 @@ public abstract class JemsCampfireBlockMixins extends ContainerBlock {
         return false;
     }
 
-
-
     @Inject(at = @At(value = "INVOKE", target = "net/minecraft/tileentity/CampfireTileEntity.dropAllItems()V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD,
             method = "extinguish(Lnet/minecraft/world/IWorld;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)V")
     private static void extinguishEternal(IWorld world, BlockPos pos, BlockState state, CallbackInfo ci, TileEntity tileentity) {
@@ -68,9 +66,6 @@ public abstract class JemsCampfireBlockMixins extends ContainerBlock {
             ((IFueledCampfire)tileentity).doExtinguished();
         }
     }
-
-
-
 
     @Override
     public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
@@ -88,7 +83,6 @@ public abstract class JemsCampfireBlockMixins extends ContainerBlock {
         super.onBlockPlacedBy(worldIn, pos, state, placer, stack);
     }
 
-
     @Inject(at = @At("RETURN"), method = "getStateForPlacement(Lnet/minecraft/item/BlockItemUseContext;)Lnet/minecraft/block/BlockState;", cancellable = true)
     private void getStateForPlacement(BlockItemUseContext context, CallbackInfoReturnable<BlockState> cir) {
         cir.setReturnValue(cir.getReturnValue()
@@ -97,7 +91,7 @@ public abstract class JemsCampfireBlockMixins extends ContainerBlock {
     }
 
     //    @Override
-    //    // ...Never mind. Can't access the TE from the client-side, packets would just be expensive for no reason.
+    //    // ...Never mind. Can't access the TE from the client-side, will revisit later maybe
     //    public int getLightValue(BlockState state, IBlockReader world, BlockPos pos) {
     //        boolean isSoul = this.getDefaultState().getBlock() == Blocks.SOUL_CAMPFIRE;
     //        if (isSoul ? ServerConfig.SOUL_CAMPFIRE_FUEL_BASED_LIGHT.get() : ServerConfig.CAMPFIRE_FUEL_BASED_LIGHT.get()) {

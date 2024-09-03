@@ -1,8 +1,5 @@
 package com.jemmerl.jemscampfires.util;
 
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-
 public interface IFueledCampfire {
     int getFuelTicks();
     void setFuelTicks(int setTicks);

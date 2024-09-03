@@ -23,7 +23,6 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
@@ -48,11 +47,8 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     private int fuelTicks = -1;
     private boolean isEternal = false;
     private boolean isBonfire = false;
-    //private long prevDayTime = 0L;
 
     // **TODO BOARD** //
-    //todo add option to remove excess bonfire fuel when extinguished?
-
     // TODO: Maybe add fuel-based lighting in the future as a resource-expensive optional setting.
     //  Would need to send packets between server and client.
 
@@ -71,7 +67,6 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
         //super.onLoad();
         if (!this.world.isRemote()) {
             isSoul = (this.getBlockState().getBlock() == Blocks.SOUL_CAMPFIRE.getBlock());
-            //prevDayTime = world.getDayTime();
 
             // This is the first load of the campfire TE
             // Get settings/properties that only matter or are needed when the campfire is first placed
@@ -183,7 +178,6 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
 
         setBonfire(getCanBonfire(isSoul) && (!isEternal || getEternalBonfire(isSoul)) && (fuelTicks > getStandardMaxFuelTicks(isSoul)));
         if (!isBonfire) {
-
             if (getNormalFirespread(isSoul) && (this.world.rand.nextInt(70) == 0)) {
                 Direction dir = Direction.byHorizontalIndex(world.rand.nextInt(4));
                 ignitePos(pos.offset(dir), false);
