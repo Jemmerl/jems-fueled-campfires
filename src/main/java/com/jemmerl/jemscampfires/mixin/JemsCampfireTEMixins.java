@@ -266,6 +266,9 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
         if (isEternal && getLoseEternalExtinguish(isSoul)) {
             isEternal = false;
         }
+        if (isBonfire && getLoseBonfireFuelExtinguish(isSoul)) {
+            setFuelTicks(Math.min(fuelTicks, getStandardMaxFuelTicks(isSoul)));
+        }
     }
 
     private void breakCampfire() {
@@ -288,7 +291,7 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
         // Maximum fuel BASED ON if it can become a bonfire. Trust me this simplifies stuff.
         int trueMaxFuelTicks = getStandardMaxFuelTicks(soul);
         if (getCanBonfire(soul)) {
-            trueMaxFuelTicks += (soul ? ServerConfig.SOUL_CAMPFIRE_BONFIRE_EXTRA_MAX_FUEL_TICKS.get() : ServerConfig.CAMPFIRE_BONFIRE_EXTRA_MAX_FUEL_TICKS.get());
+            trueMaxFuelTicks += (soul ? ServerConfig.SOUL_CAMPFIRE_BONFIRE_FUEL_TICKS.get() : ServerConfig.CAMPFIRE_BONFIRE_FUEL_TICKS.get());
         }
         return trueMaxFuelTicks;
     }
@@ -331,6 +334,9 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     }
     private static int getBonfireFuelUse(boolean soul) {
         return soul ? ServerConfig.SOUL_CAMPFIRE_BONFIRE_BURN_MULT.get() : ServerConfig.CAMPFIRE_BONFIRE_BURN_MULT.get();
+    }
+    private static boolean getLoseBonfireFuelExtinguish(boolean soul) {
+        return soul ? ServerConfig.SOUL_CAMPFIRE_BONFIRE_LOSE_FUEL_EXTINGUISH.get() : ServerConfig.CAMPFIRE_BONFIRE_LOSE_FUEL_EXTINGUISH.get();
     }
     private static int getBonfireCookMult(boolean soul) {
         return soul ? ServerConfig.SOUL_CAMPFIRE_BONFIRE_COOKING_MULT.get() : ServerConfig.CAMPFIRE_BONFIRE_COOKING_MULT.get();

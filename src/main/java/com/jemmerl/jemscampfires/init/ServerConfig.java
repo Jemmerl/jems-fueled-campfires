@@ -44,7 +44,7 @@ public class ServerConfig {
     private static final boolean cf_lose_eternal_when_cooking = true; // Remove eternal status if the campfire cooks (prevent abuse of natural-spawned eternal fires) - Default true
     private static final boolean soul_cf_lose_eternal_when_cooking = true; // Remove eternal status if the soul campfire cooks (prevent abuse of natural-spawned eternal fires) - Default true
     private static final boolean cf_lose_eternal_extinguish = true; // Will campfires lose eternal status if extinguished or put out - Default true
-    private static final boolean soul_cf_lose_eternal_extinguish = false; // Will soul campfires lose eternal status if extinguished or put out - Default true
+    private static final boolean soul_cf_lose_eternal_extinguish = true; // Will soul campfires lose eternal status if extinguished or put out - Default true
     private static final boolean cf_rain_affect_eternal = false; // Will rain affect eternal-burning campfires (lose fuel, get put out) - Default false
     private static final boolean soul_cf_rain_affect_eternal = false; // Will rain affect eternal-burning soul campfires (lose fuel, get put out) - Default false
     private static final boolean cf_eternal_bonfire = false; // Can eternal campfires do bonfire behavior - Default false
@@ -54,8 +54,10 @@ public class ServerConfig {
     // Bonfire
     private static final boolean cf_can_bonfire = false; // Will regular campfires become a bonfire if over-fueled - Default false
     private static final boolean soul_cf_can_bonfire = false; // Will soul campfires become a bonfire if over-fueled - Default false
-    private static final int cf_bonfire_extra_max_fuel_ticks = 800; // Campfire bonfire fuel over normal max - Default 800 ticks
-    private static final int soul_cf_bonfire_extra_max_fuel_ticks = 800; // Soul campfire bonfire fuel over normal max - Default 800 ticks
+    private static final int cf_bonfire_fuel_ticks = 800; // Campfire bonfire fuel capacity, this gets added onto the normal maximum - Default 800 ticks
+    private static final int soul_cf_bonfire_fuel_ticks = 800; // Soul campfire bonfire fuel capacity, this gets added onto the normal maximum - Default 800 ticks
+    private static final boolean cf_bonfire_lose_fuel = true; // Will campfire bonfires lose their extra bonfire fuel when extinguished (returns to a regular fire) - Default true
+    private static final boolean soul_cf_bonfire_lose_fuel = true; // Will soul campfire bonfires lose their extra bonfire fuel when extinguished (returns to a regular fire) - Default true
     private static final int cf_bonfire_burn_mult = 2; // Campfire bonfire fuel use multiplier - Default 2
     private static final int soul_cf_bonfire_burn_mult = 2; // Soul campfire bonfire fuel use multiplier - Default 2
     private static final int cf_bonfire_cooking_mult = 2; // Campfire bonfire cooking speed multiplier - Default 2
@@ -110,8 +112,10 @@ public class ServerConfig {
     // Bonfire
     public static ForgeConfigSpec.BooleanValue CAMPFIRE_CAN_BONFIRE;
     public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_CAN_BONFIRE;
-    public static ForgeConfigSpec.IntValue CAMPFIRE_BONFIRE_EXTRA_MAX_FUEL_TICKS;
-    public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_BONFIRE_EXTRA_MAX_FUEL_TICKS;
+    public static ForgeConfigSpec.IntValue CAMPFIRE_BONFIRE_FUEL_TICKS;
+    public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_BONFIRE_FUEL_TICKS;
+    public static ForgeConfigSpec.BooleanValue CAMPFIRE_BONFIRE_LOSE_FUEL_EXTINGUISH;
+    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BONFIRE_LOSE_FUEL_EXTINGUISH;
     public static ForgeConfigSpec.IntValue CAMPFIRE_BONFIRE_BURN_MULT;
     public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_BONFIRE_BURN_MULT;
     public static ForgeConfigSpec.IntValue CAMPFIRE_BONFIRE_COOKING_MULT;
@@ -257,38 +261,44 @@ public class ServerConfig {
         CAMPFIRE_CAN_BONFIRE = builder
                 .comment("Will regular campfires become a bonfire if over-fueled - Default false")
                 .define("enableCampfiresBonfire", cf_can_bonfire);
-        CAMPFIRE_BONFIRE_EXTRA_MAX_FUEL_TICKS = builder
-                .comment("Campfire bonfire fuel over normal max - Default 600 ticks")
-                .defineInRange("campfireBonfireFuelOverMax", cf_bonfire_extra_max_fuel_ticks, 300, 12000);
+        CAMPFIRE_BONFIRE_FUEL_TICKS = builder
+                .comment("Campfire bonfire fuel capacity, this gets added onto the normal maximum - Default 800 ticks")
+                .defineInRange("regularBonfireFuelOverMax", cf_bonfire_fuel_ticks, 300, 12000);
+        CAMPFIRE_BONFIRE_LOSE_FUEL_EXTINGUISH = builder
+                .comment("Will campfire bonfires lose their extra bonfire fuel when extinguished (returns to a regular fire) - Default true")
+                .define("regularBonfireLoseFuelExtinguished", cf_bonfire_lose_fuel);
         CAMPFIRE_BONFIRE_BURN_MULT = builder
                 .comment("Campfire bonfire fuel use multiplier - Default 2")
-                .defineInRange("campfireBonfireFuelUseMultiplier", cf_bonfire_burn_mult, 1, 5);
+                .defineInRange("regularBonfireFuelUseMultiplier", cf_bonfire_burn_mult, 1, 5);
         CAMPFIRE_BONFIRE_COOKING_MULT = builder
                 .comment("Campfire bonfire cooking speed multiplier - Default 2")
-                .defineInRange("campfireCookSpeedMultiplier", cf_bonfire_cooking_mult, 1, 5);
+                .defineInRange("regularBonfireCookSpeedMultiplier", cf_bonfire_cooking_mult, 1, 5);
         CAMPFIRE_BONFIRE_FIRESPREAD = builder
                 .comment("Will campfire bonfires spread fire - Default true")
-                .define("campfireBonfireFirespread", cf_bonfire_firespread);
+                .define("regularBonfireFirespread", cf_bonfire_firespread);
         builder.pop();
         builder.push("Soul Campfires");
         SOUL_CAMPFIRE_CAN_BONFIRE = builder
                 .comment("Will soul campfires become a bonfire if over-fueled - Default false")
                 .define("enableSoulCampfiresBonfire", soul_cf_can_bonfire);
-        SOUL_CAMPFIRE_BONFIRE_EXTRA_MAX_FUEL_TICKS = builder
-                .comment("Soul campfire bonfire fuel over normal max - Default 600 ticks")
-                .defineInRange("soulCampfireBonfireFuelOverMax", soul_cf_bonfire_extra_max_fuel_ticks, 300, 12000);
+        SOUL_CAMPFIRE_BONFIRE_FUEL_TICKS = builder
+                .comment("Soul campfire bonfire fuel capacity, this gets added onto the normal maximum - Default 800 ticks")
+                .defineInRange("soulBonfireFuelOverMax", soul_cf_bonfire_fuel_ticks, 300, 12000);
+        SOUL_CAMPFIRE_BONFIRE_LOSE_FUEL_EXTINGUISH = builder
+                .comment("Will soul bonfires lose their extra bonfire fuel when extinguished (returns to a regular fire) - Default true")
+                .define("soulBonfireLoseFuelExtinguished", soul_cf_bonfire_lose_fuel);
         SOUL_CAMPFIRE_BONFIRE_BURN_MULT = builder
                 .comment("Soul campfire bonfire fuel use multiplier - Default 2")
-                .defineInRange("soulCampfireBonfireFuelUseMultiplier", soul_cf_bonfire_burn_mult, 1, 5);
+                .defineInRange("soulBonfireFuelUseMultiplier", soul_cf_bonfire_burn_mult, 1, 5);
         SOUL_CAMPFIRE_BONFIRE_COOKING_MULT = builder
                 .comment("Soul campfire bonfire cooking speed multiplier - Default 2")
-                .defineInRange("soulCampfireCookSpeedMultiplier", soul_cf_bonfire_cooking_mult, 1, 5);
+                .defineInRange("soulBonfireCookSpeedMultiplier", soul_cf_bonfire_cooking_mult, 1, 5);
         SOUL_CAMPFIRE_BONFIRE_FIRESPREAD = builder
                 .comment("Will soul campfire bonfires spread fire - Default true")
-                .define("soulCampfireBonfireFirespread", soul_cf_bonfire_firespread);
+                .define("soulBonfireFirespread", soul_cf_bonfire_firespread);
 //        SOUL_CAMPFIRE_BRIGHT_BONFIRE = builder
 //                .comment("Will soul campfires get brighter (from light-level 10 to 12) when a bonfire (needs soul fuel-based light-level enabled) - Default false")
-//                .define("brighterSoulCampfireBonfire", soul_cf_bright_bonfire);
+//                .define("brighterSoulBonfire", soul_cf_bright_bonfire);
         builder.pop();
         builder.pop();
 

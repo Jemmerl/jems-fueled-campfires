@@ -12,7 +12,7 @@ import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 
 import java.util.Random;
@@ -45,22 +45,44 @@ public class FirePoker extends Item {
                                     (random.nextFloat() / 2.0F), 3.0E-5D, (random.nextFloat() / 2.0F));
                         }
                     } else {
-                        ITextComponent msg = new StringTextComponent(" A" +
-                                (cfTileEntity.getEternal() ? "n eternal " : " ") +
-                                (cfTileEntity.getBonfire() ? "bon" : "cozy ") + "fire with " +
-                                (cfTileEntity.getFuelTicks() / 20) + " seconds of fuel left (" +
-                                (cfTileEntity.getFuelTicks()) + " ticks).");
+                        ITextComponent msg;
+                        if (cfTileEntity.getEternal()) {
+                            if (cfTileEntity.getBonfire()) {
+                                msg = new TranslationTextComponent( "info.jemscampfires.eternalbonfire", (cfTileEntity.getFuelTicks() / 20), cfTileEntity.getFuelTicks());
+                            } else {
+                                msg = new TranslationTextComponent( "info.jemscampfires.eternalcozy", (cfTileEntity.getFuelTicks() / 20), cfTileEntity.getFuelTicks());
+                            }
+                        } else {
+                            if (cfTileEntity.getBonfire()) {
+                                msg = new TranslationTextComponent( "info.jemscampfires.regularbonfire", (cfTileEntity.getFuelTicks() / 20), cfTileEntity.getFuelTicks());
+                            } else {
+                                msg = new TranslationTextComponent("info.jemscampfires.regularcozy", (cfTileEntity.getFuelTicks() / 20), cfTileEntity.getFuelTicks());
+                            }
+                        }
                         player.sendMessage(msg, player.getUUID(player.getGameProfile()));
                     }
                 } else {
                     if(!world.isRemote) {
-                        ITextComponent msg = new StringTextComponent(" The campfire is unlit" +
-                                (cfTileEntity.getEternal() ? " and eternal" : "") +
-                                ((cfTileEntity.getFuelTicks() <= 0) ? ", but with no fuel." : ".") );
+                        ITextComponent msg;
+                        if (state.get(CampfireBlock.WATERLOGGED)) {
+                            msg = new TranslationTextComponent("info.jemscampfires.waterlogged");
+                        } else if (cfTileEntity.getEternal()) {
+                            if (cfTileEntity.getFuelTicks() <= 0) {
+                                msg = new TranslationTextComponent("info.jemscampfires.unliteternalnofuel");
+                            } else {
+                                msg = new TranslationTextComponent("info.jemscampfires.unliteternalfuel");
+                            }
+                        } else {
+                            if (cfTileEntity.getFuelTicks() <= 0) {
+                                msg = new TranslationTextComponent("info.jemscampfires.unlitnofuel");
+                            } else {
+                                msg = new TranslationTextComponent("info.jemscampfires.unlitfuel");
+                            }
+                        }
                         player.sendMessage(msg, player.getUUID(player.getGameProfile()));
                     }
                 }
-                return ActionResultType.PASS;
+                return ActionResultType.func_233537_a_(world.isRemote());
             }
         }
         return super.onItemUseFirst(stack, context);

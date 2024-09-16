@@ -1,3 +1,12 @@
 {
-  "item.jemscampfires.fire_poker": "Fire Poker"
+  "item.jemscampfires.fire_poker": "Fire Poker",
+  "info.jemscampfires.eternalcozy": "An eternal cozy fire with %s seconds of fuel left (%s ticks).",
+  "info.jemscampfires.eternalbonfire": "An eternal bonfire with %s seconds of fuel left (%s ticks).",
+  "info.jemscampfires.regularcozy": "A cozy fire with %s seconds of fuel left (%s ticks).",
+  "info.jemscampfires.regularbonfire": "A bonfire with %s seconds of fuel left (%s ticks).",
+  "info.jemscampfires.unlitnofuel": "The campfire is unlit with no fuel left.",
+  "info.jemscampfires.unliteternalnofuel": "The campfire is unlit, eternal, and with no fuel left.",
+  "info.jemscampfires.unlitfuel": "The campfire is unlit with some fuel left.",
+  "info.jemscampfires.unliteternalfuel": "The campfire is unlit, eternal, and with some fuel left.",
+  "info.jemscampfires.waterlogged": "The campfire is waterlogged, you can't light it."
 }
