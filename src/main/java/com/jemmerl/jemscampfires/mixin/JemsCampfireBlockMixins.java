@@ -5,7 +5,6 @@ import com.jemmerl.jemscampfires.init.ServerConfig;
 import com.jemmerl.jemscampfires.util.IFueledCampfire;
 import com.jemmerl.jemscampfires.util.Util;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.CampfireBlock;
 import net.minecraft.block.ContainerBlock;
 import net.minecraft.entity.LivingEntity;
@@ -73,7 +72,7 @@ public abstract class JemsCampfireBlockMixins extends ContainerBlock {
             IFueledCampfire cfTileEntity = Util.getCFTE(worldIn, pos);
             if (cfTileEntity != null) {
                 // Override world-genned eternal status when placed by a player
-                if (state.getBlock() == Blocks.SOUL_CAMPFIRE) {
+                if (state.getBlock().getRegistryName().toString().contains("soul")) {
                     cfTileEntity.setEternal(ServerConfig.PLACE_SOUL_CAMPFIRE_ETERNAL.get());
                 } else {
                     cfTileEntity.setEternal(ServerConfig.PLACE_CAMPFIRE_ETERNAL.get());
@@ -86,26 +85,33 @@ public abstract class JemsCampfireBlockMixins extends ContainerBlock {
     @Inject(at = @At("RETURN"), method = "getStateForPlacement(Lnet/minecraft/item/BlockItemUseContext;)Lnet/minecraft/block/BlockState;", cancellable = true)
     private void getStateForPlacement(BlockItemUseContext context, CallbackInfoReturnable<BlockState> cir) {
         cir.setReturnValue(cir.getReturnValue()
-                .with(CampfireBlock.LIT, ((this.getDefaultState().getBlock() == Blocks.SOUL_CAMPFIRE) ?
+                .with(CampfireBlock.LIT, ((this.getBlock().getRegistryName().toString().contains("soul")) ?
                         ServerConfig.PLACE_SOUL_CAMPFIRE_LIT.get() : ServerConfig.PLACE_CAMPFIRE_LIT.get())));
     }
 
-    //    @Override
-    //    // ...Never mind. Can't access the TE from the client-side, will revisit later maybe
-    //    public int getLightValue(BlockState state, IBlockReader world, BlockPos pos) {
-    //        boolean isSoul = this.getDefaultState().getBlock() == Blocks.SOUL_CAMPFIRE;
-    //        if (isSoul ? ServerConfig.SOUL_CAMPFIRE_FUEL_BASED_LIGHT.get() : ServerConfig.CAMPFIRE_FUEL_BASED_LIGHT.get()) {
-    //            if (state.get(CampfireBlock.LIT)) {
-    //                CampfireTileEntity tileEntity = (CampfireTileEntity) world.getTileEntity(pos);
-    //                if (tileEntity instanceof IFueledCampfire) {
-    //                    IFueledCampfire cfTileEntity = (IFueledCampfire) tileEntity;
-    //                    float fuel = cfTileEntity.getFuelTicks();
-    //                    float maxFuel = isSoul ? ServerConfig.SOUL_CAMPFIRE_MAX_FUEL_TICKS.get() : ServerConfig.CAMPFIRE_MAX_FUEL_TICKS.get();
-    //                    return (int)(15f * (fuel/maxFuel));
-    //                }
-    //            }
-    //        }
-    //        return super.getLightValue(state, world, pos);
-    //    }
+// ...NEVER never mind. Would have to update the fuel value a lot, and this code runs frequently.
+// Maybe will revisit again later. Maybe.
+//    @Override
+//    public int getLightValue(BlockState state, IBlockReader world, BlockPos pos) {
+//        if (state.get(CampfireBlock.LIT)) {
+//            boolean isSoul = this.getDefaultState().getBlock() == Blocks.SOUL_CAMPFIRE;
+//            if (isSoul ? true : true) {
+//                IFueledCampfire cfTileEntity = Util.getCFTE(world, pos);
+//                if (cfTileEntity != null) {
+//                    float fuel = cfTileEntity.getFuelTicks();
+//                    float maxFuel = isSoul ? ServerConfig.SOUL_CAMPFIRE_MAX_FUEL_TICKS.get() : ServerConfig.CAMPFIRE_MAX_FUEL_TICKS.get();
+//                    float maxLight = isSoul ? 10f : 15f;
+//                    if (fuel >= maxFuel) {
+//                        if (isSoul && cfTileEntity.getBonfire() && true) {
+//                            maxLight = 15f;
+//                        }
+//                        return (int)maxLight;
+//                    }
+//                    return (int)Math.ceil(maxLight * (fuel/maxFuel));
+//                }
+//            }
+//        }
+//        return super.getLightValue(state, world, pos);
+//    }
 
 }

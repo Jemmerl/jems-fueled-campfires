@@ -14,8 +14,8 @@ public class ClientConfig {
 
         builder.push("Client Options");
         BONFIRE_EXTRA_PARTICLES = builder
-                .comment("Will bonfires make more particles - Default true")
-                .define("bonfireExtraParticles", bonfire_extra_particles);
+                .comment("Render additional bonfire embers and smoke - Default true")
+                .define("showBonfireParticles", bonfire_extra_particles);
         builder.pop();
 
         CLIENT_SPEC = builder.build();

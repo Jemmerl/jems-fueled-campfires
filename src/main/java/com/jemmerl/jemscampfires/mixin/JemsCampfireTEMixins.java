@@ -26,7 +26,6 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraftforge.common.ForgeHooks;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -40,7 +39,7 @@ import java.util.Random;
 
 @Mixin(value = CampfireTileEntity.class, priority = 0)
 public abstract class JemsCampfireTEMixins extends TileEntity implements IFueledCampfire {
-    private static final VoxelShape COLLECTION_AREA_SHAPE = Block.makeCuboidShape(0.0D, 3.0D, 0.0D, 16.0D, 16.0D, 16.0D);
+    private static final VoxelShape COLLECTION_AREA_SHAPE = Block.makeCuboidShape(-1.0D, 3.0D, -1.0D, 17.0D, 16.0D, 17.0D);
 
     // Properties
     private boolean isSoul;
@@ -66,14 +65,14 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     public void onLoad() {
         //super.onLoad();
         if (!this.world.isRemote()) {
-            isSoul = (this.getBlockState().getBlock() == Blocks.SOUL_CAMPFIRE.getBlock());
+            isSoul = (this.getBlockState().getBlock().getRegistryName().toString().contains("soul"));
 
             // This is the first load of the campfire TE
             // Get settings/properties that only matter or are needed when the campfire is first placed
             if (fuelTicks < 0) {
                 // This isEternal gets overridden if the block is placed by a player, else it has been world-genned
                 isEternal = isSoul ? ServerConfig.SPAWN_SOUL_CAMPFIRE_ETERNAL.get() : ServerConfig.SPAWN_CAMPFIRE_ETERNAL.get();
-                fuelTicks = Math.min(isSoul ? ServerConfig.SOUL_CAMPFIRE_INITIAL_FUEL_TICKS.get() : ServerConfig.CAMPFIRE_INITIAL_FUEL_TICKS.get(), getStandardMaxFuelTicks(isSoul));
+                fuelTicks = Math.min((isSoul ? ServerConfig.SOUL_CAMPFIRE_INITIAL_FUEL_TICKS.get() : ServerConfig.CAMPFIRE_INITIAL_FUEL_TICKS.get()), getStandardMaxFuelTicks(isSoul));
             }
         }
     }
@@ -386,11 +385,11 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     //                                            Data Handling Stuff                                              //
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    /**
-     * @author Jemmerl
-     * @reason Overriding was not working.
-     */
-    @Overwrite
+//    /**
+//     * @author Jemmerl
+//     * @reason Overriding was not working. <-- It was I was just being dumb.
+//     */
+    @Override
     @Nullable
     public SUpdateTileEntityPacket getUpdatePacket() {
         if (ServerConfig.ALLOW_CLIENT_PACKETS.get()) {
