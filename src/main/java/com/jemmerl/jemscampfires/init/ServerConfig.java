@@ -25,7 +25,7 @@ public class ServerConfig {
     private static final boolean soul_cf_break_unlit = false; // Will soul campfires break when they run out of fuel - Default false
     private static final boolean cf_firespread = false; // Will regular campfires spread fire to adjacent flammable blocks - Default false
     private static final boolean soul_cf_firespread = false; // Will soul campfires spread fire to adjacent flammable blocks - Default false
-    private static final int cf_rain_fuel_tick_loss = 10; // Regular campfire fuel lost per tick from rain (-1 for instant burnout without loss, 0 to disable, 0 to disable) - Default 10 ticks of fuel
+    private static final int cf_rain_fuel_tick_loss = 10; // Regular campfire fuel lost per tick from rain (-1 for instant burnout without loss, 0 to disable) - Default 10 ticks of fuel
     private static final int soul_cf_rain_fuel_tick_loss = 5; // Soul campfire fuel lost per tick from rain (-1 for instant burnout without loss, 0 to disable) - Default 5 ticks of fuel
 
     // Postponed
