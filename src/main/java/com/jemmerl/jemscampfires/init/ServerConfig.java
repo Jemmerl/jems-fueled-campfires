@@ -10,6 +10,9 @@ public class ServerConfig {
     public static ForgeConfigSpec SERVER_SPEC;
 
     // Default values
+    // Misc
+    private static final boolean need_fire_poker = true; // Is a fire poker needed for checking campfire info? Sneak + right-click with an empty hand if 'false' - Default: true
+
     // General
     private static final boolean place_cf_lit = false; // Are regular campfires placed by players initially lit - Default: false
     private static final boolean place_soul_cf_lit = false; // Are soul campfires placed by players initially lit - Default: false
@@ -67,6 +70,9 @@ public class ServerConfig {
     //private static final boolean soul_cf_bright_bonfire = false; // Will soul campfires get brighter (from light-level 10 to 12) when a bonfire (needs soul fuel-based light-level enabled) - Default false
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Misc
+    public static ForgeConfigSpec.BooleanValue NEED_FIRE_POKER;
 
     // General
     public static ForgeConfigSpec.BooleanValue PLACE_CAMPFIRE_LIT;
@@ -127,6 +133,11 @@ public class ServerConfig {
 
     static {
         final ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
+
+        builder.push("Misc Options");
+        NEED_FIRE_POKER = builder.comment("Is a fire poker needed for checking campfire info? Sneak + right-click with an empty hand if 'false' - Default: true")
+                .define("needFirePoker", need_fire_poker);
+        builder.pop();
 
         builder.push("General Options");
         builder.push("Regular Campfires");

@@ -8,11 +8,16 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.CampfireBlock;
 import net.minecraft.block.ContainerBlock;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particles.ParticleTypes;
+import net.minecraft.tileentity.CampfireTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import org.objectweb.asm.Opcodes;
@@ -87,6 +92,15 @@ public abstract class JemsCampfireBlockMixins extends ContainerBlock {
         cir.setReturnValue(cir.getReturnValue()
                 .with(CampfireBlock.LIT, ((this.getBlock().getRegistryName().toString().contains("soul")) ?
                         ServerConfig.PLACE_SOUL_CAMPFIRE_LIT.get() : ServerConfig.PLACE_CAMPFIRE_LIT.get())));
+    }
+
+    @Inject(at = @At(value = "INVOKE_ASSIGN", target = "net/minecraft/entity/player/PlayerEntity.getHeldItem(Lnet/minecraft/util/Hand;)Lnet/minecraft/item/ItemStack;"), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true,
+                method = "onBlockActivated(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;Lnet/minecraft/util/math/BlockRayTraceResult;)Lnet/minecraft/util/ActionResultType;")
+    public void onBlockActivated(BlockState arg0, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult arg5, CallbackInfoReturnable<ActionResultType> cir, TileEntity tileentity, CampfireTileEntity campfiretileentity, ItemStack itemstack) {
+        if (!ServerConfig.NEED_FIRE_POKER.get() && player.isCrouching() && itemstack.isEmpty()) {
+            Util.displayCampfireInfo(worldIn, pos, arg0, player, (IFueledCampfire)campfiretileentity);
+            cir.setReturnValue(ActionResultType.SUCCESS);
+        }
     }
 
 // ...NEVER never mind. Would have to update the fuel value a lot, and this code runs frequently.
