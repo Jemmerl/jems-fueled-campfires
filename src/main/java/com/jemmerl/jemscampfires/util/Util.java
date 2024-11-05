@@ -1,15 +1,15 @@
 package com.jemmerl.jemscampfires.util;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.CampfireBlock;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.CampfireBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Random;
 
@@ -19,17 +19,17 @@ public class Util {
         return (a % b + b) % b;
     }
 
-    public static IFueledCampfire getCFTE(IBlockReader worldIn, BlockPos posIn) {
-        TileEntity tileentity = worldIn.getTileEntity(posIn);
+    public static IFueledCampfire getCFTE(BlockGetter worldIn, BlockPos posIn) {
+        BlockEntity tileentity = worldIn.getBlockEntity(posIn);
         if (tileentity instanceof IFueledCampfire) {
             return (IFueledCampfire) tileentity;
         }
         return null;
     }
 
-    public static void displayCampfireInfo(World world, BlockPos pos, BlockState state, PlayerEntity player, IFueledCampfire cfTileEntity) {
-        if (state.get(CampfireBlock.LIT)) {
-            if(world.isRemote) {
+    public static void displayCampfireInfo(Level world, BlockPos pos, BlockState state, Player player, IFueledCampfire cfTileEntity) {
+        if (state.getValue(CampfireBlock.LIT)) {
+            if(world.isClientSide) {
                 Random random = world.getRandom();
                 int n = random.nextInt(4) + 1;
                 for (int i = 0; i < n; i++) {
@@ -37,41 +37,41 @@ public class Util {
                             (random.nextFloat() / 2.0F), 3.0E-5D, (random.nextFloat() / 2.0F));
                 }
             } else {
-                ITextComponent msg;
+                Component msg;
                 if (cfTileEntity.getEternal()) {
                     if (cfTileEntity.getBonfire()) {
-                        msg = new TranslationTextComponent( "info.jemscampfires.eternalbonfire", (cfTileEntity.getFuelTicks() / 20), cfTileEntity.getFuelTicks());
+                        msg = new TranslatableComponent( "info.jemscampfires.eternalbonfire", (cfTileEntity.getFuelTicks() / 20), cfTileEntity.getFuelTicks());
                     } else {
-                        msg = new TranslationTextComponent( "info.jemscampfires.eternalcozy", (cfTileEntity.getFuelTicks() / 20), cfTileEntity.getFuelTicks());
+                        msg = new TranslatableComponent( "info.jemscampfires.eternalcozy", (cfTileEntity.getFuelTicks() / 20), cfTileEntity.getFuelTicks());
                     }
                 } else {
                     if (cfTileEntity.getBonfire()) {
-                        msg = new TranslationTextComponent( "info.jemscampfires.regularbonfire", (cfTileEntity.getFuelTicks() / 20), cfTileEntity.getFuelTicks());
+                        msg = new TranslatableComponent( "info.jemscampfires.regularbonfire", (cfTileEntity.getFuelTicks() / 20), cfTileEntity.getFuelTicks());
                     } else {
-                        msg = new TranslationTextComponent("info.jemscampfires.regularcozy", (cfTileEntity.getFuelTicks() / 20), cfTileEntity.getFuelTicks());
+                        msg = new TranslatableComponent("info.jemscampfires.regularcozy", (cfTileEntity.getFuelTicks() / 20), cfTileEntity.getFuelTicks());
                     }
                 }
-                player.sendMessage(msg, PlayerEntity.getUUID(player.getGameProfile()));
+                player.sendMessage(msg, Player.createPlayerUUID(player.getGameProfile()));
             }
         } else {
-            if(!world.isRemote) {
-                ITextComponent msg;
-                if (state.get(CampfireBlock.WATERLOGGED)) {
-                    msg = new TranslationTextComponent("info.jemscampfires.waterlogged");
+            if(!world.isClientSide) {
+                Component msg;
+                if (state.getValue(CampfireBlock.WATERLOGGED)) {
+                    msg = new TranslatableComponent("info.jemscampfires.waterlogged");
                 } else if (cfTileEntity.getEternal()) {
                     if (cfTileEntity.getFuelTicks() <= 0) {
-                        msg = new TranslationTextComponent("info.jemscampfires.unliteternalnofuel");
+                        msg = new TranslatableComponent("info.jemscampfires.unliteternalnofuel");
                     } else {
-                        msg = new TranslationTextComponent("info.jemscampfires.unliteternalfuel");
+                        msg = new TranslatableComponent("info.jemscampfires.unliteternalfuel");
                     }
                 } else {
                     if (cfTileEntity.getFuelTicks() <= 0) {
-                        msg = new TranslationTextComponent("info.jemscampfires.unlitnofuel");
+                        msg = new TranslatableComponent("info.jemscampfires.unlitnofuel");
                     } else {
-                        msg = new TranslationTextComponent("info.jemscampfires.unlitfuel");
+                        msg = new TranslatableComponent("info.jemscampfires.unlitfuel");
                     }
                 }
-                player.sendMessage(msg, PlayerEntity.getUUID(player.getGameProfile()));
+                player.sendMessage(msg, Player.createPlayerUUID(player.getGameProfile()));
             }
         }
     }

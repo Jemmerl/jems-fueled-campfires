@@ -5,24 +5,29 @@ import com.jemmerl.jemscampfires.init.ServerConfig;
 import com.jemmerl.jemscampfires.util.IFueledCampfire;
 import com.jemmerl.jemscampfires.util.Util;
 import net.minecraft.block.*;
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.inventory.InventoryHelper;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.CampfireTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.EntityPredicates;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.Containers;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.BaseFireBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CampfireBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.CampfireBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.ForgeHooks;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
@@ -37,9 +42,9 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Random;
 
-@Mixin(value = CampfireTileEntity.class, priority = 0)
-public abstract class JemsCampfireTEMixins extends TileEntity implements IFueledCampfire {
-    private static final VoxelShape COLLECTION_AREA_SHAPE = Block.makeCuboidShape(-1.0D, 3.0D, -1.0D, 17.0D, 16.0D, 17.0D);
+@Mixin(value = CampfireBlockEntity.class, priority = 0)
+public abstract class JemsCampfireTEMixins extends BlockEntity implements IFueledCampfire {
+    private static final VoxelShape COLLECTION_AREA_SHAPE = Block.box(-1.0D, 3.0D, -1.0D, 17.0D, 16.0D, 17.0D);
 
     // Properties
     private boolean isSoul;
@@ -51,7 +56,7 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     // TODO: Maybe add fuel-based lighting in the future as a resource-expensive optional setting.
     //  Would need to send packets between server and client.
 
-    public JemsCampfireTEMixins(TileEntityType<?> tileEntityTypeIn) {
+    public JemsCampfireTEMixins(BlockEntityType<?> tileEntityTypeIn) {
         super(tileEntityTypeIn);
     }
 
@@ -64,7 +69,7 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     @Override
     public void onLoad() {
         //super.onLoad();
-        if (!this.world.isRemote()) {
+        if (!this.level.isClientSide()) {
             isSoul = (this.getBlockState().getBlock().getRegistryName().toString().contains("soul"));
 
             // This is the first load of the campfire TE
@@ -80,9 +85,9 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
 
     @Inject(at = @At("TAIL"), method = "tick()V")
     private void tick(CallbackInfo ci) {
-        if (world == null) return;
-        if (!world.isRemote) {
-            if (!this.getBlockState().get(CampfireBlock.LIT)) {
+        if (level == null) return;
+        if (!level.isClientSide) {
+            if (!this.getBlockState().getValue(CampfireBlock.LIT)) {
                 return;
             }
             getFuel();
@@ -107,8 +112,8 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
         // This will ensure fuel is distributed to each campfire equally when lit, if items touch multiple campfires
         // It however will not do the 1/4 tick check if it is freshly lit (lit, but no fuel) to ensure it will get fuel
         if (fuelTicks > 0) {
-            int mod = Util.mod(pos.getX(), 2) + ((Util.mod(pos.getZ(), 2) + 1) * 2) - 2;
-            if ((this.world.getGameTime() % 4L) != mod) {
+            int mod = Util.mod(worldPosition.getX(), 2) + ((Util.mod(worldPosition.getZ(), 2) + 1) * 2) - 2;
+            if ((this.level.getGameTime() % 4L) != mod) {
                 return;
             }
         }
@@ -116,12 +121,12 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
         for(ItemEntity itemEntity : getCaptureItems()) {
             ItemStack itemStack = itemEntity.getItem();
             int baseBurnTicks = ForgeHooks.getBurnTime(itemStack, null);
-            boolean eternalItem = getAllowEternalItems(isSoul) && itemStack.getItem().isIn(JCTags.JC_ETERNAL) && (!isEternal);
+            boolean eternalItem = getAllowEternalItems(isSoul) && itemStack.getItem().is(JCTags.JC_ETERNAL) && (!isEternal);
 
             if ((baseBurnTicks > 0) || eternalItem) {
                 int itemCount = itemStack.getCount();
                 if (burnFuelItem(baseBurnTicks, eternalItem)) {
-                    itemEntity.playSound(SoundEvents.ENTITY_GENERIC_BURN, 0.4F, 2.0F + world.rand.nextFloat() * 0.4F);
+                    itemEntity.playSound(SoundEvents.GENERIC_BURN, 0.4F, 2.0F + level.random.nextFloat() * 0.4F);
                     doFuelInContainer(itemStack.getItem());
 
                     int newCount = itemCount - 1;
@@ -138,8 +143,8 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     }
 
     private List<ItemEntity> getCaptureItems() {
-        return this.world.getEntitiesWithinAABB(ItemEntity.class, COLLECTION_AREA_SHAPE.getBoundingBox()
-                .offset(pos.getX(), pos.getY(), pos.getZ()), EntityPredicates.IS_ALIVE);
+        return this.level.getEntitiesOfClass(ItemEntity.class, COLLECTION_AREA_SHAPE.bounds()
+                .move(worldPosition.getX(), worldPosition.getY(), worldPosition.getZ()), EntitySelector.ENTITY_STILL_ALIVE);
     }
 
     private boolean burnFuelItem(int baseBurnTicks, boolean eternalItem) {
@@ -154,7 +159,7 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
             setFuelTicks(newCurrFuelTicks);
             return true;
         }
-        if (getAlwaysBurnFuel(isSoul) && this.getBlockState().get(CampfireBlock.LIT)) {
+        if (getAlwaysBurnFuel(isSoul) && this.getBlockState().getValue(CampfireBlock.LIT)) {
             setFuelTicks(getTrueMaxFuelTicks(isSoul));
             return true;
         }
@@ -165,7 +170,7 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     // Modders can mixin to this class with ease, make sure to inject at RETURN and not include any early returns!
     private void doFuelInContainer(Item item) {
         if (item == Items.LAVA_BUCKET) {
-            InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(Items.BUCKET));
+            Containers.dropItemStack(level, worldPosition.getX(), worldPosition.getY(), worldPosition.getZ(), new ItemStack(Items.BUCKET));
         }
     }
 
@@ -178,9 +183,9 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
 
         setBonfire(getCanBonfire(isSoul) && (!isEternal || getEternalBonfire(isSoul)) && (fuelTicks > getStandardMaxFuelTicks(isSoul)));
         if (!isBonfire) {
-            if (getNormalFirespread(isSoul) && (this.world.rand.nextInt(70) == 0)) {
-                Direction dir = Direction.byHorizontalIndex(world.rand.nextInt(4));
-                ignitePos(pos.offset(dir), false);
+            if (getNormalFirespread(isSoul) && (this.level.random.nextInt(70) == 0)) {
+                Direction dir = Direction.from2DDataValue(level.random.nextInt(4));
+                ignitePos(worldPosition.relative(dir), false);
             }
         }
 
@@ -193,36 +198,36 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     }
 
     private void bonfireStuff() {
-        Random rand = this.world.rand;
+        Random rand = this.level.random;
 
         // Update clients once per second about bonfire status
         // AFAIK this is the only way I can ensure players see the correct bonfire behavior
         // Bonfire updates are still sent as normal through setBonfire, but this may change
-        if (ServerConfig.ALLOW_CLIENT_PACKETS.get() && (world.getGameTime() % 20L == 0L)) {
+        if (ServerConfig.ALLOW_CLIENT_PACKETS.get() && (level.getGameTime() % 20L == 0L)) {
             BlockState state = this.getBlockState();
-            world.notifyBlockUpdate(pos, state, state, 18); // Uses 2 client updates, and 16 no observers
+            level.sendBlockUpdated(worldPosition, state, state, 18); // Uses 2 client updates, and 16 no observers
         }
 
         if (getBonfireFirespread(isSoul)) {
             if (rand.nextInt(20) != 0) return;
-            Direction dir1 = Direction.byHorizontalIndex(rand.nextInt(4));
-            Direction dir2 = Direction.getRandomDirection(rand);
+            Direction dir1 = Direction.from2DDataValue(rand.nextInt(4));
+            Direction dir2 = Direction.getRandom(rand);
             int up = rand.nextInt(2);
-            if ((dir2.getOpposite() == dir1) || (dir2.getHorizontalIndex() < 0)) {
-                ignitePos(pos.offset(dir1).up(up), true);
+            if ((dir2.getOpposite() == dir1) || (dir2.get2DDataValue() < 0)) {
+                ignitePos(worldPosition.relative(dir1).above(up), true);
             } else {
-                ignitePos(pos.offset(dir1).offset(dir2).up(up), true);
+                ignitePos(worldPosition.relative(dir1).relative(dir2).above(up), true);
             }
         }
     }
 
     private void ignitePos(BlockPos blockPos, boolean ignoreFlammable) {
-        Material material = this.world.getBlockState(blockPos).getMaterial();
+        Material material = this.level.getBlockState(blockPos).getMaterial();
         if (material.isReplaceable() && !material.isLiquid()) {
-            BlockState downState = this.world.getBlockState(blockPos.down());
-            if (downState.isOpaqueCube(this.world, blockPos.down()) &&
-                    (ignoreFlammable || downState.isFlammable(world, pos, Direction.UP))) {
-                this.world.setBlockState(blockPos, AbstractFireBlock.getFireForPlacement(this.world, blockPos));
+            BlockState downState = this.level.getBlockState(blockPos.below());
+            if (downState.isSolidRender(this.level, blockPos.below()) &&
+                    (ignoreFlammable || downState.isFlammable(level, worldPosition, Direction.UP))) {
+                this.level.setBlockAndUpdate(blockPos, BaseFireBlock.getState(this.level, blockPos));
             }
         }
         //return false;
@@ -230,7 +235,7 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
 
     // Returns true if the rain extinguishes the campfire
     private boolean feelTheRainOnYourCampfire() {
-        if (world.isRainingAt(this.pos.up())) {
+        if (level.isRainingAt(this.worldPosition.above())) {
             if (getRainFuelLoss(isSoul) == -1) {
                 return true;
             } else {
@@ -250,13 +255,13 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     }
 
     private void extinguishCampfire(boolean drops) {
-        this.world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, 1.0F, 1.0F);
+        this.level.playSound(null, worldPosition, SoundEvents.GENERIC_EXTINGUISH_FIRE, SoundSource.BLOCKS, 1.0F, 1.0F);
         if (drops) {
-            CampfireBlock.extinguish(this.world, pos, this.getBlockState());
+            CampfireBlock.dowse(this.level, worldPosition, this.getBlockState());
             // doExtinguished is called from the campfire block normally to handle other extinguishing factors,
             // like shovels and water bottles, so it is not called here.
         } else {
-            this.world.setBlockState(this.pos, this.getBlockState().with(CampfireBlock.LIT, false));
+            this.level.setBlockAndUpdate(this.worldPosition, this.getBlockState().setValue(CampfireBlock.LIT, false));
             doExtinguished();
         }
     }
@@ -271,9 +276,9 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     }
 
     private void breakCampfire() {
-        this.world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, 1.0F, 1.0F);
+        this.level.playSound(null, worldPosition, SoundEvents.GENERIC_EXTINGUISH_FIRE, SoundSource.BLOCKS, 1.0F, 1.0F);
         this.dropAllItems();
-        this.world.setBlockState(this.pos, Blocks.AIR.getDefaultState());
+        this.level.setBlockAndUpdate(this.worldPosition, Blocks.AIR.defaultBlockState());
     }
 
 
@@ -373,9 +378,9 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     public void setBonfire(boolean bonfire) {
         if (this.isBonfire != bonfire) {
             this.isBonfire = bonfire;
-            if (ServerConfig.ALLOW_CLIENT_PACKETS.get() && (world != null) && (!world.isRemote)) {
+            if (ServerConfig.ALLOW_CLIENT_PACKETS.get() && (level != null) && (!level.isClientSide)) {
                 BlockState state = this.getBlockState();
-                world.notifyBlockUpdate(pos, state, state, 18); // Uses 2 client updates, and 16 no observers
+                level.sendBlockUpdated(worldPosition, state, state, 18); // Uses 2 client updates, and 16 no observers
             }
         }
     }
@@ -391,21 +396,21 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
 //     */
     @Override
     @Nullable
-    public SUpdateTileEntityPacket getUpdatePacket() {
+    public ClientboundBlockEntityDataPacket getUpdatePacket() {
         if (ServerConfig.ALLOW_CLIENT_PACKETS.get()) {
-            CompoundNBT nbtTag = this.getUpdateTag();
+            CompoundTag nbtTag = this.getUpdateTag();
             //nbtTag.putInt("FuelTicks", this.fuelTicks);
             //nbtTag.putBoolean("IsEternal", this.isEternal);
             nbtTag.putBoolean("IsBonfire", this.isBonfire);
-            return new SUpdateTileEntityPacket(pos, 13, nbtTag);
+            return new ClientboundBlockEntityDataPacket(worldPosition, 13, nbtTag);
         }
-        return new SUpdateTileEntityPacket(this.pos, 13, this.getUpdateTag());
+        return new ClientboundBlockEntityDataPacket(this.worldPosition, 13, this.getUpdateTag());
     }
 
     @Override
     // Receive packet from client
-    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt){
-        CompoundNBT nbtTag = pkt.getNbtCompound();
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt){
+        CompoundTag nbtTag = pkt.getTag();
         if (nbtTag.contains("IsBonfire", 99)) {
             setBonfire(nbtTag.getBoolean("IsBonfire"));
         }
@@ -413,7 +418,7 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     }
 
     @Inject(at = @At("RETURN"), method = "read(Lnet/minecraft/block/BlockState;Lnet/minecraft/nbt/CompoundNBT;)V")
-    private void readFueled(BlockState state, CompoundNBT nbt, CallbackInfo ci) {
+    private void readFueled(BlockState state, CompoundTag nbt, CallbackInfo ci) {
         if (nbt.contains("FuelTicks", 3)) {
             setFuelTicks(nbt.getInt("FuelTicks"));
         }
@@ -426,8 +431,8 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     }
 
     @Inject(at = @At("RETURN"), method = "write(Lnet/minecraft/nbt/CompoundNBT;)Lnet/minecraft/nbt/CompoundNBT;", cancellable = true)
-    private void writeFueled(CompoundNBT compound, CallbackInfoReturnable<CompoundNBT> cir) {
-        CompoundNBT nbt = cir.getReturnValue();
+    private void writeFueled(CompoundTag compound, CallbackInfoReturnable<CompoundTag> cir) {
+        CompoundTag nbt = cir.getReturnValue();
         if (nbt != null) {
             nbt.putInt("FuelTicks", this.fuelTicks);
             nbt.putBoolean("IsEternal", this.isEternal);

@@ -2,14 +2,14 @@ package com.jemmerl.jemscampfires.items;
 
 import com.jemmerl.jemscampfires.util.IFueledCampfire;
 import com.jemmerl.jemscampfires.util.Util;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.CampfireBlock;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.world.World;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.CampfireBlock;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class FirePoker extends Item {
     public FirePoker(Properties properties) {
@@ -17,19 +17,19 @@ public class FirePoker extends Item {
     }
 
     @Override
-    public ActionResultType onItemUseFirst(ItemStack stack, ItemUseContext context) {
-        World world = context.getWorld();
-        BlockState state = world.getBlockState(context.getPos());
+    public InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context) {
+        Level world = context.getLevel();
+        BlockState state = world.getBlockState(context.getClickedPos());
         if (state.getBlock() instanceof CampfireBlock) {
-            IFueledCampfire cfTileEntity = Util.getCFTE(context.getWorld(), context.getPos());
+            IFueledCampfire cfTileEntity = Util.getCFTE(context.getLevel(), context.getClickedPos());
             if (cfTileEntity != null) {
-                PlayerEntity player = context.getPlayer();
-                if ((player == null) || (player.getCooldownTracker().hasCooldown(this))) {
+                Player player = context.getPlayer();
+                if ((player == null) || (player.getCooldowns().isOnCooldown(this))) {
                     return super.onItemUseFirst(stack, context);
                 }
-                player.getCooldownTracker().setCooldown(this, 10);
-                Util.displayCampfireInfo(world, context.getPos(), state, player, cfTileEntity);
-                return ActionResultType.func_233537_a_(world.isRemote());
+                player.getCooldowns().addCooldown(this, 10);
+                Util.displayCampfireInfo(world, context.getClickedPos(), state, player, cfTileEntity);
+                return InteractionResult.sidedSuccess(world.isClientSide());
             }
         }
         return super.onItemUseFirst(stack, context);
