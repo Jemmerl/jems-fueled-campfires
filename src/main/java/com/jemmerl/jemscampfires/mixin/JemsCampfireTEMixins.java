@@ -113,7 +113,7 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
             }
         }
     }
-
+//public static void cookTick(Level pLevel, BlockPos pPos, BlockState pState, CampfireBlockEntity pBlockEntity)
 //variables needed, gotta get the tile tineity too and get isBonfire bc static????
     @Inject(at = @At("HEAD"), method = "cookTick(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/entity/CampfireBlockEntity;)V")
     private static void cookTick(Level pLevel, BlockPos pPos, BlockState pState, CampfireBlockEntity pBlockEntity, CallbackInfo ci) {
@@ -127,16 +127,24 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
 
     //@Inject(at = @At(value = "JUMP", opcode = Opcodes.IF_ICMPLT, ordinal = 0), locals = LocalCapture.PRINT, method = "cookAndDrop()V")
     @Inject(at = @At(value = "FIELD", target = "net/minecraft/world/level/block/entity/CampfireBlockEntity.cookingProgress:[I",
-            opcode = Opcodes.GETFIELD, args = "array=get", ordinal = 0, shift = At.Shift.BY, by = -2), locals = LocalCapture.PRINT,
+            opcode = Opcodes.GETFIELD, args = "array=get", ordinal = 0, shift = At.Shift.BY, by = -2), locals = LocalCapture.CAPTURE_FAILHARD,
             method = "cookTick(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/entity/CampfireBlockEntity;)V")
-    private void cookAndDrop(CallbackInfo ci, int i, ItemStack itemstack) {
-        if (isEternal && getLoseEternalCook(isSoul)) {
-            this.isEternal = false;
+    private static void cookAndDrop(Level arg0, BlockPos arg1, BlockState arg2, CampfireBlockEntity pBlockEntity, CallbackInfo ci, boolean flag, int i, ItemStack itemstack) {
+        IFueledCampfire fueledCampfire = (IFueledCampfire) pBlockEntity;
+        if (fueledCampfire.getEternal() && getLoseEternalCook(fueledCampfire.isSoul())) {
+            fueledCampfire.setEternal(flag);
         }
-        if (isBonfire) {
-            this.cookingProgress[i] += (getBonfireCookMult(isSoul) - 1);
+        if (fueledCampfire.getBonfire()) {
+            fueledCampfire.fetchCookingVariable()[i] += (getBonfireCookMult(fueledCampfire.isSoul()) - 1);
             //j = cookingTimes[i];
         }
+    }
+
+    @Override
+    // It annoys me that this is the only solution I could come up with that doesn't use an AT.
+    // Would love to hear of an alternative please and thank you.
+    public int[] fetchCookingVariable() {
+        return this.cookingProgress;
     }
 
     public void getFuel() {
@@ -378,6 +386,11 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
     }
     private static boolean getBonfireFirespread(boolean soul) {
         return soul ? ServerConfig.SOUL_CAMPFIRE_BONFIRE_FIRESPREAD.get() : ServerConfig.CAMPFIRE_BONFIRE_FIRESPREAD.get();
+    }
+
+    @Override
+    public boolean isSoul() {
+        return isSoul;
     }
 
     @Override

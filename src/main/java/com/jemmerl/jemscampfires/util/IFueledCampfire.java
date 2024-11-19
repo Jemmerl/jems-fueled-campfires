@@ -13,6 +13,9 @@ public interface IFueledCampfire {
     boolean getBonfire();
     void setBonfire(boolean bonfire);
 
+    boolean isSoul();
+    int[] fetchCookingVariable();
+
     void getFuel();
     void normalStuff();
     void bonfireStuff();

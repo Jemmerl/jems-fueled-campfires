@@ -38,10 +38,10 @@ public abstract class JemsCampfireBlockMixins extends BaseEntityBlock {
         super(builder);
     }
 
-    @Shadow
-    private boolean smokey;
+//    @Shadow
+//    private boolean smokey;
 
-    //public void animateTick( ,  , BlockPos , Random ) {
+//    //public void animateTick( ,  , BlockPos , Random ) {
 //    @Inject(at = @At(value = "JUMP", opcode = Opcodes.IFEQ, ordinal = 1), locals = LocalCapture.CAPTURE_FAILHARD,
 //            method = "animateTick(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Ljava/util/Random;)V")
 //    private void animateTick(BlockState pState, Level pLevel, BlockPos pPos, Random pRand, CallbackInfo ci) {
@@ -105,8 +105,8 @@ public abstract class JemsCampfireBlockMixins extends BaseEntityBlock {
 //        }
 //    }
 
-// ...NEVER never mind. Would have to update the fuel value a lot, and this code runs frequently.
-// Maybe will revisit again later. Maybe.
+//// ...NEVER never mind. Would have to update the fuel value a lot, and this code runs frequently.
+//// Maybe will revisit again later. Maybe.
 //    @Override
 //    public int getLightValue(BlockState state, IBlockReader world, BlockPos pos) {
 //        if (state.get(CampfireBlock.LIT)) {
