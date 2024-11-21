@@ -38,72 +38,72 @@ public abstract class JemsCampfireBlockMixins extends BaseEntityBlock {
         super(builder);
     }
 
-//    @Shadow
-//    private boolean smokey;
+    @Shadow
+    private boolean smokey;
 
-//    //public void animateTick( ,  , BlockPos , Random ) {
-//    @Inject(at = @At(value = "JUMP", opcode = Opcodes.IFEQ, ordinal = 1), locals = LocalCapture.CAPTURE_FAILHARD,
-//            method = "animateTick(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Ljava/util/Random;)V")
-//    private void animateTick(BlockState pState, Level pLevel, BlockPos pPos, Random pRand, CallbackInfo ci) {
-//        if (this.smokey && ClientConfig.BONFIRE_EXTRA_PARTICLES.get() && checkBonfire(pLevel, pPos)) {
-//            pLevel.addAlwaysVisibleParticle(ParticleTypes.CAMPFIRE_SIGNAL_SMOKE, true,
-//                    (double)pPos.getX() + 0.5D + pRand.nextDouble() / 3.0D * (double)(pRand.nextBoolean() ? 1 : -1),
-//                    (double)pPos.getY() + pRand.nextDouble() + pRand.nextDouble(),
-//                    (double)pPos.getZ() + 0.5D + pRand.nextDouble() / 3.0D * (double)(pRand.nextBoolean() ? 1 : -1),
-//                    (pRand.nextFloat()*0.02D-0.01D), 0.07D, (pRand.nextFloat()*0.02D-0.01D));
-//            pLevel.addParticle(ParticleTypes.LAVA, (double)pPos.getX() + 0.5D, (double)pPos.getY() + 0.5D, (double)pPos.getZ() + 0.5D, pRand.nextFloat(), 10.0E-5D, pRand.nextFloat());
-//            pLevel.addParticle(ParticleTypes.LAVA, (double)pPos.getX() + 0.5D, (double)pPos.getY() + 0.5D, (double)pPos.getZ() + 0.5D, (pRand.nextFloat() / 1.5F), 8.0E-5D, (pRand.nextFloat() / 1.5F));
-//            pLevel.addParticle(ParticleTypes.LAVA, (double)pPos.getX() + 0.5D, (double)pPos.getY() + 0.5D, (double)pPos.getZ() + 0.5D, (pRand.nextFloat() / 2.0F), 5.0E-5D, (pRand.nextFloat() / 2.0F));
-//        }
-//    }
-//
-//    private boolean checkBonfire(Level worldIn, BlockPos posIn) {
-//        IFueledCampfire cfTileEntity = Util.getCFTE(worldIn, posIn);
-//        if (cfTileEntity != null) {
-//            return cfTileEntity.getBonfire();
-//        }
-//        return false;
-//    }
-//
-//    @Inject(at = @At(value = "INVOKE", target = "net/minecraft/tileentity/CampfireTileEntity.dropAllItems()V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD,
-//            method = "dowse(Lnet/minecraft/world/IWorld;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)V")
-//    private static void extinguishEternal(LevelAccessor world, BlockPos pos, BlockState state, CallbackInfo ci, BlockEntity tileentity) {
-//        if (!world.isClientSide()) {
-//            ((IFueledCampfire)tileentity).doExtinguished();
-//        }
-//    }
-//
-//    @Override
-//    public void setPlacedBy(Level worldIn, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
-//        if(!worldIn.isClientSide()) {
-//            IFueledCampfire cfTileEntity = Util.getCFTE(worldIn, pos);
-//            if (cfTileEntity != null) {
-//                // Override world-genned eternal status when placed by a player
-//                if (state.getBlock().getRegistryName().toString().contains("soul")) {
-//                    cfTileEntity.setEternal(ServerConfig.PLACE_SOUL_CAMPFIRE_ETERNAL.get());
-//                } else {
-//                    cfTileEntity.setEternal(ServerConfig.PLACE_CAMPFIRE_ETERNAL.get());
-//                }
-//            }
-//        }
-//        super.setPlacedBy(worldIn, pos, state, placer, stack);
-//    }
-//
-//    @Inject(at = @At("RETURN"), method = "getStateForPlacement(Lnet/minecraft/world/level/LevelAccessor;)Lnet/minecraft/world/level/block/state/BlockState;", cancellable = true)
-//    private void getStateForPlacement(BlockPlaceContext context, CallbackInfoReturnable<BlockState> cir) {
-//        cir.setReturnValue(cir.getReturnValue()
-//                .setValue(CampfireBlock.LIT, ((this.asBlock().getRegistryName().toString().contains("soul")) ?
-//                        ServerConfig.PLACE_SOUL_CAMPFIRE_LIT.get() : ServerConfig.PLACE_CAMPFIRE_LIT.get())));
-//    }
-//
-//    @Inject(at = @At(value = "INVOKE_ASSIGN", target = "net/minecraft/entity/player/PlayerEntity.getHeldItem(Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/item/ItemStack;"), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true,
-//                method = "onBlockActivated(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/player/Player;;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/phys/BlockHitResult;)Lnet/minecraft/world/InteractionResult;")
-//    public void use(BlockState arg0, Level worldIn, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult arg5, CallbackInfoReturnable<InteractionResult> cir, BlockEntity tileentity, CampfireBlockEntity campfiretileentity, ItemStack itemstack) {
-//        if (!ServerConfig.NEED_FIRE_POKER.get() && player.isCrouching() && itemstack.isEmpty()) {
-//            Util.displayCampfireInfo(worldIn, pos, arg0, player, (IFueledCampfire)campfiretileentity);
-//            cir.setReturnValue(InteractionResult.SUCCESS);
-//        }
-//    }
+    //public void animateTick( ,  , BlockPos , Random ) {
+    @Inject(at = @At(value = "JUMP", opcode = Opcodes.IFEQ, ordinal = 1), locals = LocalCapture.CAPTURE_FAILHARD,
+            method = "animateTick(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Ljava/util/Random;)V")
+    private void animateTick(BlockState pState, Level pLevel, BlockPos pPos, Random pRand, CallbackInfo ci) {
+        if (this.smokey && ClientConfig.BONFIRE_EXTRA_PARTICLES.get() && checkBonfire(pLevel, pPos)) {
+            pLevel.addAlwaysVisibleParticle(ParticleTypes.CAMPFIRE_SIGNAL_SMOKE, true,
+                    (double)pPos.getX() + 0.5D + pRand.nextDouble() / 3.0D * (double)(pRand.nextBoolean() ? 1 : -1),
+                    (double)pPos.getY() + pRand.nextDouble() + pRand.nextDouble(),
+                    (double)pPos.getZ() + 0.5D + pRand.nextDouble() / 3.0D * (double)(pRand.nextBoolean() ? 1 : -1),
+                    (pRand.nextFloat()*0.02D-0.01D), 0.07D, (pRand.nextFloat()*0.02D-0.01D));
+            pLevel.addParticle(ParticleTypes.LAVA, (double)pPos.getX() + 0.5D, (double)pPos.getY() + 0.5D, (double)pPos.getZ() + 0.5D, pRand.nextFloat(), 10.0E-5D, pRand.nextFloat());
+            pLevel.addParticle(ParticleTypes.LAVA, (double)pPos.getX() + 0.5D, (double)pPos.getY() + 0.5D, (double)pPos.getZ() + 0.5D, (pRand.nextFloat() / 1.5F), 8.0E-5D, (pRand.nextFloat() / 1.5F));
+            pLevel.addParticle(ParticleTypes.LAVA, (double)pPos.getX() + 0.5D, (double)pPos.getY() + 0.5D, (double)pPos.getZ() + 0.5D, (pRand.nextFloat() / 2.0F), 5.0E-5D, (pRand.nextFloat() / 2.0F));
+        }
+    }
+
+    private boolean checkBonfire(Level worldIn, BlockPos posIn) {
+        IFueledCampfire cfTileEntity = Util.getCFTE(worldIn, posIn);
+        if (cfTileEntity != null) {
+            return cfTileEntity.getBonfire();
+        }
+        return false;
+    }
+
+    @Inject(at = @At(value = "INVOKE", target = "net/minecraft/tileentity/CampfireTileEntity.dropAllItems()V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD,
+            method = "dowse(Lnet/minecraft/world/IWorld;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)V")
+    private static void extinguishDropsAndEternal(LevelAccessor world, BlockPos pos, BlockState state, CallbackInfo ci, BlockEntity tileentity) {
+        if (!world.isClientSide()) {
+            ((IFueledCampfire)tileentity).doExtinguishDrops();
+        }
+    }
+
+    @Override
+    public void setPlacedBy(Level worldIn, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+        if(!worldIn.isClientSide()) {
+            IFueledCampfire cfTileEntity = Util.getCFTE(worldIn, pos);
+            if (cfTileEntity != null) {
+                // Override world-genned eternal status when placed by a player
+                if (state.getBlock().getRegistryName().toString().contains("soul")) {
+                    cfTileEntity.setEternal(ServerConfig.PLACE_SOUL_CAMPFIRE_ETERNAL.get());
+                } else {
+                    cfTileEntity.setEternal(ServerConfig.PLACE_CAMPFIRE_ETERNAL.get());
+                }
+            }
+        }
+        super.setPlacedBy(worldIn, pos, state, placer, stack);
+    }
+
+    @Inject(at = @At("RETURN"), method = "getStateForPlacement(Lnet/minecraft/world/level/LevelAccessor;)Lnet/minecraft/world/level/block/state/BlockState;", cancellable = true)
+    private void getStateForPlacement(BlockPlaceContext context, CallbackInfoReturnable<BlockState> cir) {
+        cir.setReturnValue(cir.getReturnValue()
+                .setValue(CampfireBlock.LIT, ((this.asBlock().getRegistryName().toString().contains("soul")) ?
+                        ServerConfig.PLACE_SOUL_CAMPFIRE_LIT.get() : ServerConfig.PLACE_CAMPFIRE_LIT.get())));
+    }
+
+    @Inject(at = @At(value = "INVOKE_ASSIGN", target = "net/minecraft/entity/player/PlayerEntity.getHeldItem(Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/item/ItemStack;"), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true,
+                method = "onBlockActivated(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/player/Player;;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/phys/BlockHitResult;)Lnet/minecraft/world/InteractionResult;")
+    public void use(BlockState arg0, Level worldIn, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult arg5, CallbackInfoReturnable<InteractionResult> cir, BlockEntity tileentity, CampfireBlockEntity campfiretileentity, ItemStack itemstack) {
+        if (!ServerConfig.NEED_FIRE_POKER.get() && player.isCrouching() && itemstack.isEmpty()) {
+            Util.displayCampfireInfo(worldIn, pos, arg0, player, (IFueledCampfire)campfiretileentity);
+            cir.setReturnValue(InteractionResult.SUCCESS);
+        }
+    }
 
 //// ...NEVER never mind. Would have to update the fuel value a lot, and this code runs frequently.
 //// Maybe will revisit again later. Maybe.

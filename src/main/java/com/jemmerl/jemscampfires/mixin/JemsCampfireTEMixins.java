@@ -6,6 +6,7 @@ import com.jemmerl.jemscampfires.util.IFueledCampfire;
 import com.jemmerl.jemscampfires.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -97,6 +98,9 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
 
     @Shadow
     private int[] cookingProgress;
+
+    @Shadow
+    public abstract NonNullList<ItemStack> getItems();
 
     @Override
     public void onLoad() {
@@ -216,7 +220,7 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
     public void normalStuff() {
         // If the campfire is already out of fuel (was lit without refueling) or it is raining, try to extinguish
         if ((!isEternal && (fuelTicks <= 0)) || ((!isEternal || getRainEternal(isSoul)) && feelTheRainOnYourCampfire())) {
-            extinguishCampfire(false);
+            extinguishCampfire(true);
             return;
         }
 
@@ -289,23 +293,33 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
         if (getBreakUnlit(isSoul)) {
             breakCampfire();
         } else {
-            extinguishCampfire(true);
+            extinguishCampfire(false);
         }
     }
 
-    private void extinguishCampfire(boolean drops) {
+    // TODO drops no longers happens be defuldut so make itan dioption tohappen here
+    private void extinguishCampfire(boolean preventDrops) {
         this.level.playSound(null, worldPosition, SoundEvents.GENERIC_EXTINGUISH_FIRE, SoundSource.BLOCKS, 1.0F, 1.0F);
-        if (drops) {
-            CampfireBlock.dowse(null, this.level, worldPosition, this.getBlockState());
-            // doExtinguished is called from the campfire block normally to handle other extinguishing factors,
-            // like shovels and water bottles, so it is not called here.
-        } else {
+
+        if (preventDrops) {
             this.level.setBlockAndUpdate(this.worldPosition, this.getBlockState().setValue(CampfireBlock.LIT, false));
-            doExtinguished();
+            doExtinguishChecks();
+        } else {
+            CampfireBlock.dowse(null, this.level, worldPosition, this.getBlockState());
+            // doExtinguishDrops is mixin'd into the campfire block dowse method to handle other extinguishing factors,
+            // like shovels and water bottles, so it is not called from here.
         }
     }
 
-    public void doExtinguished() {
+    public void doExtinguishDrops() {
+        if (ServerConfig.EXTINGUISHED_DROP_ITEMS.get()) {
+            Containers.dropContents(this.level, worldPosition, getItems());
+        }
+        doExtinguishChecks();
+    }
+
+    // Can be called directly to bypass drop check
+    public void doExtinguishChecks() {
         if (isEternal && getLoseEternalExtinguish(isSoul)) {
             isEternal = false;
         }

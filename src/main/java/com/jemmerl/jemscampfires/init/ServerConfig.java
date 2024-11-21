@@ -12,6 +12,7 @@ public class ServerConfig {
     // Default values
     // Misc
     private static final boolean need_fire_poker = true; // Is a fire poker needed for checking campfire info? Sneak + right-click with an empty hand if 'false' - Default: true
+    private static final boolean extinguished_drop_items = false; // Will campfires drop items when extinguished (restores pre-1.17 behavior) - Default: false
 
     // General
     private static final boolean place_cf_lit = false; // Are regular campfires placed by players initially lit - Default: false
@@ -73,6 +74,7 @@ public class ServerConfig {
 
     // Misc
     public static ForgeConfigSpec.BooleanValue NEED_FIRE_POKER;
+    public static ForgeConfigSpec.BooleanValue EXTINGUISHED_DROP_ITEMS;
 
     // General
     public static ForgeConfigSpec.BooleanValue PLACE_CAMPFIRE_LIT;
@@ -137,6 +139,8 @@ public class ServerConfig {
         builder.push("Misc Options");
         NEED_FIRE_POKER = builder.comment("Is a fire poker needed for checking campfire info? Sneak + right-click with an empty hand if 'false' - Default: true")
                 .define("needFirePoker", need_fire_poker);
+        EXTINGUISHED_DROP_ITEMS = builder.comment("Will campfires drop items when extinguished (restores pre-1.17 behavior) - Default: false ")
+                .define("dropItemsWhenExtinguish", extinguished_drop_items);
         builder.pop();
 
         builder.push("General Options");
