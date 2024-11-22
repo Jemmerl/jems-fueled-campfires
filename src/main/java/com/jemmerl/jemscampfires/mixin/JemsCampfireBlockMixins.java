@@ -8,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -38,14 +39,50 @@ public abstract class JemsCampfireBlockMixins extends BaseEntityBlock {
         super(builder);
     }
 
+    //blockstate
+    // Lnet/minecraft/world/level/block/state/BlockState;
+
+    //leveel
+    // Lnet/minecraft/world/level/Level;
+
+    //blockpos
+    // Lnet/minecraft/core/BlockPos;
+
+
+    //Iworld - > levelaccessor
+    // Lnet/minecraft/world/level/LevelAccessor;
+
+    //BlockPlaceContext
+    // Lnet/minecraft/world/level/LevelAccessor;
+
+    //InteractionHand handIn
+    // Lnet/minecraft/world/InteractionHand;
+
+    //BlockHitResult
+    // Lnet/minecraft/world/phys/BlockHitResult;
+
+    // BlockEntity
+    // Lnet/minecraft/world/level/block/entity/BlockEntity;
+
+    // Actionrestulttoype
+    // Lnet/minecraft/world/InteractionResult;
+
+    //player
+    // Lnet/minecraft/world/entity/player/Player;
+
+    //campfireblockentity
+    // Lnet/minecraft/world/level/block/entity/CampfireBlockEntity;
+    
+    
+    
     @Shadow
-    private boolean smokey;
+    private boolean spawnParticles;
 
     //public void animateTick( ,  , BlockPos , Random ) {
     @Inject(at = @At(value = "JUMP", opcode = Opcodes.IFEQ, ordinal = 1), locals = LocalCapture.CAPTURE_FAILHARD,
             method = "animateTick(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Ljava/util/Random;)V")
     private void animateTick(BlockState pState, Level pLevel, BlockPos pPos, Random pRand, CallbackInfo ci) {
-        if (this.smokey && ClientConfig.BONFIRE_EXTRA_PARTICLES.get() && checkBonfire(pLevel, pPos)) {
+        if (this.spawnParticles && ClientConfig.BONFIRE_EXTRA_PARTICLES.get() && checkBonfire(pLevel, pPos)) {
             pLevel.addAlwaysVisibleParticle(ParticleTypes.CAMPFIRE_SIGNAL_SMOKE, true,
                     (double)pPos.getX() + 0.5D + pRand.nextDouble() / 3.0D * (double)(pRand.nextBoolean() ? 1 : -1),
                     (double)pPos.getY() + pRand.nextDouble() + pRand.nextDouble(),
@@ -65,11 +102,11 @@ public abstract class JemsCampfireBlockMixins extends BaseEntityBlock {
         return false;
     }
 
-    @Inject(at = @At(value = "INVOKE", target = "net/minecraft/tileentity/CampfireTileEntity.dropAllItems()V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD,
-            method = "dowse(Lnet/minecraft/world/IWorld;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)V")
-    private static void extinguishDropsAndEternal(LevelAccessor world, BlockPos pos, BlockState state, CallbackInfo ci, BlockEntity tileentity) {
-        if (!world.isClientSide()) {
-            ((IFueledCampfire)tileentity).doExtinguishDrops();
+    @Inject(at = @At(value = "INVOKE", target = "net/minecraft/world/level/block/entity.CampfireBlockEntity.dowse()V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD,
+            method = "dowse(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/level/LevelAccessor;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)V")
+    private static void extinguishDropsAndEternal(Entity arg0, LevelAccessor pLevel, BlockPos pPos, BlockState pState, CallbackInfo ci, BlockEntity blockentity) {
+        if (!pLevel.isClientSide()) {
+            ((IFueledCampfire)blockentity).doExtinguishDrops();
         }
     }
 
@@ -89,15 +126,15 @@ public abstract class JemsCampfireBlockMixins extends BaseEntityBlock {
         super.setPlacedBy(worldIn, pos, state, placer, stack);
     }
 
-    @Inject(at = @At("RETURN"), method = "getStateForPlacement(Lnet/minecraft/world/level/LevelAccessor;)Lnet/minecraft/world/level/block/state/BlockState;", cancellable = true)
+    @Inject(at = @At("RETURN"), method = "getStateForPlacement(Lnet/minecraft/world/item/context/BlockPlaceContext;)Lnet/minecraft/world/level/block/state/BlockState;", cancellable = true)
     private void getStateForPlacement(BlockPlaceContext context, CallbackInfoReturnable<BlockState> cir) {
         cir.setReturnValue(cir.getReturnValue()
                 .setValue(CampfireBlock.LIT, ((this.asBlock().getRegistryName().toString().contains("soul")) ?
                         ServerConfig.PLACE_SOUL_CAMPFIRE_LIT.get() : ServerConfig.PLACE_CAMPFIRE_LIT.get())));
     }
 
-    @Inject(at = @At(value = "INVOKE_ASSIGN", target = "net/minecraft/entity/player/PlayerEntity.getHeldItem(Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/item/ItemStack;"), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true,
-                method = "onBlockActivated(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/player/Player;;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/phys/BlockHitResult;)Lnet/minecraft/world/InteractionResult;")
+    @Inject(at = @At(value = "INVOKE_ASSIGN", target = "net/minecraft/world/entity/player/Player.getItemInHand(Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/item/ItemStack;"), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true,
+                method = "onBlockActivated(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/phys/BlockHitResult;)Lnet/minecraft/world/InteractionResult;")
     public void use(BlockState arg0, Level worldIn, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult arg5, CallbackInfoReturnable<InteractionResult> cir, BlockEntity tileentity, CampfireBlockEntity campfiretileentity, ItemStack itemstack) {
         if (!ServerConfig.NEED_FIRE_POKER.get() && player.isCrouching() && itemstack.isEmpty()) {
             Util.displayCampfireInfo(worldIn, pos, arg0, player, (IFueledCampfire)campfiretileentity);
