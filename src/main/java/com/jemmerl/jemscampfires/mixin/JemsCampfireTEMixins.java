@@ -47,41 +47,6 @@ import java.util.Random;
 public abstract class JemsCampfireTEMixins extends BlockEntity implements IFueledCampfire {
     private static final VoxelShape COLLECTION_AREA_SHAPE = Block.box(-1.0D, 3.0D, -1.0D, 17.0D, 16.0D, 17.0D);
 
-    //blockstate
-    // Lnet/minecraft/world/level/block/state/BlockState;
-
-    //leveel
-    // Lnet/minecraft/world/level/Level;
-
-    //blockpos
-    // Lnet/minecraft/core/BlockPos;
-
-
-    //Iworld - > levelaccessor
-    // Lnet/minecraft/world/level/LevelAccessor;
-
-    //BlockPlaceContext
-    // Lnet/minecraft/world/level/LevelAccessor;
-
-    //InteractionHand handIn
-    // Lnet/minecraft/world/InteractionHand;
-
-    //BlockHitResult
-    // Lnet/minecraft/world/phys/BlockHitResult;
-
-    // BlockEntity
-    // Lnet/minecraft/world/level/block/entity/BlockEntity;
-
-    // Actionrestulttoype
-    // Lnet/minecraft/world/InteractionResult;
-
-    //player
-    // Lnet/minecraft/world/entity/player/Player;
-
-    //campfireblockentity
-    // Lnet/minecraft/world/level/block/entity/CampfireBlockEntity;
-
-
     // Properties
     private boolean isSoul;
     private int fuelTicks = -1;
@@ -117,8 +82,7 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
             }
         }
     }
-//public static void cookTick(Level pLevel, BlockPos pPos, BlockState pState, CampfireBlockEntity pBlockEntity)
-//variables needed, gotta get the tile tineity too and get isBonfire bc static????
+
     @Inject(at = @At("HEAD"), method = "cookTick(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/entity/CampfireBlockEntity;)V")
     private static void cookTick(Level pLevel, BlockPos pPos, BlockState pState, CampfireBlockEntity pBlockEntity, CallbackInfo ci) {
         // cookTick only fires if the campfire is lit and on the server side
@@ -129,14 +93,13 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
         if (fueledCampfire.getBonfire()) fueledCampfire.bonfireStuff();
     }
 
-    //@Inject(at = @At(value = "JUMP", opcode = Opcodes.IF_ICMPLT, ordinal = 0), locals = LocalCapture.PRINT, method = "cookAndDrop()V")
     @Inject(at = @At(value = "FIELD", target = "net/minecraft/world/level/block/entity/CampfireBlockEntity.cookingProgress:[I",
             opcode = Opcodes.GETFIELD, args = "array=get", ordinal = 0, shift = At.Shift.BY, by = -2), locals = LocalCapture.CAPTURE_FAILHARD,
             method = "cookTick(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/entity/CampfireBlockEntity;)V")
     private static void cookAndDrop(Level arg0, BlockPos arg1, BlockState arg2, CampfireBlockEntity pBlockEntity, CallbackInfo ci, boolean flag, int i, ItemStack itemstack) {
         IFueledCampfire fueledCampfire = (IFueledCampfire) pBlockEntity;
         if (fueledCampfire.getEternal() && getLoseEternalCook(fueledCampfire.isSoul())) {
-            fueledCampfire.setEternal(flag);
+            fueledCampfire.setEternal(false);
         }
         if (fueledCampfire.getBonfire()) {
             fueledCampfire.fetchCookingVariable()[i] += (getBonfireCookMult(fueledCampfire.isSoul()) - 1);
@@ -297,7 +260,6 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
         }
     }
 
-    // TODO drops no longers happens be defuldut so make itan dioption tohappen here
     private void extinguishCampfire(boolean preventDrops) {
         this.level.playSound(null, worldPosition, SoundEvents.GENERIC_EXTINGUISH_FIRE, SoundSource.BLOCKS, 1.0F, 1.0F);
 

@@ -30,11 +30,13 @@ public class Util {
     public static void displayCampfireInfo(Level world, BlockPos pos, BlockState state, Player player, IFueledCampfire cfTileEntity) {
         if (state.getValue(CampfireBlock.LIT)) {
             if(world.isClientSide) {
-                Random random = world.getRandom();
-                int n = random.nextInt(4) + 1;
-                for (int i = 0; i < n; i++) {
-                    world.addParticle(ParticleTypes.LAVA, (double)pos.getX() + 0.5D, (double)pos.getY() + 0.5D, (double)pos.getZ() + 0.5D,
-                            (random.nextFloat() / 2.0F), 3.0E-5D, (random.nextFloat() / 2.0F));
+                if (!state.getBlock().getRegistryName().toString().contains("soul")) {
+                    Random random = world.getRandom();
+                    int n = random.nextInt(4) + 1;
+                    for (int i = 0; i < n; i++) {
+                        world.addParticle(ParticleTypes.LAVA, (double)pos.getX() + 0.5D, (double)pos.getY() + 0.5D, (double)pos.getZ() + 0.5D,
+                                (random.nextFloat() / 2.0F), 3.0E-5D, (random.nextFloat() / 2.0F));
+                    }
                 }
             } else {
                 Component msg;

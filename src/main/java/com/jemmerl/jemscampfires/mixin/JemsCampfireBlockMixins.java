@@ -38,47 +38,10 @@ public abstract class JemsCampfireBlockMixins extends BaseEntityBlock {
     protected JemsCampfireBlockMixins(Properties builder) {
         super(builder);
     }
-
-    //blockstate
-    // Lnet/minecraft/world/level/block/state/BlockState;
-
-    //leveel
-    // Lnet/minecraft/world/level/Level;
-
-    //blockpos
-    // Lnet/minecraft/core/BlockPos;
-
-
-    //Iworld - > levelaccessor
-    // Lnet/minecraft/world/level/LevelAccessor;
-
-    //BlockPlaceContext
-    // Lnet/minecraft/world/level/LevelAccessor;
-
-    //InteractionHand handIn
-    // Lnet/minecraft/world/InteractionHand;
-
-    //BlockHitResult
-    // Lnet/minecraft/world/phys/BlockHitResult;
-
-    // BlockEntity
-    // Lnet/minecraft/world/level/block/entity/BlockEntity;
-
-    // Actionrestulttoype
-    // Lnet/minecraft/world/InteractionResult;
-
-    //player
-    // Lnet/minecraft/world/entity/player/Player;
-
-    //campfireblockentity
-    // Lnet/minecraft/world/level/block/entity/CampfireBlockEntity;
-    
-    
     
     @Shadow
     private boolean spawnParticles;
 
-    //public void animateTick( ,  , BlockPos , Random ) {
     @Inject(at = @At(value = "JUMP", opcode = Opcodes.IFEQ, ordinal = 1), locals = LocalCapture.CAPTURE_FAILHARD,
             method = "animateTick(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Ljava/util/Random;)V")
     private void animateTick(BlockState pState, Level pLevel, BlockPos pPos, Random pRand, CallbackInfo ci) {
@@ -116,11 +79,8 @@ public abstract class JemsCampfireBlockMixins extends BaseEntityBlock {
             IFueledCampfire cfTileEntity = Util.getCFTE(worldIn, pos);
             if (cfTileEntity != null) {
                 // Override world-genned eternal status when placed by a player
-                if (state.getBlock().getRegistryName().toString().contains("soul")) {
-                    cfTileEntity.setEternal(ServerConfig.PLACE_SOUL_CAMPFIRE_ETERNAL.get());
-                } else {
-                    cfTileEntity.setEternal(ServerConfig.PLACE_CAMPFIRE_ETERNAL.get());
-                }
+                cfTileEntity.setEternal((state.getBlock().getRegistryName().toString().contains("soul")) ?
+                        ServerConfig.PLACE_SOUL_CAMPFIRE_ETERNAL.get() : ServerConfig.PLACE_CAMPFIRE_ETERNAL.get());
             }
         }
         super.setPlacedBy(worldIn, pos, state, placer, stack);
@@ -133,11 +93,11 @@ public abstract class JemsCampfireBlockMixins extends BaseEntityBlock {
                         ServerConfig.PLACE_SOUL_CAMPFIRE_LIT.get() : ServerConfig.PLACE_CAMPFIRE_LIT.get())));
     }
 
-    @Inject(at = @At(value = "INVOKE_ASSIGN", target = "net/minecraft/world/entity/player/Player.getItemInHand(Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/item/ItemStack;"), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true,
-                method = "onBlockActivated(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/phys/BlockHitResult;)Lnet/minecraft/world/InteractionResult;")
-    public void use(BlockState arg0, Level worldIn, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult arg5, CallbackInfoReturnable<InteractionResult> cir, BlockEntity tileentity, CampfireBlockEntity campfiretileentity, ItemStack itemstack) {
-        if (!ServerConfig.NEED_FIRE_POKER.get() && player.isCrouching() && itemstack.isEmpty()) {
-            Util.displayCampfireInfo(worldIn, pos, arg0, player, (IFueledCampfire)campfiretileentity);
+    @Inject(at = @At(value = "INVOKE_ASSIGN", target = "net/minecraft/world/entity/player/Player.getItemInHand(Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/item/ItemStack;", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true,
+                method = "use(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/phys/BlockHitResult;)Lnet/minecraft/world/InteractionResult;")
+    public void use(BlockState arg0, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult arg5, CallbackInfoReturnable<InteractionResult> cir, BlockEntity blockentity, CampfireBlockEntity campfireblockentity, ItemStack itemstack) {
+        if (!ServerConfig.NEED_FIRE_POKER.get() && pPlayer.isCrouching() && itemstack.isEmpty()) {
+            Util.displayCampfireInfo(pLevel, pPos, arg0, pPlayer, (IFueledCampfire)campfireblockentity);
             cir.setReturnValue(InteractionResult.SUCCESS);
         }
     }

@@ -249,10 +249,10 @@ public class ServerConfig {
         builder.push("Soul Campfires");
         PLACE_SOUL_CAMPFIRE_ETERNAL = builder
                 .comment("Soul campfires placed by players don't burn fuel (eternal) - Default: true")
-                .define("placedCampfiresAreEternal", place_soul_cf_eternal);
+                .define("placedSoulCampfiresAreEternal", place_soul_cf_eternal);
         SPAWN_SOUL_CAMPFIRE_ETERNAL = builder
                 .comment("Soul campfires spawned in structures don't burn fuel (eternal) - Default: true")
-                .define("spawnedCampfiresAreEternal", spawn_soul_cf_eternal);
+                .define("spawnedSoulCampfiresAreEternal", spawn_soul_cf_eternal);
         SOUL_CAMPFIRE_ALLOW_ETERNAL_ITEMS = builder
                 .comment("Allow items (defined by a tag) to make soul campfires burn without using fuel - Default true")
                 .define("allowEternalSoulCampfireItems", soul_cf_allow_eternal_items);
