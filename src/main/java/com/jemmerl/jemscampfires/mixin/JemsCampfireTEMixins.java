@@ -414,30 +414,6 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
     //                                            Data Handling Stuff                                              //
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//    @Override
-//    @Nullable
-//    public ClientboundBlockEntityDataPacket getUpdatePacket() {
-//        if (ServerConfig.ALLOW_CLIENT_PACKETS.get()) {
-//            CompoundTag nbtTag = this.getUpdateTag();
-//            //nbtTag.putInt("FuelTicks", this.fuelTicks);
-//            //nbtTag.putBoolean("IsEternal", this.isEternal);
-//            nbtTag.putBoolean("IsBonfire", this.isBonfire);
-//            //return new ClientboundBlockEntityDataPacket(worldPosition, 13, nbtTag);
-//            return  ClientboundBlockEntityDataPacket.create()
-//        }
-//        return new ClientboundBlockEntityDataPacket(this.worldPosition, 13, this.getUpdateTag());
-//    }
-//
-//    @Override
-//    @Nullable
-//    public ClientboundBlockEntityDataPacket getUpdatePacket() {
-//        if (ServerConfig.ALLOW_CLIENT_PACKETS.get()) {
-//            return ClientboundBlockEntityDataPacket.create(this, )
-//            return new ClientboundBlockEntityDataPacket(worldPosition, 13, nbtTag);
-//        }
-//        return ClientboundBlockEntityDataPacket.create(this);
-//    }
-
     @Override
     public CompoundTag getUpdateTag() {
         CompoundTag compoundtag = new CompoundTag();
@@ -474,14 +450,14 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
     }
 
     @Inject(at = @At("RETURN"), method = "saveAdditional(Lnet/minecraft/nbt/CompoundTag;)V", cancellable = true)
-    private void saveFueled(CompoundTag compound, CallbackInfoReturnable<CompoundTag> cir) {
-        CompoundTag nbt = cir.getReturnValue();
-        if (nbt != null) {
-            nbt.putInt("FuelTicks", this.fuelTicks);
-            nbt.putBoolean("IsEternal", this.isEternal);
-            nbt.putBoolean("IsBonfire", this.isBonfire);
-            cir.setReturnValue(nbt);
-            cir.cancel();
+    private void saveFueled(CompoundTag compound, CallbackInfo ci) {
+        //CompoundTag nbt = cir.getReturnValue();
+        if (compound != null) {
+            compound.putInt("FuelTicks", this.fuelTicks);
+            compound.putBoolean("IsEternal", this.isEternal);
+            compound.putBoolean("IsBonfire", this.isBonfire);
+            //cir.setReturnValue(nbt);
+            //cir.cancel();
         }
     }
 
