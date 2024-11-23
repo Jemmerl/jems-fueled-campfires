@@ -12,6 +12,7 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -63,6 +64,9 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
 
     @Shadow
     private int[] cookingProgress;
+
+    @Shadow
+    private NonNullList<ItemStack> items;
 
     @Shadow
     public abstract NonNullList<ItemStack> getItems();
@@ -410,17 +414,40 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
     //                                            Data Handling Stuff                                              //
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//    @Override
+//    @Nullable
+//    public ClientboundBlockEntityDataPacket getUpdatePacket() {
+//        if (ServerConfig.ALLOW_CLIENT_PACKETS.get()) {
+//            CompoundTag nbtTag = this.getUpdateTag();
+//            //nbtTag.putInt("FuelTicks", this.fuelTicks);
+//            //nbtTag.putBoolean("IsEternal", this.isEternal);
+//            nbtTag.putBoolean("IsBonfire", this.isBonfire);
+//            //return new ClientboundBlockEntityDataPacket(worldPosition, 13, nbtTag);
+//            return  ClientboundBlockEntityDataPacket.create()
+//        }
+//        return new ClientboundBlockEntityDataPacket(this.worldPosition, 13, this.getUpdateTag());
+//    }
+//
+//    @Override
+//    @Nullable
+//    public ClientboundBlockEntityDataPacket getUpdatePacket() {
+//        if (ServerConfig.ALLOW_CLIENT_PACKETS.get()) {
+//            return ClientboundBlockEntityDataPacket.create(this, )
+//            return new ClientboundBlockEntityDataPacket(worldPosition, 13, nbtTag);
+//        }
+//        return ClientboundBlockEntityDataPacket.create(this);
+//    }
+
     @Override
-    @Nullable
-    public ClientboundBlockEntityDataPacket getUpdatePacket() {
+    public CompoundTag getUpdateTag() {
+        CompoundTag compoundtag = new CompoundTag();
         if (ServerConfig.ALLOW_CLIENT_PACKETS.get()) {
-            CompoundTag nbtTag = this.getUpdateTag();
-            //nbtTag.putInt("FuelTicks", this.fuelTicks);
-            //nbtTag.putBoolean("IsEternal", this.isEternal);
-            nbtTag.putBoolean("IsBonfire", this.isBonfire);
-            return new ClientboundBlockEntityDataPacket(worldPosition, 13, nbtTag);
+            //compoundtag.putInt("FuelTicks", this.fuelTicks);
+            //compoundtag.putBoolean("IsEternal", this.isEternal);
+            compoundtag.putBoolean("IsBonfire", this.isBonfire);
         }
-        return new ClientboundBlockEntityDataPacket(this.worldPosition, 13, this.getUpdateTag());
+        ContainerHelper.saveAllItems(compoundtag, this.items, true);
+        return compoundtag;
     }
 
     @Override
@@ -446,7 +473,7 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
         }
     }
 
-    @Inject(at = @At("RETURN"), method = "save(Lnet/minecraft/nbt/CompoundTag;)Lnet/minecraft/nbt/CompoundTag;", cancellable = true)
+    @Inject(at = @At("RETURN"), method = "saveAdditional(Lnet/minecraft/nbt/CompoundTag;)V", cancellable = true)
     private void saveFueled(CompoundTag compound, CallbackInfoReturnable<CompoundTag> cir) {
         CompoundTag nbt = cir.getReturnValue();
         if (nbt != null) {
