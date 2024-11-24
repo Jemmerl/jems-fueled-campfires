@@ -6,6 +6,7 @@ import com.jemmerl.jemscampfires.util.IFueledCampfire;
 import com.jemmerl.jemscampfires.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -32,7 +33,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import javax.annotation.Nullable;
-import java.util.Random;
 
 @Mixin(value = CampfireBlock.class, priority = 0)
 public abstract class JemsCampfireBlockMixins extends BaseEntityBlock {
@@ -42,10 +42,12 @@ public abstract class JemsCampfireBlockMixins extends BaseEntityBlock {
     
     @Shadow
     private boolean spawnParticles;
+    
+    //net/minecraft/util/RandomSource
 
     @Inject(at = @At(value = "JUMP", opcode = Opcodes.IFEQ, ordinal = 1), locals = LocalCapture.CAPTURE_FAILHARD,
-            method = "animateTick(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Ljava/util/Random;)V")
-    private void animateTick(BlockState pState, Level pLevel, BlockPos pPos, Random pRand, CallbackInfo ci) {
+            method = "animateTick(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;)V")
+    private void animateTick(BlockState pState, Level pLevel, BlockPos pPos, RandomSource pRand, CallbackInfo ci) {
         if (this.spawnParticles && ClientConfig.BONFIRE_EXTRA_PARTICLES.get() && checkBonfire(pLevel, pPos)) {
             pLevel.addAlwaysVisibleParticle(ParticleTypes.CAMPFIRE_SIGNAL_SMOKE, true,
                     (double)pPos.getX() + 0.5D + pRand.nextDouble() / 3.0D * (double)(pRand.nextBoolean() ? 1 : -1),

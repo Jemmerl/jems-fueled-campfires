@@ -12,6 +12,7 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.EntitySelector;
@@ -38,12 +39,9 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Random;
 
 @Mixin(value = CampfireBlockEntity.class, priority = 0)
 public abstract class JemsCampfireTEMixins extends BlockEntity implements IFueledCampfire {
@@ -209,7 +207,7 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
     }
 
     public void bonfireStuff() {
-        Random rand = this.level.random;
+        RandomSource randomsource = this.level.random;
 
         // Update clients once per second about bonfire status
         // AFAIK this is the only way I can ensure players see the correct bonfire behavior
@@ -220,10 +218,10 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
         }
 
         if (getBonfireFirespread(isSoul)) {
-            if (rand.nextInt(20) != 0) return;
-            Direction dir1 = Direction.from2DDataValue(rand.nextInt(4));
-            Direction dir2 = Direction.getRandom(rand);
-            int up = rand.nextInt(2);
+            if (randomsource.nextInt(20) != 0) return;
+            Direction dir1 = Direction.from2DDataValue(randomsource.nextInt(4));
+            Direction dir2 = Direction.getRandom(randomsource);
+            int up = randomsource.nextInt(2);
             if ((dir2.getOpposite() == dir1) || (dir2.get2DDataValue() < 0)) {
                 ignitePos(worldPosition.relative(dir1).above(up), true);
             } else {
