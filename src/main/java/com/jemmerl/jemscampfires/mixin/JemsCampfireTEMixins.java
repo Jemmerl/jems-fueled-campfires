@@ -31,6 +31,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -75,7 +76,7 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
     public void onLoad() {
         //super.onLoad();s
         if (!this.level.isClientSide()) {
-            isSoul = (this.getBlockState().getBlock().getRegistryName().toString().contains("soul"));
+            isSoul = (ForgeRegistries.BLOCKS.getKey(this.getBlockState().getBlock()).toString().contains("soul"));
 
             // This is the first load of the campfire TE
             // Get settings/properties that only matter or are needed when the campfire is first placed

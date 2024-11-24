@@ -10,6 +10,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Random;
 
@@ -30,7 +31,7 @@ public class Util {
     public static void displayCampfireInfo(Level world, BlockPos pos, BlockState state, Player player, IFueledCampfire cfTileEntity) {
         if (state.getValue(CampfireBlock.LIT)) {
             if(world.isClientSide) {
-                if (!state.getBlock().getRegistryName().toString().contains("soul")) {
+                if (!ForgeRegistries.BLOCKS.getKey(state.getBlock()).toString().contains("soul")) {
                     Random random = world.getRandom();
                     int n = random.nextInt(4) + 1;
                     for (int i = 0; i < n; i++) {

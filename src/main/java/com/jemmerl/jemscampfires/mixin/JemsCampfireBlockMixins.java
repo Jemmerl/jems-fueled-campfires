@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.CampfireBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -79,7 +80,7 @@ public abstract class JemsCampfireBlockMixins extends BaseEntityBlock {
             IFueledCampfire cfTileEntity = Util.getCFTE(worldIn, pos);
             if (cfTileEntity != null) {
                 // Override world-genned eternal status when placed by a player
-                cfTileEntity.setEternal((state.getBlock().getRegistryName().toString().contains("soul")) ?
+                cfTileEntity.setEternal(ForgeRegistries.BLOCKS.getKey(state.getBlock()).toString().contains("soul") ?
                         ServerConfig.PLACE_SOUL_CAMPFIRE_ETERNAL.get() : ServerConfig.PLACE_CAMPFIRE_ETERNAL.get());
             }
         }
@@ -89,8 +90,8 @@ public abstract class JemsCampfireBlockMixins extends BaseEntityBlock {
     @Inject(at = @At("RETURN"), method = "getStateForPlacement(Lnet/minecraft/world/item/context/BlockPlaceContext;)Lnet/minecraft/world/level/block/state/BlockState;", cancellable = true)
     private void getStateForPlacement(BlockPlaceContext context, CallbackInfoReturnable<BlockState> cir) {
         cir.setReturnValue(cir.getReturnValue()
-                .setValue(CampfireBlock.LIT, ((this.asBlock().getRegistryName().toString().contains("soul")) ?
-                        ServerConfig.PLACE_SOUL_CAMPFIRE_LIT.get() : ServerConfig.PLACE_CAMPFIRE_LIT.get())));
+                .setValue(CampfireBlock.LIT, (ForgeRegistries.BLOCKS.getKey(this.asBlock()).toString().contains("soul")) ?
+                        ServerConfig.PLACE_SOUL_CAMPFIRE_LIT.get() : ServerConfig.PLACE_CAMPFIRE_LIT.get()));
     }
 
     @Inject(at = @At(value = "INVOKE_ASSIGN", target = "net/minecraft/world/entity/player/Player.getItemInHand(Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/item/ItemStack;", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true,
