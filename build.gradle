@@ -68,8 +68,6 @@ dependencies {
     annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
 }
 
-println "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-
 mixin {
     add sourceSets.main, 'jemscampfires.mixin-refmap.json'
     config 'jemscampfires.mixin.json'
