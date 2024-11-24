@@ -209,13 +209,11 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
     public void bonfireStuff() {
         RandomSource randomsource = this.level.random;
 
-        // Update clients once per second about bonfire status
-        // AFAIK this is the only way I can ensure players see the correct bonfire behavior
-        // Bonfire updates are still sent as normal through setBonfire, but this may change
-        if (ServerConfig.ALLOW_CLIENT_PACKETS.get() && (level.getGameTime() % 20L == 0L)) {
-            BlockState state = this.getBlockState();
-            level.sendBlockUpdated(worldPosition, state, state, 18); // Uses 2 client updates, and 16 no observers
-        }
+        // No longer seems to be needed, if it ever was.
+//        if (ServerConfig.ALLOW_CLIENT_PACKETS.get() && (level.getGameTime() % 20L == 0L)) {
+//            BlockState state = this.getBlockState();
+//            level.sendBlockUpdated(worldPosition, state, state, 18); // Uses 2 client updates, and 16 no observers
+//        }
 
         if (getBonfireFirespread(isSoul)) {
             if (randomsource.nextInt(20) != 0) return;
