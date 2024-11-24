@@ -1,5 +1,6 @@
 package com.jemmerl.jemscampfires;
 
+import com.jemmerl.jemscampfires.events.ModEvents;
 import com.jemmerl.jemscampfires.init.ClientConfig;
 import com.jemmerl.jemscampfires.init.ServerConfig;
 import com.jemmerl.jemscampfires.items.ModItems;
@@ -29,9 +30,11 @@ public class JemsCampfires
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
         eventBus.addListener(this::setup);
         eventBus.addListener(this::doClientStuff);
+        eventBus.addListener(ModEvents::buildContents);
 
         ModItems.register(eventBus);
 
+//        MinecraftForge.EVENT_BUS.register(ModEvents.class);
         MinecraftForge.EVENT_BUS.register(this);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ClientConfig.CLIENT_SPEC);
