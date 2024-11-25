@@ -29,7 +29,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.CampfireBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -229,8 +228,8 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
     }
 
     private void ignitePos(BlockPos blockPos, boolean ignoreFlammable) {
-        Material material = this.level.getBlockState(blockPos).getMaterial();
-        if (material.isReplaceable() && !material.isLiquid()) {
+        BlockState state = this.level.getBlockState(blockPos);
+        if (state.canBeReplaced() && !state.liquid()) {
             BlockState downState = this.level.getBlockState(blockPos.below());
             if (downState.isSolidRender(this.level, blockPos.below()) &&
                     (ignoreFlammable || downState.isFlammable(level, worldPosition, Direction.UP))) {
