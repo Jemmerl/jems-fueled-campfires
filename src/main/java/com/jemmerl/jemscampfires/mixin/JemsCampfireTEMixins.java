@@ -1,5 +1,6 @@
 package com.jemmerl.jemscampfires.mixin;
 
+import com.jemmerl.jemscampfires.JemsCampfires;
 import com.jemmerl.jemscampfires.init.JCTags;
 import com.jemmerl.jemscampfires.init.ServerConfig;
 import com.jemmerl.jemscampfires.util.IFueledCampfire;
@@ -56,6 +57,8 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
     // TODO: Maybe add fuel-based lighting in the future as a resource-expensive optional setting.
     //  Would need to send packets between server and client.
 
+    // TODO bonfire enabled, but if not take all fuel, then wont bonfire
+
     public JemsCampfireTEMixins(BlockPos pWorldPosition, BlockState pBlockState) {
         super(BlockEntityType.CAMPFIRE, pWorldPosition, pBlockState);
     }
@@ -69,9 +72,11 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
     @Shadow
     public abstract NonNullList<ItemStack> getItems();
 
+    //TODO campfires place eternal in neoforge version??
+
     @Override
     public void onLoad() {
-        //super.onLoad();s
+        //super.onLoad();
         if (!this.level.isClientSide()) {
             isSoul = (ForgeRegistries.BLOCKS.getKey(this.getBlockState().getBlock()).toString().contains("soul"));
 
@@ -292,7 +297,7 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
 
     private void breakCampfire() {
         this.level.playSound(null, worldPosition, SoundEvents.GENERIC_EXTINGUISH_FIRE, SoundSource.BLOCKS, 1.0F, 1.0F);
-        //this.dropAllItems(); TODO may no longer be needed
+        //this.dropAllItems();
         this.level.setBlockAndUpdate(this.worldPosition, Blocks.AIR.defaultBlockState());
     }
 
