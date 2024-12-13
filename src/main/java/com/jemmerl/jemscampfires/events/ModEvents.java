@@ -9,7 +9,6 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = JemsCampfires.MOD_ID)
 public class ModEvents {
 
-    //@SubscribeEvent
     public static void buildContents(final BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
             event.accept(ModItems.FIRE_POKER);

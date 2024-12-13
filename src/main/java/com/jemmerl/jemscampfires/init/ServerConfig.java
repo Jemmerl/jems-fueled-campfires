@@ -13,6 +13,7 @@ public class ServerConfig {
     // Misc
     private static final boolean need_fire_poker = true; // Is a fire poker needed for checking campfire info? Sneak + right-click with an empty hand if 'false' - Default: true
     private static final boolean extinguished_drop_items = false; // Will campfires drop items when extinguished (restores pre-1.17 behavior) - Default: false
+    private static final boolean player_check_fix = false; // Enable compatibility fix for mods that let you build a campfire in-world, may rarely cause an issue with world-genned campfires - Default: false
 
     // General
     private static final boolean place_cf_lit = false; // Are regular campfires placed by players initially lit - Default: false
@@ -75,6 +76,7 @@ public class ServerConfig {
     // Misc
     public static ForgeConfigSpec.BooleanValue NEED_FIRE_POKER;
     public static ForgeConfigSpec.BooleanValue EXTINGUISHED_DROP_ITEMS;
+    public static ForgeConfigSpec.BooleanValue PLAYER_CHECK_FIX;
 
     // General
     public static ForgeConfigSpec.BooleanValue PLACE_CAMPFIRE_LIT;
@@ -141,6 +143,8 @@ public class ServerConfig {
                 .define("needFirePoker", need_fire_poker);
         EXTINGUISHED_DROP_ITEMS = builder.comment("Will campfires drop items when extinguished (restores pre-1.17 behavior) - Default: false ")
                 .define("dropItemsWhenExtinguish", extinguished_drop_items);
+        PLAYER_CHECK_FIX = builder.comment("Enable compatibility fix for mods that let you build a campfire in-world, may rarely cause an issue with world-genned campfires - Default: false")
+                .define("enableCampfireBuildCompatibilityFix", player_check_fix);
         builder.pop();
 
         builder.push("General Options");

@@ -83,8 +83,16 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
             // This is the first load of the campfire TE
             // Get settings/properties that only matter or are needed when the campfire is first placed
             if (fuelTicks < 0) {
+
                 // This isEternal gets overridden if the block is placed by a player, else it has been world-genned
                 isEternal = isSoul ? ServerConfig.SPAWN_SOUL_CAMPFIRE_ETERNAL.get() : ServerConfig.SPAWN_CAMPFIRE_ETERNAL.get();
+
+                // ... UNLESS the player check compat. fix is enabled, at which the above is overridden if a player is
+                //  near but did not place it directly. This will fix an issue where campfires are player made but not
+                //  directly. It could cause issues when spawning in near a world-genned campfire, but it's rare.
+                if (ServerConfig.PLAYER_CHECK_FIX.get() && level.hasNearbyAlivePlayer(worldPosition.getX()+0.5, worldPosition.getY()+0.5, worldPosition.getZ()+0.5, 5.5D)) {
+                    isEternal = isSoul ? ServerConfig.PLACE_SOUL_CAMPFIRE_ETERNAL.get() : ServerConfig.PLACE_CAMPFIRE_ETERNAL.get();
+                }
                 fuelTicks = Math.min((isSoul ? ServerConfig.SOUL_CAMPFIRE_INITIAL_FUEL_TICKS.get() : ServerConfig.CAMPFIRE_INITIAL_FUEL_TICKS.get()), getStandardMaxFuelTicks(isSoul));
             }
         }
