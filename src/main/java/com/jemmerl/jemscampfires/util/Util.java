@@ -1,8 +1,10 @@
 package com.jemmerl.jemscampfires.util;
 
+import com.jemmerl.jemscampfires.init.ClientConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
@@ -38,19 +40,26 @@ public class Util {
                     }
                 }
             } else {
-                Component msg;
+                MutableComponent msg;
                 if (cfTileEntity.getEternal()) {
                     if (cfTileEntity.getBonfire()) {
-                        msg = Component.translatable("info.jemscampfires.eternalbonfire", (cfTileEntity.getFuelTicks() / 20), cfTileEntity.getFuelTicks());
+                        msg = Component.translatable("info.jemscampfires.eternalbonfire", (cfTileEntity.getFuelTicks() / 20));
                     } else {
-                        msg = Component.translatable( "info.jemscampfires.eternalcozy", (cfTileEntity.getFuelTicks() / 20), cfTileEntity.getFuelTicks());
+                        msg = Component.translatable( "info.jemscampfires.eternalcozy", (cfTileEntity.getFuelTicks() / 20));
                     }
                 } else {
                     if (cfTileEntity.getBonfire()) {
-                        msg = Component.translatable( "info.jemscampfires.regularbonfire", (cfTileEntity.getFuelTicks() / 20), cfTileEntity.getFuelTicks());
+                        msg = Component.translatable( "info.jemscampfires.regularbonfire", (cfTileEntity.getFuelTicks() / 20));
                     } else {
-                        msg = Component.translatable("info.jemscampfires.regularcozy", (cfTileEntity.getFuelTicks() / 20), cfTileEntity.getFuelTicks());
+                        msg = Component.translatable("info.jemscampfires.regularcozy", (cfTileEntity.getFuelTicks() / 20));
                     }
+
+                    if (ClientConfig.SHOW_TICKS_REMAINING.get()) {
+                        msg = msg.append(Component.translatable("info.jemscampfires.ticks", cfTileEntity.getFuelTicks()));
+                    } else {
+                        msg = msg.append(".");
+                    }
+
                 }
                 player.sendSystemMessage(msg);
             }
