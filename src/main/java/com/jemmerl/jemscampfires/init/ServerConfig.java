@@ -154,13 +154,13 @@ public class ServerConfig {
                 .define("placedCampfiresAreLit", place_cf_lit);
         CAMPFIRE_MAX_FUEL_TICKS = builder
                 .comment("Maximum regular campfire fuel in ticks - Default 4800 ticks (4 minutes; 20 ticks/second)")
-                .defineInRange("campfireMaxFuelTicks", cf_max_fuel_ticks, 100, 12000);
+                .defineInRange("campfireMaxFuelTicks", cf_max_fuel_ticks, 100, 1000000000);
         CAMPFIRE_INITIAL_FUEL_TICKS = builder
                 .comment("Initial regular campfire fuel in ticks (can't be more than the configured max) - Default 200 ticks (10 seconds)")
-                .defineInRange("campfireInitialFuelTicks", cf_initial_fuel_ticks, 0, 12000);
+                .defineInRange("campfireInitialFuelTicks", cf_initial_fuel_ticks, 0, 1000000000);
         CAMPFIRE_FUEL_MULT = builder
                 .comment("Multiplies the burn time of fuel added to regular campfires - Default 1.0")
-                .defineInRange("campfireBurnTimeMultiplier", cf_fuel_multiplier, 0.01, 10.0);
+                .defineInRange("campfireBurnTimeMultiplier", cf_fuel_multiplier, 0.01, 25.0);
         CAMPFIRE_ALWAYS_BURN_FUEL_ITEMS = builder
                 .comment("Will lit regular campfires consume (destroy) dropped fuel items even when fully fueled - Default: true")
                 .define("campfiresBurnItemsWhenFull", cf_burn_fuel_items_when_full);
@@ -172,7 +172,7 @@ public class ServerConfig {
                 .define("campfiresSpreadFire", cf_firespread);
         CAMPFIRE_RAIN_FUEL_TICK_LOSS = builder
                 .comment("Regular campfire fuel lost per tick from rain (-1 for instant burnout without loss, 0 to disable) - Default 200 ticks")
-                .defineInRange("campfireRainFuelLoss", cf_rain_fuel_tick_loss, -1, 24000);
+                .defineInRange("campfireRainFuelLoss", cf_rain_fuel_tick_loss, -1, 2000000000);
         builder.pop();
         builder.push("Soul Campfires");
         PLACE_SOUL_CAMPFIRE_LIT = builder
@@ -180,13 +180,13 @@ public class ServerConfig {
                 .define("placedSoulCampfiresAreLit", place_soul_cf_lit);
         SOUL_CAMPFIRE_MAX_FUEL_TICKS = builder
                 .comment("Maximum soul campfire fuel in ticks - Default 4800 ticks (4 minutes; 20 ticks/second)")
-                .defineInRange("soulCampfireMaxFuelTicks", soul_cf_max_fuel_ticks, 100, 12000);
+                .defineInRange("soulCampfireMaxFuelTicks", soul_cf_max_fuel_ticks, 100, 1000000000);
         SOUL_CAMPFIRE_INITIAL_FUEL_TICKS = builder
                 .comment("Initial soul campfire fuel in ticks (can't be more than the configured max) - Default 200 ticks (10 seconds)")
-                .defineInRange("soulCampfireInitialFuelTicks", soul_cf_initial_fuel_ticks, 0, 12000);
+                .defineInRange("soulCampfireInitialFuelTicks", soul_cf_initial_fuel_ticks, 0, 1000000000);
         SOUL_CAMPFIRE_FUEL_MULT = builder
                 .comment("Multiplies the burn time of fuel added to soul campfires - Default 1.0")
-                .defineInRange("soulCampfireBurnTimeMultiplier", soul_cf_fuel_multiplier, 0.01, 10.0);
+                .defineInRange("soulCampfireBurnTimeMultiplier", soul_cf_fuel_multiplier, 0.01, 25.0);
         SOUL_CAMPFIRE_ALWAYS_BURN_FUEL_ITEMS = builder
                 .comment("Will lit soul campfires consume (destroy) dropped fuel items even when fully fueled - Default: true")
                 .define("soulCampfiresBurnItemsWhenFull", soul_cf_burn_fuel_items_when_full);
@@ -198,7 +198,7 @@ public class ServerConfig {
                 .define("soulCampfiresSpreadFire", soul_cf_firespread);
         SOUL_CAMPFIRE_RAIN_FUEL_TICK_LOSS = builder
                 .comment("Soul campfire fuel lost per tick from rain (-1 for instant burnout without loss, 0 to disable) - Default 200 ticks")
-                .defineInRange("soulCampfireRainFuelLoss", soul_cf_rain_fuel_tick_loss, -1, 24000);
+                .defineInRange("soulCampfireRainFuelLoss", soul_cf_rain_fuel_tick_loss, -1, 2000000000);
         builder.pop();
         builder.pop();
 
@@ -282,16 +282,16 @@ public class ServerConfig {
                 .define("enableRegularBonfire", cf_can_bonfire);
         CAMPFIRE_BONFIRE_FUEL_TICKS = builder
                 .comment("Regular bonfire fuel capacity, this gets added onto the normal max fuel - Default 800 ticks (40 seconds)")
-                .defineInRange("regularBonfireFuel", cf_bonfire_fuel_ticks, 100, 12000);
+                .defineInRange("regularBonfireFuel", cf_bonfire_fuel_ticks, 100, 1000000000);
         CAMPFIRE_BONFIRE_LOSE_FUEL_EXTINGUISH = builder
                 .comment("Will regular bonfires lose their extra bonfire fuel when extinguished (returns to a normal fire) - Default true")
                 .define("regularBonfireLoseFuelWhenPutOut", cf_bonfire_lose_fuel);
         CAMPFIRE_BONFIRE_BURN_MULT = builder
                 .comment("Regular bonfire fuel use multiplier - Default 2")
-                .defineInRange("regularBonfireFuelUseMultiplier", cf_bonfire_burn_mult, 1, 5);
+                .defineInRange("regularBonfireFuelUseMultiplier", cf_bonfire_burn_mult, 1, 10);
         CAMPFIRE_BONFIRE_COOKING_MULT = builder
                 .comment("Regular bonfire cooking speed multiplier - Default 2")
-                .defineInRange("regularBonfireCookSpeedMultiplier", cf_bonfire_cooking_mult, 1, 5);
+                .defineInRange("regularBonfireCookSpeedMultiplier", cf_bonfire_cooking_mult, 1, 10);
         CAMPFIRE_BONFIRE_FIRESPREAD = builder
                 .comment("Will regular bonfires spread fire (up to 2 blocks away) - Default true")
                 .define("regularBonfireFirespread", cf_bonfire_firespread);
@@ -302,16 +302,16 @@ public class ServerConfig {
                 .define("enableSoulBonfire", soul_cf_can_bonfire);
         SOUL_CAMPFIRE_BONFIRE_FUEL_TICKS = builder
                 .comment("Soul bonfire fuel capacity, this gets added onto the normal max fuel - Default 800 ticks (40 seconds)")
-                .defineInRange("soulBonfireFuel", soul_cf_bonfire_fuel_ticks, 100, 12000);
+                .defineInRange("soulBonfireFuel", soul_cf_bonfire_fuel_ticks, 100, 1000000000);
         SOUL_CAMPFIRE_BONFIRE_LOSE_FUEL_EXTINGUISH = builder
                 .comment("Will soul bonfires lose their extra bonfire fuel when extinguished (returns to a regular fire) - Default true")
                 .define("soulBonfireLoseFuelWhenPutOut", soul_cf_bonfire_lose_fuel);
         SOUL_CAMPFIRE_BONFIRE_BURN_MULT = builder
                 .comment("Soul bonfire fuel use multiplier - Default 2")
-                .defineInRange("soulBonfireFuelUseMultiplier", soul_cf_bonfire_burn_mult, 1, 5);
+                .defineInRange("soulBonfireFuelUseMultiplier", soul_cf_bonfire_burn_mult, 1, 10);
         SOUL_CAMPFIRE_BONFIRE_COOKING_MULT = builder
                 .comment("Soul bonfire cooking speed multiplier - Default 2")
-                .defineInRange("soulBonfireCookSpeedMultiplier", soul_cf_bonfire_cooking_mult, 1, 5);
+                .defineInRange("soulBonfireCookSpeedMultiplier", soul_cf_bonfire_cooking_mult, 1, 10);
         SOUL_CAMPFIRE_BONFIRE_FIRESPREAD = builder
                 .comment("Will soul bonfires spread fire (up to 2 blocks away) - Default true")
                 .define("soulBonfireFirespread", soul_cf_bonfire_firespread);

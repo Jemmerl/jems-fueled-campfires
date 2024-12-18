@@ -13,6 +13,11 @@ public class ClientConfig {
         final ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
 
         builder.push("Client Options");
+
+        //TODO add config option to show remaining ticks (default true)
+        //  add config option to convert seconds into minutes/hours when applicble
+        //  Jade compat
+
         BONFIRE_EXTRA_PARTICLES = builder
                 .comment("Render additional bonfire embers and smoke - Default true")
                 .define("showBonfireParticles", bonfire_extra_particles);
