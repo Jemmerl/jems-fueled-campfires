@@ -14,6 +14,7 @@ public class ServerConfig {
     private static final boolean need_fire_poker = true; // Is a fire poker needed for checking campfire info? Sneak + right-click with an empty hand if 'false' - Default: true
     private static final boolean extinguished_drop_items = false; // Will campfires drop items when extinguished (restores pre-1.17 behavior) - Default: false
     private static final boolean player_check_fix = false; // Enable compatibility fix for mods that let you build a campfire in-world, may rarely cause an issue with world-genned campfires - Default: false
+    private static final boolean show_ticks_remaining = false; // Fuel info messages also show the time remaining in ticks, useful for debug! - Default false
 
     // General
     private static final boolean place_cf_lit = false; // Are regular campfires placed by players initially lit - Default: false
@@ -54,7 +55,6 @@ public class ServerConfig {
     private static final boolean soul_cf_rain_affect_eternal = false; // Will rain affect eternal soul campfires (lose fuel or get put-out) - Default false
     private static final boolean cf_eternal_bonfire = false; // Can eternal regular campfires do bonfire behavior - Default false
     private static final boolean soul_cf_eternal_bonfire = false; // Can eternal soul campfires do bonfire behavior - Default false
-    private static final boolean allow_client_packets = true; // Will allow the server to send packets for client-side bonfire particles - Default true
 
     // Bonfire
     private static final boolean cf_can_bonfire = false; // Will regular campfires become a bonfire if over-fueled - Default false
@@ -77,6 +77,7 @@ public class ServerConfig {
     public static ForgeConfigSpec.BooleanValue NEED_FIRE_POKER;
     public static ForgeConfigSpec.BooleanValue EXTINGUISHED_DROP_ITEMS;
     public static ForgeConfigSpec.BooleanValue PLAYER_CHECK_FIX;
+    public static ForgeConfigSpec.BooleanValue SHOW_TICKS_REMAINING;
 
     // General
     public static ForgeConfigSpec.BooleanValue PLACE_CAMPFIRE_LIT;
@@ -117,7 +118,6 @@ public class ServerConfig {
     public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_RAIN_AFFECT_ETERNAL;
     public static ForgeConfigSpec.BooleanValue CAMPFIRE_ETERNAL_BONFIRE;
     public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_ETERNAL_BONFIRE;
-    public static ForgeConfigSpec.BooleanValue ALLOW_CLIENT_PACKETS;
 
     // Bonfire
     public static ForgeConfigSpec.BooleanValue CAMPFIRE_CAN_BONFIRE;
@@ -145,6 +145,9 @@ public class ServerConfig {
                 .define("dropItemsWhenExtinguish", extinguished_drop_items);
         PLAYER_CHECK_FIX = builder.comment("Enable compatibility fix for mods that let you build a campfire in-world, may rarely cause an issue with world-genned campfires - Default: false")
                 .define("enableCampfireBuildCompatibilityFix", player_check_fix);
+        SHOW_TICKS_REMAINING = builder
+                .comment("Fuel info messages also show the time remaining in ticks, useful for debug! - Default false")
+                .define("showTicksRemaining", show_ticks_remaining);
         builder.pop();
 
         builder.push("General Options");
@@ -224,9 +227,6 @@ public class ServerConfig {
 //        builder.pop();
 
         builder.push("Decorative Options");
-        ALLOW_CLIENT_PACKETS = builder
-                .comment("Will allow the server to send packets for client-side bonfire particles - Default true")
-                .define("allowClientUpdatePackets", allow_client_packets);
         builder.push("Regular Campfires");
         PLACE_CAMPFIRE_ETERNAL = builder
                 .comment("Regular campfires placed by players don't burn fuel (eternal) - Default: true")

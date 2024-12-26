@@ -1,6 +1,5 @@
 package com.jemmerl.jemscampfires.mixin;
 
-import com.jemmerl.jemscampfires.JemsCampfires;
 import com.jemmerl.jemscampfires.init.JCTags;
 import com.jemmerl.jemscampfires.init.ServerConfig;
 import com.jemmerl.jemscampfires.util.IFueledCampfire;
@@ -411,7 +410,7 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
     public void setBonfire(boolean bonfire) {
         if (this.isBonfire != bonfire) {
             this.isBonfire = bonfire;
-            if (ServerConfig.ALLOW_CLIENT_PACKETS.get() && (level != null) && (!level.isClientSide)) {
+            if ((level != null) && (!level.isClientSide)) {
                 BlockState state = this.getBlockState();
                 level.sendBlockUpdated(worldPosition, state, state, 18); // Uses 2 client updates, and 16 no observers
             }
@@ -426,11 +425,7 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
     @Override
     public CompoundTag getUpdateTag() {
         CompoundTag compoundtag = new CompoundTag();
-        if (ServerConfig.ALLOW_CLIENT_PACKETS.get()) {
-            //compoundtag.putInt("FuelTicks", this.fuelTicks);
-            //compoundtag.putBoolean("IsEternal", this.isEternal);
-            compoundtag.putBoolean("IsBonfire", this.isBonfire);
-        }
+        compoundtag.putBoolean("IsBonfire", this.isBonfire);
         ContainerHelper.saveAllItems(compoundtag, this.items, true);
         return compoundtag;
     }
