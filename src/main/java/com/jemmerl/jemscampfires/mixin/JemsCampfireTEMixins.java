@@ -1,6 +1,6 @@
 package com.jemmerl.jemscampfires.mixin;
 
-import com.jemmerl.jemscampfires.init.JCTags;
+import com.jemmerl.jemscampfires.init.ModTags;
 import com.jemmerl.jemscampfires.init.ServerConfig;
 import com.jemmerl.jemscampfires.util.IFueledCampfire;
 import com.jemmerl.jemscampfires.util.Util;
@@ -137,8 +137,10 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
 
         for(ItemEntity itemEntity : getCaptureItems()) {
             ItemStack itemStack = itemEntity.getItem();
+            if (itemStack.is(ModTags.JC_FUEL_BLACKLIST)) continue;
+
             int baseBurnTicks = ForgeHooks.getBurnTime(itemStack, null);
-            boolean eternalItem = getAllowEternalItems(isSoul) && itemStack.is(JCTags.JC_ETERNAL) && (!isEternal);
+            boolean eternalItem = getAllowEternalItems(isSoul) && itemStack.is(ModTags.JC_ETERNAL) && (!isEternal);
 
             if ((baseBurnTicks > 0) || eternalItem) {
                 int itemCount = itemStack.getCount();
