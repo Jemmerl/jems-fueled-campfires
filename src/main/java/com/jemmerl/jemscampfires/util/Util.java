@@ -57,15 +57,14 @@ public class Util {
                     } else {
                         msg = Component.translatable("info.jemscampfires.regularcozy", timeRemaining);
                     }
-
-                    if (ServerConfig.SHOW_TICKS_REMAINING.get()) {
-                        msg = msg.append(Component.translatable("info.jemscampfires.ticks", cfTileEntity.getFuelTicks()));
-                    } else {
-                        msg = msg.append(".");
-                    }
-
                 }
-                player.sendSystemMessage(msg);
+
+                if (ServerConfig.DEBUG_TICKS_REMAINING.get()) {
+                    msg = msg.append(Component.translatable("info.jemscampfires.ticks", cfTileEntity.getFuelTicks()));
+                } else {
+                    msg = msg.append(".");
+                }
+                player.displayClientMessage(msg, !ServerConfig.DEBUG_INFO_IN_CHAT.get());
             }
         } else {
             if(!level.isClientSide) {
@@ -85,7 +84,7 @@ public class Util {
                         msg = Component.translatable("info.jemscampfires.unlitfuel");
                     }
                 }
-                player.sendSystemMessage(msg);
+                player.displayClientMessage(msg, !ServerConfig.DEBUG_INFO_IN_CHAT.get());
             }
         }
     }
