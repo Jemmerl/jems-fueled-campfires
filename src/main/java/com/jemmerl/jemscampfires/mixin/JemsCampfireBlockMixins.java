@@ -42,8 +42,6 @@ public abstract class JemsCampfireBlockMixins extends BaseEntityBlock {
     
     @Shadow
     private boolean spawnParticles;
-    
-    //net/minecraft/util/RandomSource
 
     @Inject(at = @At(value = "JUMP", opcode = Opcodes.IFEQ, ordinal = 1), locals = LocalCapture.CAPTURE_FAILHARD,
             method = "animateTick(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;)V")
