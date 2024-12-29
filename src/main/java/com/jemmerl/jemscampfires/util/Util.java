@@ -1,8 +1,10 @@
 package com.jemmerl.jemscampfires.util;
 
+import com.jemmerl.jemscampfires.init.ServerConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
@@ -11,6 +13,7 @@ import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.text.DecimalFormat;
 import java.util.Random;
 
 public class Util {
@@ -39,21 +42,29 @@ public class Util {
                     }
                 }
             } else {
-                Component msg;
+                MutableComponent msg;
+                MutableComponent timeRemaining = convertTime(cfTileEntity.getFuelTicks());
+
                 if (cfTileEntity.getEternal()) {
                     if (cfTileEntity.getBonfire()) {
-                        msg = new TranslatableComponent( "info.jemscampfires.eternalbonfire", (cfTileEntity.getFuelTicks() / 20), cfTileEntity.getFuelTicks());
+                        msg = new TranslatableComponent("info.jemscampfires.eternalbonfire", timeRemaining);
                     } else {
-                        msg = new TranslatableComponent( "info.jemscampfires.eternalcozy", (cfTileEntity.getFuelTicks() / 20), cfTileEntity.getFuelTicks());
+                        msg = new TranslatableComponent( "info.jemscampfires.eternalcozy", timeRemaining);
                     }
                 } else {
                     if (cfTileEntity.getBonfire()) {
-                        msg = new TranslatableComponent( "info.jemscampfires.regularbonfire", (cfTileEntity.getFuelTicks() / 20), cfTileEntity.getFuelTicks());
+                        msg = new TranslatableComponent( "info.jemscampfires.regularbonfire", timeRemaining);
                     } else {
-                        msg = new TranslatableComponent("info.jemscampfires.regularcozy", (cfTileEntity.getFuelTicks() / 20), cfTileEntity.getFuelTicks());
+                        msg = new TranslatableComponent("info.jemscampfires.regularcozy", timeRemaining);
                     }
                 }
-                player.sendMessage(msg, Player.createPlayerUUID(player.getGameProfile()));
+
+                if (ServerConfig.DEBUG_TICKS_REMAINING.get()) {
+                    msg = msg.append(new TranslatableComponent("info.jemscampfires.ticks", cfTileEntity.getFuelTicks()));
+                } else {
+                    msg = msg.append(".");
+                }
+                player.displayClientMessage(msg, !ServerConfig.DEBUG_INFO_IN_CHAT.get());
             }
         } else {
             if(!world.isClientSide) {
@@ -73,9 +84,25 @@ public class Util {
                         msg = new TranslatableComponent("info.jemscampfires.unlitfuel");
                     }
                 }
-                player.sendMessage(msg, Player.createPlayerUUID(player.getGameProfile()));
+                player.displayClientMessage(msg, !ServerConfig.DEBUG_INFO_IN_CHAT.get());
             }
         }
+    }
+
+    private static MutableComponent convertTime(int fuelTicks) {
+        if (fuelTicks < 2400) {
+            return new TranslatableComponent("info.jemscampfires.seconds", (fuelTicks / 20));
+        } else if (fuelTicks < 144000) {
+            return new TranslatableComponent("info.jemscampfires.minutes", formatTimeOutput(fuelTicks / 1200d));
+        } else {
+            return new TranslatableComponent("info.jemscampfires.hours", formatTimeOutput(fuelTicks / 72000d));
+        }
+    }
+
+    private static String formatTimeOutput(double doubleIn) {
+        double doubleOut = Math.round(doubleIn * 10) / 10d;
+        DecimalFormat formatter = new DecimalFormat("0.#####");
+        return formatter.format(doubleOut);
     }
 
 

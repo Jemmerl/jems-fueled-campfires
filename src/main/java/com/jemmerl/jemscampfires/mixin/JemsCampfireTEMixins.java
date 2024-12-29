@@ -1,6 +1,6 @@
 package com.jemmerl.jemscampfires.mixin;
 
-import com.jemmerl.jemscampfires.init.JCTags;
+import com.jemmerl.jemscampfires.init.ModTags;
 import com.jemmerl.jemscampfires.init.ServerConfig;
 import com.jemmerl.jemscampfires.util.IFueledCampfire;
 import com.jemmerl.jemscampfires.util.Util;
@@ -37,10 +37,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Random;
 
@@ -53,10 +51,6 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
     private int fuelTicks = -1;
     private boolean isEternal = false;
     private boolean isBonfire = false;
-
-    // **TODO BOARD** //
-    // TODO: Maybe add fuel-based lighting in the future as a resource-expensive optional setting.
-    //  Would need to send packets between server and client.
 
     public JemsCampfireTEMixins(BlockPos pWorldPosition, BlockState pBlockState) {
         super(BlockEntityType.CAMPFIRE, pWorldPosition, pBlockState);
@@ -82,6 +76,14 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
             if (fuelTicks < 0) {
                 // This isEternal gets overridden if the block is placed by a player, else it has been world-genned
                 isEternal = isSoul ? ServerConfig.SPAWN_SOUL_CAMPFIRE_ETERNAL.get() : ServerConfig.SPAWN_CAMPFIRE_ETERNAL.get();
+
+                // ... UNLESS the player check compat. fix is enabled, at which the above is overridden if a player is
+                //  near but did not place it directly. This will fix an issue where campfires are player made but not
+                //  directly. It could cause issues when spawning in near a world-genned campfire, but it's rare.
+                if (ServerConfig.PLAYER_CHECK_FIX.get() && level.hasNearbyAlivePlayer(worldPosition.getX()+0.5, worldPosition.getY()+0.5, worldPosition.getZ()+0.5, 5.5D)) {
+                    isEternal = isSoul ? ServerConfig.PLACE_SOUL_CAMPFIRE_ETERNAL.get() : ServerConfig.PLACE_CAMPFIRE_ETERNAL.get();
+                }
+
                 fuelTicks = Math.min((isSoul ? ServerConfig.SOUL_CAMPFIRE_INITIAL_FUEL_TICKS.get() : ServerConfig.CAMPFIRE_INITIAL_FUEL_TICKS.get()), getStandardMaxFuelTicks(isSoul));
             }
         }
@@ -130,8 +132,10 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
 
         for(ItemEntity itemEntity : getCaptureItems()) {
             ItemStack itemStack = itemEntity.getItem();
+            if (itemStack.is(ModTags.JC_FUEL_BLACKLIST)) continue;
+
             int baseBurnTicks = ForgeHooks.getBurnTime(itemStack, null);
-            boolean eternalItem = getAllowEternalItems(isSoul) && itemStack.is(JCTags.JC_ETERNAL) && (!isEternal);
+            boolean eternalItem = getAllowEternalItems(isSoul) && itemStack.is(ModTags.JC_ETERNAL) && (!isEternal);
 
             if ((baseBurnTicks > 0) || eternalItem) {
                 int itemCount = itemStack.getCount();
@@ -210,13 +214,13 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
     public void bonfireStuff() {
         Random rand = this.level.random;
 
-        // Update clients once per second about bonfire status
-        // AFAIK this is the only way I can ensure players see the correct bonfire behavior
-        // Bonfire updates are still sent as normal through setBonfire, but this may change
-        if (ServerConfig.ALLOW_CLIENT_PACKETS.get() && (level.getGameTime() % 20L == 0L)) {
-            BlockState state = this.getBlockState();
-            level.sendBlockUpdated(worldPosition, state, state, 18); // Uses 2 client updates, and 16 no observers
-        }
+//        // Update clients once per second about bonfire status
+//        // AFAIK this is the only way I can ensure players see the correct bonfire behavior
+//        // Bonfire updates are still sent as normal through setBonfire, but this may change
+//        if (level.getGameTime() % 20L == 0L) {
+//            BlockState state = this.getBlockState();
+//            level.sendBlockUpdated(worldPosition, state, state, 18); // Uses 2 client updates, and 16 no observers
+//        }
 
         if (getBonfireFirespread(isSoul)) {
             if (rand.nextInt(20) != 0) return;
@@ -296,7 +300,6 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
 
     private void breakCampfire() {
         this.level.playSound(null, worldPosition, SoundEvents.GENERIC_EXTINGUISH_FIRE, SoundSource.BLOCKS, 1.0F, 1.0F);
-        //this.dropAllItems(); TODO may no longer be needed
         this.level.setBlockAndUpdate(this.worldPosition, Blocks.AIR.defaultBlockState());
     }
 
@@ -402,7 +405,7 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
     public void setBonfire(boolean bonfire) {
         if (this.isBonfire != bonfire) {
             this.isBonfire = bonfire;
-            if (ServerConfig.ALLOW_CLIENT_PACKETS.get() && (level != null) && (!level.isClientSide)) {
+            if ((level != null) && (!level.isClientSide)) {
                 BlockState state = this.getBlockState();
                 level.sendBlockUpdated(worldPosition, state, state, 18); // Uses 2 client updates, and 16 no observers
             }
@@ -417,11 +420,9 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
     @Override
     public CompoundTag getUpdateTag() {
         CompoundTag compoundtag = new CompoundTag();
-        if (ServerConfig.ALLOW_CLIENT_PACKETS.get()) {
-            //compoundtag.putInt("FuelTicks", this.fuelTicks);
-            //compoundtag.putBoolean("IsEternal", this.isEternal);
-            compoundtag.putBoolean("IsBonfire", this.isBonfire);
-        }
+        //compoundtag.putInt("FuelTicks", this.fuelTicks);
+        //compoundtag.putBoolean("IsEternal", this.isEternal);
+        compoundtag.putBoolean("IsBonfire", this.isBonfire);
         ContainerHelper.saveAllItems(compoundtag, this.items, true);
         return compoundtag;
     }
@@ -451,13 +452,10 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
 
     @Inject(at = @At("RETURN"), method = "saveAdditional(Lnet/minecraft/nbt/CompoundTag;)V", cancellable = true)
     private void saveFueled(CompoundTag compound, CallbackInfo ci) {
-        //CompoundTag nbt = cir.getReturnValue();
         if (compound != null) {
             compound.putInt("FuelTicks", this.fuelTicks);
             compound.putBoolean("IsEternal", this.isEternal);
             compound.putBoolean("IsBonfire", this.isBonfire);
-            //cir.setReturnValue(nbt);
-            //cir.cancel();
         }
     }
 
