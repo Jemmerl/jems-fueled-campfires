@@ -6,7 +6,7 @@ plugins {
     id 'org.spongepowered.mixin' version '[0.7,)'
     }
 
-version = '1.16.5-3.1'
+version = '1.16.5-3.2'
 group = 'com.jemmerl.jemscampfires'
 
 base {
@@ -15,7 +15,7 @@ base {
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(8)
 
-println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
+//println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
 minecraft {
     // Simply re-run your setup task after changing the mappings to update your workspace.
     mappings channel: 'snapshot', version: '20210309-1.16.5'
@@ -80,9 +80,9 @@ tasks.named('processResources', ProcessResources).configure {
             mod_id: "jemscampfires", mod_name: "Jem's Fueled Campfires", mod_license: "MIT", mod_version: version,
             mod_authors: "Jemmerl",
             mod_description:
-                    "   A highly configurable fueled campfire mod. \n" +
-                            "Campfires need fuel tossed on them to burn-- but not too much! \n\n" +
-                            "(Marshmallows not included.)"
+                    "   A highly configurable fueled campfire mod. " +
+                            "\nCampfires need fuel tossed on them to burn-- " +
+                            "\nbut not too much! \n\n (Marshmallows not included.)"
     ]
     inputs.properties replaceProperties
 

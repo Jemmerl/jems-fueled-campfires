@@ -1,6 +1,6 @@
 package com.jemmerl.jemscampfires.mixin;
 
-import com.jemmerl.jemscampfires.init.JCTags;
+import com.jemmerl.jemscampfires.init.ModTags;
 import com.jemmerl.jemscampfires.init.ServerConfig;
 import com.jemmerl.jemscampfires.util.IFueledCampfire;
 import com.jemmerl.jemscampfires.util.Util;
@@ -72,6 +72,14 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
             if (fuelTicks < 0) {
                 // This isEternal gets overridden if the block is placed by a player, else it has been world-genned
                 isEternal = isSoul ? ServerConfig.SPAWN_SOUL_CAMPFIRE_ETERNAL.get() : ServerConfig.SPAWN_CAMPFIRE_ETERNAL.get();
+
+                // ... UNLESS the player check compat. fix is enabled, at which the above is overridden if a player is
+                //  near but did not place it directly. This will fix an issue where campfires are player made but not
+                //  directly. It could cause issues when spawning in near a world-genned campfire, but it's rare.
+                if (ServerConfig.PLAYER_CHECK_FIX.get() && world.isPlayerWithin(pos.getX()+0.5, pos.getY()+0.5, pos.getZ()+0.5, 5.5D)) {
+                    isEternal = isSoul ? ServerConfig.PLACE_SOUL_CAMPFIRE_ETERNAL.get() : ServerConfig.PLACE_CAMPFIRE_ETERNAL.get();
+                }
+
                 fuelTicks = Math.min((isSoul ? ServerConfig.SOUL_CAMPFIRE_INITIAL_FUEL_TICKS.get() : ServerConfig.CAMPFIRE_INITIAL_FUEL_TICKS.get()), getStandardMaxFuelTicks(isSoul));
             }
         }
@@ -115,8 +123,10 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
 
         for(ItemEntity itemEntity : getCaptureItems()) {
             ItemStack itemStack = itemEntity.getItem();
+            if (itemStack.getItem().isIn(ModTags.JC_FUEL_BLACKLIST)) continue;
+
             int baseBurnTicks = ForgeHooks.getBurnTime(itemStack, null);
-            boolean eternalItem = getAllowEternalItems(isSoul) && itemStack.getItem().isIn(JCTags.JC_ETERNAL) && (!isEternal);
+            boolean eternalItem = getAllowEternalItems(isSoul) && itemStack.getItem().isIn(ModTags.JC_ETERNAL) && (!isEternal);
 
             if ((baseBurnTicks > 0) || eternalItem) {
                 int itemCount = itemStack.getCount();
@@ -195,13 +205,13 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     private void bonfireStuff() {
         Random rand = this.world.rand;
 
-        // Update clients once per second about bonfire status
-        // AFAIK this is the only way I can ensure players see the correct bonfire behavior
-        // Bonfire updates are still sent as normal through setBonfire, but this may change
-        if (ServerConfig.ALLOW_CLIENT_PACKETS.get() && (world.getGameTime() % 20L == 0L)) {
-            BlockState state = this.getBlockState();
-            world.notifyBlockUpdate(pos, state, state, 18); // Uses 2 client updates, and 16 no observers
-        }
+//        // Update clients once per second about bonfire status
+//        // AFAIK this is the only way I can ensure players see the correct bonfire behavior
+//        // Bonfire updates are still sent as normal through setBonfire, but this may change
+//        if ((world.getGameTime() % 20L == 0L)) {
+//            BlockState state = this.getBlockState();
+//            world.notifyBlockUpdate(pos, state, state, 18); // Uses 2 client updates, and 16 no observers
+//        }
 
         if (getBonfireFirespread(isSoul)) {
             if (rand.nextInt(20) != 0) return;
@@ -373,7 +383,7 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     public void setBonfire(boolean bonfire) {
         if (this.isBonfire != bonfire) {
             this.isBonfire = bonfire;
-            if (ServerConfig.ALLOW_CLIENT_PACKETS.get() && (world != null) && (!world.isRemote)) {
+            if ((world != null) && (!world.isRemote)) {
                 BlockState state = this.getBlockState();
                 world.notifyBlockUpdate(pos, state, state, 18); // Uses 2 client updates, and 16 no observers
             }
@@ -392,14 +402,11 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     @Override
     @Nullable
     public SUpdateTileEntityPacket getUpdatePacket() {
-        if (ServerConfig.ALLOW_CLIENT_PACKETS.get()) {
-            CompoundNBT nbtTag = this.getUpdateTag();
-            //nbtTag.putInt("FuelTicks", this.fuelTicks);
-            //nbtTag.putBoolean("IsEternal", this.isEternal);
-            nbtTag.putBoolean("IsBonfire", this.isBonfire);
-            return new SUpdateTileEntityPacket(pos, 13, nbtTag);
-        }
-        return new SUpdateTileEntityPacket(this.pos, 13, this.getUpdateTag());
+        CompoundNBT nbtTag = this.getUpdateTag();
+        //nbtTag.putInt("FuelTicks", this.fuelTicks);
+        //nbtTag.putBoolean("IsEternal", this.isEternal);
+        nbtTag.putBoolean("IsBonfire", this.isBonfire);
+        return new SUpdateTileEntityPacket(pos, 13, nbtTag);
     }
 
     @Override
