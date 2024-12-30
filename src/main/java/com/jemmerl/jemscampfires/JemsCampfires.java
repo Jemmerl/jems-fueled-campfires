@@ -17,13 +17,10 @@ import net.minecraftforge.fml.loading.FMLPaths;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-// The value here should match an entry in the META-INF/mods.toml file
 @Mod(JemsCampfires.MOD_ID)
 public class JemsCampfires
 {
     public static final String MOD_ID = "jemscampfires";
-
-    // Directly reference a log4j logger.
     public static final Logger LOGGER = LogManager.getLogger();
 
     public JemsCampfires() {
@@ -34,7 +31,6 @@ public class JemsCampfires
 
         ModItems.register(eventBus);
 
-//        MinecraftForge.EVENT_BUS.register(ModEvents.class);
         MinecraftForge.EVENT_BUS.register(this);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ClientConfig.CLIENT_SPEC);

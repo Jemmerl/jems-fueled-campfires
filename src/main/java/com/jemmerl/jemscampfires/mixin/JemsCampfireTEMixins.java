@@ -1,6 +1,6 @@
 package com.jemmerl.jemscampfires.mixin;
 
-import com.jemmerl.jemscampfires.init.JCTags;
+import com.jemmerl.jemscampfires.init.ModTags;
 import com.jemmerl.jemscampfires.init.ServerConfig;
 import com.jemmerl.jemscampfires.util.IFueledCampfire;
 import com.jemmerl.jemscampfires.util.Util;
@@ -53,9 +53,6 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
     private boolean isBonfire = false;
 
     // **TODO BOARD** //
-    // TODO: Maybe add fuel-based lighting in the future as a resource-expensive optional setting.
-    //  Would need to send packets between server and client.
-
     // TODO bonfire enabled, but if not take all fuel, then wont bonfire
 
     public JemsCampfireTEMixins(BlockPos pWorldPosition, BlockState pBlockState) {
@@ -71,11 +68,8 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
     @Shadow
     public abstract NonNullList<ItemStack> getItems();
 
-    //TODO campfires place eternal in neoforge version??
-
     @Override
     public void onLoad() {
-        //super.onLoad();
         if (!this.level.isClientSide()) {
             isSoul = (ForgeRegistries.BLOCKS.getKey(this.getBlockState().getBlock()).toString().contains("soul"));
 
@@ -140,8 +134,10 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
 
         for(ItemEntity itemEntity : getCaptureItems()) {
             ItemStack itemStack = itemEntity.getItem();
+            if (itemStack.is(ModTags.JC_FUEL_BLACKLIST)) continue;
+
             int baseBurnTicks = ForgeHooks.getBurnTime(itemStack, null);
-            boolean eternalItem = getAllowEternalItems(isSoul) && itemStack.is(JCTags.JC_ETERNAL) && (!isEternal);
+            boolean eternalItem = getAllowEternalItems(isSoul) && itemStack.is(ModTags.JC_ETERNAL) && (!isEternal);
 
             if ((baseBurnTicks > 0) || eternalItem) {
                 int itemCount = itemStack.getCount();
@@ -304,7 +300,6 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
 
     private void breakCampfire() {
         this.level.playSound(null, worldPosition, SoundEvents.GENERIC_EXTINGUISH_FIRE, SoundSource.BLOCKS, 1.0F, 1.0F);
-        //this.dropAllItems();
         this.level.setBlockAndUpdate(this.worldPosition, Blocks.AIR.defaultBlockState());
     }
 
@@ -455,13 +450,10 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
 
     @Inject(at = @At("RETURN"), method = "saveAdditional(Lnet/minecraft/nbt/CompoundTag;)V", cancellable = true)
     private void saveFueled(CompoundTag compound, CallbackInfo ci) {
-        //CompoundTag nbt = cir.getReturnValue();
         if (compound != null) {
             compound.putInt("FuelTicks", this.fuelTicks);
             compound.putBoolean("IsEternal", this.isEternal);
             compound.putBoolean("IsBonfire", this.isBonfire);
-            //cir.setReturnValue(nbt);
-            //cir.cancel();
         }
     }
 
