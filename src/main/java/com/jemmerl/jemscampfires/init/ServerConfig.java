@@ -20,8 +20,8 @@ public class ServerConfig {
     // General
     private static final boolean place_cf_lit = false; // Are regular campfires placed by players initially lit - Default: false
     private static final boolean place_soul_cf_lit = false; // Are soul campfires placed by players initially lit - Default: false
-    private static final int cf_max_fuel_ticks = 4800; // Maximum regular campfire fuel in ticks - Default 4800 ticks (4 minutes; 20 ticks/second)
-    private static final int soul_cf_max_fuel_ticks = 4800; // Maximum soul campfire fuel in ticks - Default 4800 ticks (4 minutes; 20 ticks/second)
+    private static final int cf_max_fuel_ticks = 12000; // Maximum regular campfire fuel in ticks - Default 12000 ticks (10 minutes; 20 ticks/second)
+    private static final int soul_cf_max_fuel_ticks = 12000; // Maximum soul campfire fuel in ticks - Default 12000 ticks (10 minutes; 20 ticks/second)
     private static final int cf_initial_fuel_ticks = 200; // Initial regular campfire fuel in ticks (can't be more than the configured max) - Default 200 ticks (10 seconds)
     private static final int soul_cf_initial_fuel_ticks = 200; // Initial soul campfire fuel in ticks (can't be more than the configured max) - Default 200 ticks (10 seconds)
     private static final double cf_fuel_multiplier = 1.0; // Multiplies the burn time of fuel added to regular campfires - Default 1.0
@@ -164,7 +164,7 @@ public class ServerConfig {
                 .comment("Are regular campfires placed by players initially lit - Default: false")
                 .define("placedCampfiresAreLit", place_cf_lit);
         CAMPFIRE_MAX_FUEL_TICKS = builder
-                .comment("Maximum regular campfire fuel in ticks - Default 4800 ticks (4 minutes; 20 ticks/second)")
+                .comment("Maximum regular campfire fuel in ticks - Default 12000 ticks (10 minutes; 20 ticks/second)")
                 .defineInRange("campfireMaxFuelTicks", cf_max_fuel_ticks, 100, 1000000000);
         CAMPFIRE_INITIAL_FUEL_TICKS = builder
                 .comment("Initial regular campfire fuel in ticks (can't be more than the configured max) - Default 200 ticks (10 seconds)")
@@ -190,7 +190,7 @@ public class ServerConfig {
                 .comment("Are soul campfires placed by players initially lit - Default: false")
                 .define("placedSoulCampfiresAreLit", place_soul_cf_lit);
         SOUL_CAMPFIRE_MAX_FUEL_TICKS = builder
-                .comment("Maximum soul campfire fuel in ticks - Default 4800 ticks (4 minutes; 20 ticks/second)")
+                .comment("Maximum soul campfire fuel in ticks - Default 12000 ticks (10 minutes; 20 ticks/second)")
                 .defineInRange("soulCampfireMaxFuelTicks", soul_cf_max_fuel_ticks, 100, 1000000000);
         SOUL_CAMPFIRE_INITIAL_FUEL_TICKS = builder
                 .comment("Initial soul campfire fuel in ticks (can't be more than the configured max) - Default 200 ticks (10 seconds)")

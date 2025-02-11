@@ -52,9 +52,6 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
     private boolean isEternal = false;
     private boolean isBonfire = false;
 
-    // **TODO BOARD** //
-    // TODO bonfire enabled, but if not take all fuel, then wont bonfire
-
     public JemsCampfireTEMixins(BlockPos pWorldPosition, BlockState pBlockState) {
         super(BlockEntityType.CAMPFIRE, pWorldPosition, pBlockState);
     }
@@ -166,17 +163,17 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
     private boolean burnFuelItem(int baseBurnTicks, boolean eternalItem) {
         if (eternalItem) {
             isEternal = true;
-            setBonfire(false);
+            if (!getEternalBonfire(isSoul)) setBonfire(false);
             if (baseBurnTicks <= 0) return true;
         }
 
         int newCurrFuelTicks = fuelTicks + (int) Math.ceil(baseBurnTicks * getFuelMult(isSoul));
-        if (newCurrFuelTicks < getTrueMaxFuelTicks(isSoul)) {
+        int maxFuel = getTrueMaxFuelTicks(isSoul);
+        if (newCurrFuelTicks < maxFuel) {
             setFuelTicks(newCurrFuelTicks);
             return true;
-        }
-        if (getAlwaysBurnFuel(isSoul) && this.getBlockState().getValue(CampfireBlock.LIT)) {
-            setFuelTicks(getTrueMaxFuelTicks(isSoul));
+        } else if (getAlwaysBurnFuel(isSoul)) {
+            setFuelTicks(maxFuel);
             return true;
         }
         return false;
@@ -201,7 +198,11 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
         if (!isBonfire) {
             if (getNormalFirespread(isSoul) && (this.level.random.nextInt(70) == 0)) {
                 Direction dir = Direction.from2DDataValue(level.random.nextInt(4));
-                ignitePos(worldPosition.relative(dir), false);
+
+                BlockPos ignPos = worldPosition.relative(dir);
+                if (canIgnitePos(ignPos, false)) {
+                    this.level.setBlockAndUpdate(ignPos, BaseFireBlock.getState(this.level, ignPos));
+                }
             }
         }
 
@@ -223,28 +224,37 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
 //        }
 
         if (getBonfireFirespread(isSoul)) {
-            if (randomsource.nextInt(20) != 0) return;
+            if (randomsource.nextInt(40) != 0) return;
             Direction dir1 = Direction.from2DDataValue(randomsource.nextInt(4));
             Direction dir2 = Direction.getRandom(randomsource);
-            int up = randomsource.nextInt(2);
-            if ((dir2.getOpposite() == dir1) || (dir2.get2DDataValue() < 0)) {
-                ignitePos(worldPosition.relative(dir1).above(up), true);
-            } else {
-                ignitePos(worldPosition.relative(dir1).relative(dir2).above(up), true);
+
+            // If dir2 points opposite of dir1 or is UP/DOWN, then light directly adjacent to the campfire.
+            // Else, light one block away from the campfire.
+            BlockPos ignPos = worldPosition.relative(dir1).above();
+            if ((dir2.getOpposite() != dir1) && (dir2.get2DDataValue() > 0)) {
+                ignPos = ignPos.relative(dir2);
+            }
+
+            for (int down = 0; down <= 2; down++) {
+                if (canIgnitePos(ignPos, true)) {
+                    this.level.setBlockAndUpdate(ignPos, BaseFireBlock.getState(this.level, ignPos));
+                    break;
+                }
+                ignPos = ignPos.below();
             }
         }
     }
 
-    private void ignitePos(BlockPos blockPos, boolean ignoreFlammable) {
+    private boolean canIgnitePos(BlockPos blockPos, boolean ignoreFlammable) {
         BlockState state = this.level.getBlockState(blockPos);
         if (state.canBeReplaced() && !state.liquid()) {
             BlockState downState = this.level.getBlockState(blockPos.below());
             if (downState.isSolidRender(this.level, blockPos.below()) &&
                     (ignoreFlammable || downState.isFlammable(level, worldPosition, Direction.UP))) {
-                this.level.setBlockAndUpdate(blockPos, BaseFireBlock.getState(this.level, blockPos));
+                return true;
             }
         }
-        //return false;
+        return false;
     }
 
     // Returns true if the rain extinguishes the campfire
