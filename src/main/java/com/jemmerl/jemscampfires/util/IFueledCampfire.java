@@ -9,6 +9,7 @@ public interface IFueledCampfire {
 
     boolean getBonfire();
     void setBonfire(boolean bonfire);
+    int getBonfireLimit();
 
     boolean isSoul();
     int[] fetchCookingVariable();

@@ -1,6 +1,7 @@
 package com.jemmerl.jemscampfires.util;
 
 import com.jemmerl.jemscampfires.init.ServerConfig;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -42,8 +43,16 @@ public class Util {
                     }
                 }
             } else {
+                ChatFormatting color = ChatFormatting.WHITE;
+                float bonfireLimit = cfTileEntity.getFuelTicks() / (float)cfTileEntity.getBonfireLimit();
+                if (bonfireLimit > 0.90f) {
+                    color = ChatFormatting.RED;
+                } else if (bonfireLimit > 0.75f) {
+                    color = ChatFormatting.YELLOW;
+                }
+
                 MutableComponent msg;
-                MutableComponent timeRemaining = convertTime(cfTileEntity.getFuelTicks());
+                MutableComponent timeRemaining = convertTime(cfTileEntity.getFuelTicks()).withStyle(color);
 
                 if (cfTileEntity.getEternal()) {
                     if (cfTileEntity.getBonfire()) {

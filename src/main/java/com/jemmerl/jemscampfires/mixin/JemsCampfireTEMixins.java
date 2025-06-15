@@ -245,6 +245,14 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
         }
     }
 
+    @Override
+    public int getBonfireLimit() {
+        if (getCanBonfire(isSoul)) {
+            return getStandardMaxFuelTicks(isSoul);
+        }
+        return -1;
+    }
+
     private boolean canIgnitePos(BlockPos blockPos, boolean ignoreFlammable) {
         BlockState state = this.level.getBlockState(blockPos);
         if (state.canBeReplaced() && !state.liquid()) {
