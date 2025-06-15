@@ -14,6 +14,8 @@ public class ServerConfig {
     private static final boolean need_fire_poker = true; // Is a fire poker needed for checking campfire info? Sneak + right-click with an empty hand if 'false' - Default: true
     private static final boolean extinguished_drop_items = false; // Will campfires drop items when extinguished (restores pre-1.17 behavior) - Default: false
     private static final boolean player_check_fix = false; // Enable compatibility fix for mods that let you build a campfire in-world, may rarely cause an issue with world-genned campfires - Default: false
+
+    // Debug
     private static final boolean debug_ticks_remaining = false; // Debug/Dev: Fuel info messages also show the time remaining in ticks - Default false
     private static final boolean debug_info_in_chat = false; // Debug/Dev: Fuel info messages are logged in the chat window instead of the action-bar - Default false
 
@@ -34,6 +36,8 @@ public class ServerConfig {
     private static final boolean soul_cf_firespread = false; // Will soul campfires spread fire to adjacent flammable blocks - Default false
     private static final int cf_rain_fuel_tick_loss = 10; // Regular campfire fuel lost per tick from rain (-1 for instant burnout without loss, 0 to disable) - Default 10 ticks of fuel
     private static final int soul_cf_rain_fuel_tick_loss = 5; // Soul campfire fuel lost per tick from rain (-1 for instant burnout without loss, 0 to disable) - Default 5 ticks of fuel
+    private static final boolean cf_use_whitelist = false; // Switch regular campfire filtered-fuels tag to a whitelist (blacklist by default) - Default false
+    private static final boolean soul_cf_use_whitelist = false; // Switch soul campfire filtered-fuels tag to a whitelist (blacklist by default) - Default false
 
     // Postponed
     //private static final boolean cf_fuel_based_light = true; // Campfire light-level is based on its remaining fuel percent from max - Default true
@@ -78,6 +82,8 @@ public class ServerConfig {
     public static ForgeConfigSpec.BooleanValue NEED_FIRE_POKER;
     public static ForgeConfigSpec.BooleanValue EXTINGUISHED_DROP_ITEMS;
     public static ForgeConfigSpec.BooleanValue PLAYER_CHECK_FIX;
+
+    // Debug
     public static ForgeConfigSpec.BooleanValue DEBUG_TICKS_REMAINING;
     public static ForgeConfigSpec.BooleanValue DEBUG_INFO_IN_CHAT;
 
@@ -98,6 +104,8 @@ public class ServerConfig {
     public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_FIRESPREAD;
     public static ForgeConfigSpec.IntValue CAMPFIRE_RAIN_FUEL_TICK_LOSS;
     public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_RAIN_FUEL_TICK_LOSS;
+    public static ForgeConfigSpec.BooleanValue CAMPFIRE_USE_WHITELIST;
+    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_USE_WHITELIST;
 
     // Postponed
     //public static ForgeConfigSpec.BooleanValue CAMPFIRE_FUEL_BASED_LIGHT; //postponed
@@ -184,6 +192,9 @@ public class ServerConfig {
         CAMPFIRE_RAIN_FUEL_TICK_LOSS = builder
                 .comment("Regular campfire fuel lost per tick from rain (-1 for instant burnout without loss, 0 to disable) - Default 200 ticks")
                 .defineInRange("campfireRainFuelLoss", cf_rain_fuel_tick_loss, -1, 2000000000);
+        CAMPFIRE_USE_WHITELIST = builder
+                .comment("Switch regular campfire filtered-fuels tag to a whitelist (blacklist by default) - Default false")
+                .define("campfireUseWhitelist", cf_use_whitelist);
         builder.pop();
         builder.push("Soul Campfires");
         PLACE_SOUL_CAMPFIRE_LIT = builder
@@ -210,6 +221,9 @@ public class ServerConfig {
         SOUL_CAMPFIRE_RAIN_FUEL_TICK_LOSS = builder
                 .comment("Soul campfire fuel lost per tick from rain (-1 for instant burnout without loss, 0 to disable) - Default 200 ticks")
                 .defineInRange("soulCampfireRainFuelLoss", soul_cf_rain_fuel_tick_loss, -1, 2000000000);
+        SOUL_CAMPFIRE_USE_WHITELIST = builder
+                .comment("Switch soul campfire filtered-fuels tag to a whitelist (blacklist by default) - Default false")
+                .define("soulCampfireUseWhitelist", soul_cf_use_whitelist);
         builder.pop();
         builder.pop();
 

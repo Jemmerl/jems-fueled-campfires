@@ -131,7 +131,7 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
 
         for(ItemEntity itemEntity : getCaptureItems()) {
             ItemStack itemStack = itemEntity.getItem();
-            if (itemStack.is(ModTags.JC_FUEL_BLACKLIST)) continue;
+            if (failsFuelFilter(isSoul, itemStack)) continue;
 
             int baseBurnTicks = ForgeHooks.getBurnTime(itemStack, null);
             boolean eternalItem = getAllowEternalItems(isSoul) && itemStack.is(ModTags.JC_ETERNAL) && (!isEternal);
@@ -346,6 +346,14 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
     private static int getRainFuelLoss(boolean soul) {
         return soul ? ServerConfig.SOUL_CAMPFIRE_RAIN_FUEL_TICK_LOSS.get() : ServerConfig.CAMPFIRE_RAIN_FUEL_TICK_LOSS.get();
     }
+
+    private static boolean failsFuelFilter(boolean soul, ItemStack itemStack) {
+        if (soul) {
+            return (itemStack.is(ModTags.SOUL_CF_FILTERED_FUELS) != ServerConfig.SOUL_CAMPFIRE_USE_WHITELIST.get());
+        }
+        return (itemStack.is(ModTags.CF_FILTERED_FUELS) != ServerConfig.CAMPFIRE_USE_WHITELIST.get());
+    }
+
 
     // Decor
     private static boolean getAllowEternalItems(boolean soul) {
