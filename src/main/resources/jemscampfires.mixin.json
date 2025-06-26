@@ -5,7 +5,14 @@
   "refmap": "jemscampfires.mixin-refmap.json",
   "mixins": [
     "JemsCampfireBlockMixins",
-    "JemsCampfireTEMixins"
+    "JemsCampfireTEMixins",
+    "compat.FarmersDelightStoveTEMixins",
+    "compat.FarmersDelightStoveBlockMixins"
   ],
-  "minVersion": "0.8"
+  "plugin": "com.jemmerl.jemscampfires.mixin.JemsCampfireMixinPlugin",
+  "minVersion": "0.8",
+  "injectors": {
+    "defaultRequire": 1
+  }
+
 }

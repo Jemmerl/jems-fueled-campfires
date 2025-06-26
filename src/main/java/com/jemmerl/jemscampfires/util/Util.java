@@ -1,5 +1,6 @@
 package com.jemmerl.jemscampfires.util;
 
+import com.jemmerl.jemscampfires.init.ModTags;
 import com.jemmerl.jemscampfires.init.ServerConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -8,14 +9,19 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.text.DecimalFormat;
+import java.util.HashMap;
 
 public class Util {
 
@@ -30,6 +36,24 @@ public class Util {
         }
         return null;
     }
+
+    public static boolean failsFuelFilter(boolean soul, ItemStack itemStack) {
+        if (soul) {
+            return (itemStack.is(ModTags.SOUL_CF_FILTERED_FUELS) != ServerConfig.SOUL_CAMPFIRE_USE_WHITELIST.get());
+        }
+        return (itemStack.is(ModTags.CF_FILTERED_FUELS) != ServerConfig.CAMPFIRE_USE_WHITELIST.get());
+    }
+
+    // TODO: This hashmap is for fuels that are in containers (ex: lava buckets)
+    //       Modders/pack-devs can use mixin injects to add new items, make sure not to
+    //       overwrite/clear the map unless you know what you are doing!
+    // If anyone genuinely uses this feature and does not like this method, just ask! I will do an API
+    // for it. But I don't feel like it right now, because I don't expect it to be used haha -Jem
+    public static HashMap<Item, Item> fuelContainers = new HashMap<>();
+    static {
+        fuelContainers.put(Items.LAVA_BUCKET, Items.BUCKET);
+    }
+
 
     public static void displayCampfireInfo(Level level, BlockPos pos, BlockState state, Player player, IFueledCampfire cfTileEntity) {
         if (state.getValue(CampfireBlock.LIT)) {
@@ -78,7 +102,7 @@ public class Util {
         } else {
             if(!level.isClientSide) {
                 Component msg;
-                if (state.getValue(CampfireBlock.WATERLOGGED)) {
+                if (state.hasProperty(BlockStateProperties.WATERLOGGED) && state.getValue(BlockStateProperties.WATERLOGGED)) {
                     msg = Component.translatable("info.jemscampfires.waterlogged");
                 } else if (cfTileEntity.getEternal()) {
                     if (cfTileEntity.getFuelTicks() <= 0) {

@@ -19,7 +19,6 @@ import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.block.Block;
@@ -96,6 +95,7 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
         fueledCampfire.getFuel();
         fueledCampfire.normalStuff();
         if (fueledCampfire.getBonfire()) fueledCampfire.bonfireStuff();
+        // TODO do a set-changed flag here??
     }
 
     @Inject(at = @At(value = "FIELD", target = "net/minecraft/world/level/block/entity/CampfireBlockEntity.cookingProgress:[I",
@@ -131,7 +131,7 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
 
         for(ItemEntity itemEntity : getCaptureItems()) {
             ItemStack itemStack = itemEntity.getItem();
-            if (failsFuelFilter(isSoul, itemStack)) continue;
+            if (Util.failsFuelFilter(isSoul, itemStack)) continue;
 
             int baseBurnTicks = ForgeHooks.getBurnTime(itemStack, null);
             boolean eternalItem = getAllowEternalItems(isSoul) && itemStack.is(ModTags.JC_ETERNAL) && (!isEternal);
@@ -179,12 +179,23 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
         return false;
     }
 
-    // To-do use this separated class for mod compat-stuff with other fuels in containers (ex: lava buckets)
+    // Todo use this separated class for mod compat-stuff with other fuels in containers (ex: lava buckets)
     // Modders can mixin to this class with ease, make sure to inject at RETURN and not include any early returns!
     private void doFuelInContainer(Item item) {
-        if (item == Items.LAVA_BUCKET) {
-            Containers.dropItemStack(level, worldPosition.getX(), worldPosition.getY(), worldPosition.getZ(), new ItemStack(Items.BUCKET));
-        }
+        Item containerItem = Util.fuelContainers.getOrDefault(item, null);
+        if (containerItem == null) return;
+
+        double d0 = worldPosition.getX()+0.5;
+        double d1 = worldPosition.getY()+0.9;
+        double d2 = worldPosition.getZ()+0.5;
+
+        double degree = Math.toRadians(level.random.nextInt(360));
+        double sin = Math.sin(degree);
+        double cos = Math.cos(degree);
+
+        ItemEntity itementity = new ItemEntity(level, d0, d1, d2, new ItemStack(containerItem));
+        itementity.setDeltaMovement(sin * 0.2D, 0.01, cos * 0.2D);
+        level.addFreshEntity(itementity);
     }
 
     public void normalStuff() {
@@ -355,13 +366,6 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
         return soul ? ServerConfig.SOUL_CAMPFIRE_RAIN_FUEL_TICK_LOSS.get() : ServerConfig.CAMPFIRE_RAIN_FUEL_TICK_LOSS.get();
     }
 
-    private static boolean failsFuelFilter(boolean soul, ItemStack itemStack) {
-        if (soul) {
-            return (itemStack.is(ModTags.SOUL_CF_FILTERED_FUELS) != ServerConfig.SOUL_CAMPFIRE_USE_WHITELIST.get());
-        }
-        return (itemStack.is(ModTags.CF_FILTERED_FUELS) != ServerConfig.CAMPFIRE_USE_WHITELIST.get());
-    }
-
 
     // Decor
     private static boolean getAllowEternalItems(boolean soul) {
@@ -472,6 +476,7 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
         if (nbt.contains("IsBonfire", 99)) {
             setBonfire(nbt.getBoolean("IsBonfire"));
         }
+        System.out.println("cf loaded");
     }
 
     @Inject(at = @At("RETURN"), method = "saveAdditional(Lnet/minecraft/nbt/CompoundTag;)V", cancellable = true)
@@ -480,7 +485,9 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
             compound.putInt("FuelTicks", this.fuelTicks);
             compound.putBoolean("IsEternal", this.isEternal);
             compound.putBoolean("IsBonfire", this.isBonfire);
+                    System.out.println("cf saved");
         }
+                System.out.println("cf or at least tried");
     }
 
 }

@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.CampfireBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.objectweb.asm.Opcodes;
@@ -42,8 +43,6 @@ public abstract class JemsCampfireBlockMixins extends BaseEntityBlock {
     
     @Shadow
     private boolean spawnParticles;
-    
-    //net/minecraft/util/RandomSource
 
     @Inject(at = @At(value = "JUMP", opcode = Opcodes.IFEQ, ordinal = 1), locals = LocalCapture.CAPTURE_FAILHARD,
             method = "animateTick(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;)V")
@@ -92,14 +91,14 @@ public abstract class JemsCampfireBlockMixins extends BaseEntityBlock {
     @Inject(at = @At("RETURN"), method = "getStateForPlacement(Lnet/minecraft/world/item/context/BlockPlaceContext;)Lnet/minecraft/world/level/block/state/BlockState;", cancellable = true)
     private void getStateForPlacement(BlockPlaceContext context, CallbackInfoReturnable<BlockState> cir) {
         cir.setReturnValue(cir.getReturnValue()
-                .setValue(CampfireBlock.LIT, (ForgeRegistries.BLOCKS.getKey(this.asBlock()).toString().contains("soul")) ?
+                .setValue(BlockStateProperties.LIT, (ForgeRegistries.BLOCKS.getKey(this.asBlock()).toString().contains("soul")) ?
                         ServerConfig.PLACE_SOUL_CAMPFIRE_LIT.get() : ServerConfig.PLACE_CAMPFIRE_LIT.get()));
     }
 
     @Inject(at = @At(value = "INVOKE_ASSIGN", target = "net/minecraft/world/entity/player/Player.getItemInHand(Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/item/ItemStack;", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true,
                 method = "use(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/phys/BlockHitResult;)Lnet/minecraft/world/InteractionResult;")
     public void use(BlockState arg0, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult arg5, CallbackInfoReturnable<InteractionResult> cir, BlockEntity blockentity, CampfireBlockEntity campfireblockentity, ItemStack itemstack) {
-        if (!ServerConfig.NEED_FIRE_POKER.get() && pPlayer.isCrouching() && itemstack.isEmpty()) {
+        if (!ServerConfig.NEED_FIRE_POKER.get() && pPlayer.isCrouching() && itemstack.isEmpty() && (campfireblockentity instanceof IFueledCampfire)) {
             Util.displayCampfireInfo(pLevel, pPos, arg0, pPlayer, (IFueledCampfire)campfireblockentity);
             cir.setReturnValue(InteractionResult.SUCCESS);
         }

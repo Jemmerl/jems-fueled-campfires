@@ -42,3 +42,10 @@ mandatory=true
 versionRange="${minecraft_version_range}"
 ordering="NONE"
 side="BOTH"
+
+[[dependencies.${mod_id}]]
+modId="farmersdelight"
+mandatory=false
+versionRange="[1.20,1.21)"
+ordering="AFTER"
+side="BOTH"

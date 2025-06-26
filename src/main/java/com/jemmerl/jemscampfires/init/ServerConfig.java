@@ -14,6 +14,7 @@ public class ServerConfig {
     private static final boolean need_fire_poker = true; // Is a fire poker needed for checking campfire info? Sneak + right-click with an empty hand if 'false' - Default: true
     private static final boolean extinguished_drop_items = false; // Will campfires drop items when extinguished (restores pre-1.17 behavior) - Default: false
     private static final boolean player_check_fix = false; // Enable compatibility fix for mods that let you build a campfire in-world, may rarely cause an issue with world-genned campfires - Default: false
+    private static final boolean farmersDelightCompat = true; // Enable compatibility changes for the Farmer's Delight stove block - Default true
 
     // Debug
     private static final boolean debug_ticks_remaining = false; // Debug/Dev: Fuel info messages also show the time remaining in ticks - Default false
@@ -64,8 +65,8 @@ public class ServerConfig {
     // Bonfire
     private static final boolean cf_can_bonfire = false; // Will regular campfires become a bonfire if over-fueled - Default false
     private static final boolean soul_cf_can_bonfire = false; // Will soul campfires become a bonfire if over-fueled - Default false
-    private static final int cf_bonfire_fuel_ticks = 800; // Regular bonfire fuel capacity, this gets added onto the normal max fuel - Default 800 ticks (40 seconds)
-    private static final int soul_cf_bonfire_fuel_ticks = 800; // Soul bonfire fuel capacity, this gets added onto the normal max fuel - Default 800 ticks (40 seconds)
+    private static final int cf_bonfire_fuel_ticks = 1200; // Regular bonfire fuel capacity, this gets added onto the normal max fuel - Default 1200 ticks (1 minute)
+    private static final int soul_cf_bonfire_fuel_ticks = 1200; // Soul bonfire fuel capacity, this gets added onto the normal max fuel - Default 1200 ticks (1 minute)
     private static final boolean cf_bonfire_lose_fuel = true; // Will regular bonfires lose their extra bonfire fuel when extinguished (returns to a normal fire) - Default true
     private static final boolean soul_cf_bonfire_lose_fuel = true; // Will soul bonfires lose their extra bonfire fuel when extinguished (returns to a normal fire) - Default true
     private static final int cf_bonfire_burn_mult = 2; // Regular bonfire fuel use multiplier - Default 2
@@ -82,6 +83,7 @@ public class ServerConfig {
     public static ForgeConfigSpec.BooleanValue NEED_FIRE_POKER;
     public static ForgeConfigSpec.BooleanValue EXTINGUISHED_DROP_ITEMS;
     public static ForgeConfigSpec.BooleanValue PLAYER_CHECK_FIX;
+    public static ForgeConfigSpec.BooleanValue FARMERS_DELIGHT_STOVE_COMPAT;
 
     // Debug
     public static ForgeConfigSpec.BooleanValue DEBUG_TICKS_REMAINING;
@@ -155,6 +157,8 @@ public class ServerConfig {
                 .define("dropItemsWhenExtinguish", extinguished_drop_items);
         PLAYER_CHECK_FIX = builder.comment("Enable compatibility fix for mods that let you build a campfire in-world, may rarely cause an issue with world-genned campfires - Default: false")
                 .define("enableCampfireBuildCompatibilityFix", player_check_fix);
+        FARMERS_DELIGHT_STOVE_COMPAT = builder.comment("Enable compatibility changes for the Farmer's Delight stove block - Default true")
+                .define("enableFarmersDelightStoveCompat", farmersDelightCompat);
         builder.pop();
 
         builder.push("Debug/Dev Options");
@@ -303,7 +307,7 @@ public class ServerConfig {
                 .comment("Will regular campfires become a bonfire if over-fueled - Default false")
                 .define("enableRegularBonfire", cf_can_bonfire);
         CAMPFIRE_BONFIRE_FUEL_TICKS = builder
-                .comment("Regular bonfire fuel capacity, this gets added onto the normal max fuel - Default 800 ticks (40 seconds)")
+                .comment("Regular bonfire fuel capacity, this gets added onto the normal max fuel - Default 1200 ticks (1 minute)")
                 .defineInRange("regularBonfireFuel", cf_bonfire_fuel_ticks, 100, 1000000000);
         CAMPFIRE_BONFIRE_LOSE_FUEL_EXTINGUISH = builder
                 .comment("Will regular bonfires lose their extra bonfire fuel when extinguished (returns to a normal fire) - Default true")
@@ -323,7 +327,7 @@ public class ServerConfig {
                 .comment("Will soul campfires become a bonfire if over-fueled - Default false")
                 .define("enableSoulBonfire", soul_cf_can_bonfire);
         SOUL_CAMPFIRE_BONFIRE_FUEL_TICKS = builder
-                .comment("Soul bonfire fuel capacity, this gets added onto the normal max fuel - Default 800 ticks (40 seconds)")
+                .comment("Soul bonfire fuel capacity, this gets added onto the normal max fuel - Default 1200 ticks (1 minute)")
                 .defineInRange("soulBonfireFuel", soul_cf_bonfire_fuel_ticks, 100, 1000000000);
         SOUL_CAMPFIRE_BONFIRE_LOSE_FUEL_EXTINGUISH = builder
                 .comment("Will soul bonfires lose their extra bonfire fuel when extinguished (returns to a regular fire) - Default true")
