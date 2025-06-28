@@ -1,4 +1,4 @@
-package com.jemmerl.jemscampfires.mixin.compat;
+package com.jemmerl.jemscampfires.mixin.compat.farmersdelight;
 
 
 import com.jemmerl.jemscampfires.init.ModTags;
@@ -34,7 +34,7 @@ import java.util.List;
 // Compat mixin done with permission from vectorwing with condition of configurability! :)
 @SuppressWarnings("target")
 @Mixin(value = StoveBlockEntity.class, priority = 0)
-public abstract class FarmersDelightStoveTEMixins extends SyncedBlockEntity implements IFueledCampfire {
+public abstract class FDStoveTEMixins extends SyncedBlockEntity implements IFueledCampfire {
 
     // Front box, rotates based on stove block rotation
     private static final VoxelShape COLLECTION_AREA_SHAPE_N = Block.box(0.0D, 0.0D, -1.0D, 16.0D, 6.0D, 0.0D);
@@ -46,7 +46,7 @@ public abstract class FarmersDelightStoveTEMixins extends SyncedBlockEntity impl
     private boolean isEternal = false;
     private boolean markChanged = false;
 
-    public FarmersDelightStoveTEMixins(BlockEntityType<?> pType, BlockPos pPos, BlockState pBlockState) {
+    public FDStoveTEMixins(BlockEntityType<?> pType, BlockPos pPos, BlockState pBlockState) {
         super(pType, pPos, pBlockState);
     }
 

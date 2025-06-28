@@ -30,8 +30,8 @@ public class JemsCampfireMixinPlugin implements IMixinConfigPlugin {
     }
 
     private boolean compatFarmersDelight(String mixinClassName) {
-        return ((Objects.equals(mixinClassName, "com.jemmerl.jemscampfires.mixin.compat.FarmersDelightStoveBlockMixins"))
-                || ((Objects.equals(mixinClassName, "com.jemmerl.jemscampfires.mixin.compat.FarmersDelightStoveTEMixins"))));
+        return ((Objects.equals(mixinClassName, "com.jemmerl.jemscampfires.mixin.compat.farmersdelight.FDStoveBlockMixins"))
+                || ((Objects.equals(mixinClassName, "com.jemmerl.jemscampfires.mixin.compat.farmersdelight.FDStoveTEMixins"))));
     }
 
 

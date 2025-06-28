@@ -182,8 +182,6 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
         return false;
     }
 
-    // Todo use this separated class for mod compat-stuff with other fuels in containers (ex: lava buckets)
-    // Modders can mixin to this class with ease, make sure to inject at RETURN and not include any early returns!
     private void doFuelInContainer(Item item) {
         Item containerItem = Util.fuelContainers.getOrDefault(item, null);
         if (containerItem == null) return;

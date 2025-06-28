@@ -45,15 +45,14 @@ public class Util {
     }
 
     // TODO: This hashmap is for fuels that are in containers (ex: lava buckets)
-    //       Modders/pack-devs can use mixin injects to add new items, make sure not to
+    //       Modders/pack-devs can use mixin injects (or any other way, idk) to add new items, make sure not to
     //       overwrite/clear the map unless you know what you are doing!
-    // If anyone genuinely uses this feature and does not like this method, just ask! I will do an API
-    // for it. But I don't feel like it right now, because I don't expect it to be used haha -Jem
+    // If anyone genuinely uses this feature and does not like this method, just ask! I will do an API for it.
+    // But I don't feel like it right now, because I don't know how to do an API and do not expect ppl to use this -Jem
     public static HashMap<Item, Item> fuelContainers = new HashMap<>();
     static {
         fuelContainers.put(Items.LAVA_BUCKET, Items.BUCKET);
     }
-
 
     public static void displayCampfireInfo(Level level, BlockPos pos, BlockState state, Player player, IFueledCampfire cfTileEntity) {
         if (state.getValue(CampfireBlock.LIT)) {

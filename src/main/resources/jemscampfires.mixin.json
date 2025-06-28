@@ -6,13 +6,12 @@
   "mixins": [
     "JemsCampfireBlockMixins",
     "JemsCampfireTEMixins",
-    "compat.FarmersDelightStoveTEMixins",
-    "compat.FarmersDelightStoveBlockMixins"
+    "compat.farmersdelight.FDStoveTEMixins",
+    "compat.farmersdelight.FDStoveBlockMixins"
   ],
   "plugin": "com.jemmerl.jemscampfires.mixin.JemsCampfireMixinPlugin",
   "minVersion": "0.8",
   "injectors": {
     "defaultRequire": 1
   }
-
 }

@@ -1,4 +1,4 @@
-package com.jemmerl.jemscampfires.mixin.compat;
+package com.jemmerl.jemscampfires.mixin.compat.farmersdelight;
 
 import com.jemmerl.jemscampfires.JemsCampfires;
 import com.jemmerl.jemscampfires.init.ServerConfig;
@@ -30,14 +30,18 @@ import javax.annotation.Nullable;
 // Compat mixin done with permission from vectorwing with condition of configurability! :)
 @SuppressWarnings("target")
 @Mixin(value = StoveBlock.class, priority = 0)
-public abstract class FarmersDelightStoveBlockMixins extends BaseEntityBlock {
+public abstract class FDStoveBlockMixins extends BaseEntityBlock {
 
-    protected FarmersDelightStoveBlockMixins(Properties pProperties) {
+    protected FDStoveBlockMixins(Properties pProperties) {
         super(pProperties);
     }
 
+    // To be honest, I would be shocked if anyone else happens to be needing this for the stove block.
+    // I am just going to be lazy and only fix this if a compat issue does turn up, in which case I fully
+    // permit whoever reports it to yell at me meanly. I deserve it. -Jem
     @Override
     public void setPlacedBy(Level worldIn, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+        super.setPlacedBy(worldIn, pos, state, placer, stack);
         if(!worldIn.isClientSide()) {
             IFueledCampfire cfTileEntity = Util.getCFTE(worldIn, pos);
             if (cfTileEntity != null) {
@@ -45,15 +49,12 @@ public abstract class FarmersDelightStoveBlockMixins extends BaseEntityBlock {
                 cfTileEntity.setEternal(ServerConfig.PLACE_CAMPFIRE_ETERNAL.get());
             }
         }
-        super.setPlacedBy(worldIn, pos, state, placer, stack);
     }
 
     @Inject(at = @At("RETURN"), method = "getStateForPlacement(Lnet/minecraft/world/item/context/BlockPlaceContext;)Lnet/minecraft/world/level/block/state/BlockState;",
             cancellable = true)
     private void getStateForPlacement(BlockPlaceContext context, CallbackInfoReturnable<BlockState> cir) {
-        JemsCampfires.LOGGER.warn("TRY");
         if (!ServerConfig.FARMERS_DELIGHT_STOVE_COMPAT.get()) return;
-        JemsCampfires.LOGGER.warn("RAN");
         cir.setReturnValue(cir.getReturnValue()
                 .setValue(BlockStateProperties.LIT, ServerConfig.PLACE_CAMPFIRE_LIT.get()));
     }
