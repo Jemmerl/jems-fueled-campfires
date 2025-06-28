@@ -44,6 +44,7 @@ public abstract class FarmersDelightStoveTEMixins extends SyncedBlockEntity impl
 
     private int fuelTicks = -1;
     private boolean isEternal = false;
+    private boolean markChanged = false;
 
     public FarmersDelightStoveTEMixins(BlockEntityType<?> pType, BlockPos pPos, BlockState pBlockState) {
         super(pType, pPos, pBlockState);
@@ -68,8 +69,10 @@ public abstract class FarmersDelightStoveTEMixins extends SyncedBlockEntity impl
         if (!ServerConfig.FARMERS_DELIGHT_STOVE_COMPAT.get()) return;
         if (pLevel == null) return;
         IFueledCampfire fueledCampfire = (IFueledCampfire) pStove;
+        fueledCampfire.clearChanged();
         fueledCampfire.getFuel();
         fueledCampfire.normalStuff();
+        if (fueledCampfire.getChanged()) pStove.setChanged();
     }
 
     @Inject(at = @At(value = "FIELD", target = "vectorwing/farmersdelight/common/block/entity/StoveBlockEntity.cookingTimes:[I",
@@ -114,6 +117,7 @@ public abstract class FarmersDelightStoveTEMixins extends SyncedBlockEntity impl
                         itemEntity.setItem(stackCopy);
                     }
                 }
+                this.markChanged = true;
             }
         }
     }
@@ -178,6 +182,7 @@ public abstract class FarmersDelightStoveTEMixins extends SyncedBlockEntity impl
             fuelTicks = 0; // Probably (definitely) unneeded, but kept just in case.
             extinguishStove(false);
         }
+        this.markChanged = true;
     }
 
     public void bonfireStuff() {}
@@ -238,6 +243,15 @@ public abstract class FarmersDelightStoveTEMixins extends SyncedBlockEntity impl
         return new int[]{0,0,0,0};
     }
 
+    @Override
+    public void clearChanged() {
+        markChanged = false;
+    }
+
+    @Override
+    public boolean getChanged() {
+        return markChanged;
+    }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                            Data Handling Stuff                                              //
@@ -251,7 +265,6 @@ public abstract class FarmersDelightStoveTEMixins extends SyncedBlockEntity impl
         if (compound.contains("IsEternal", 99)) {
             setEternal(compound.getBoolean("IsEternal"));
         }
-//        System.out.println("loaded");
     }
 
     @Inject(at = @At("RETURN"), method = "saveAdditional(Lnet/minecraft/nbt/CompoundTag;)V")
@@ -259,9 +272,7 @@ public abstract class FarmersDelightStoveTEMixins extends SyncedBlockEntity impl
         if (compound != null) {
             compound.putInt("FuelTicks", this.fuelTicks);
             compound.putBoolean("IsEternal", this.isEternal);
-//            System.out.println("saved!");
         }
-//        System.out.println("or at least, attempted");
     }
 }
 

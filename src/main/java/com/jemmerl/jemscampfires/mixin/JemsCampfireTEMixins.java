@@ -50,6 +50,7 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
     private int fuelTicks = -1;
     private boolean isEternal = false;
     private boolean isBonfire = false;
+    private boolean markChanged = false;
 
     public JemsCampfireTEMixins(BlockPos pWorldPosition, BlockState pBlockState) {
         super(BlockEntityType.CAMPFIRE, pWorldPosition, pBlockState);
@@ -92,10 +93,11 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
         // cookTick only fires if the campfire is lit and on the server side
         if (pLevel == null) return;
         IFueledCampfire fueledCampfire = (IFueledCampfire) pBlockEntity;
+        fueledCampfire.clearChanged();
         fueledCampfire.getFuel();
         fueledCampfire.normalStuff();
         if (fueledCampfire.getBonfire()) fueledCampfire.bonfireStuff();
-        // TODO do a set-changed flag here??
+        if (fueledCampfire.getChanged()) pBlockEntity.setChanged();
     }
 
     @Inject(at = @At(value = "FIELD", target = "net/minecraft/world/level/block/entity/CampfireBlockEntity.cookingProgress:[I",
@@ -151,6 +153,7 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
                         itemEntity.setItem(stackCopy);
                     }
                 }
+                this.markChanged = true;
             }
         }
     }
@@ -223,6 +226,7 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
             fuelTicks = 0;
             outOfFuel();
         }
+        this.markChanged = true;
     }
 
     public void bonfireStuff() {
@@ -283,6 +287,7 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
                 return true;
             } else {
                 fuelTicks = Math.max(fuelTicks-getRainFuelLoss(isSoul), 0);
+                this.markChanged = true;
                 return (fuelTicks <= 0);
             }
         }
@@ -442,6 +447,16 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
         }
     }
 
+    @Override
+    public void clearChanged() {
+        markChanged = false;
+    }
+
+    @Override
+    public boolean getChanged() {
+        return markChanged;
+    }
+
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                            Data Handling Stuff                                              //
@@ -476,7 +491,6 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
         if (nbt.contains("IsBonfire", 99)) {
             setBonfire(nbt.getBoolean("IsBonfire"));
         }
-        System.out.println("cf loaded");
     }
 
     @Inject(at = @At("RETURN"), method = "saveAdditional(Lnet/minecraft/nbt/CompoundTag;)V", cancellable = true)
@@ -485,9 +499,7 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
             compound.putInt("FuelTicks", this.fuelTicks);
             compound.putBoolean("IsEternal", this.isEternal);
             compound.putBoolean("IsBonfire", this.isBonfire);
-                    System.out.println("cf saved");
         }
-                System.out.println("cf or at least tried");
     }
 
 }

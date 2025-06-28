@@ -18,4 +18,7 @@ public interface IFueledCampfire {
     void normalStuff();
     void bonfireStuff();
     void doExtinguishDrops();
+
+    void clearChanged();
+    boolean getChanged();
 }
