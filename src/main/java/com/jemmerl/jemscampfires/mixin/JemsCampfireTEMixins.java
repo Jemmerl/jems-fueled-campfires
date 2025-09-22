@@ -29,7 +29,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.CampfireBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
@@ -135,7 +134,7 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
             ItemStack itemStack = itemEntity.getItem();
             if (Util.failsFuelFilter(isSoul, itemStack)) continue;
 
-            int baseBurnTicks = ForgeHooks.getBurnTime(itemStack, null);
+            int baseBurnTicks = Util.getItemFuelVal(itemStack);
             boolean eternalItem = getAllowEternalItems(isSoul) && itemStack.is(ModTags.JC_ETERNAL) && (!isEternal);
 
             if ((baseBurnTicks > 0) || eternalItem) {

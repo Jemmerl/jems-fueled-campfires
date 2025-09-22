@@ -2,15 +2,80 @@ package com.jemmerl.jemscampfires.init;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
+import com.jemmerl.jemscampfires.JemsCampfires;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
+@Mod.EventBusSubscriber(modid = JemsCampfires.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ServerConfig {
+
+    private static final HashMap<Item, Integer> customFuelItemMap = new HashMap<>();
+    private static final HashMap<TagKey<Item>, Integer> customFuelTagMap = new HashMap<>();
+
+    public static void updateCustomFuelList() {
+        customFuelItemMap.clear();
+        customFuelTagMap.clear();
+        List<? extends String> unparsedCustomFuelList = CUSTOM_FUEL_VALS.get();
+        for (String fuelStr : unparsedCustomFuelList) {
+            String[] split = fuelStr.split(",");
+
+            ResourceLocation itemResource = new ResourceLocation(split[0]);
+            Item fuelItem = ForgeRegistries.ITEMS.getValue(itemResource);
+            if ((fuelItem == null) || (fuelItem == Items.AIR)) {
+                JemsCampfires.LOGGER.warn("Config error in custom fuel values: \"{}\" is either an invalid " +
+                        "item, from a not-installed mod, or is Air. Format example: \"minecraft:stick,200\"", fuelStr);
+                continue;
+            } else if (customFuelItemMap.containsKey(fuelItem)) {
+                JemsCampfires.LOGGER.warn("Config error in custom fuel values: \"{}\" has a " +
+                        "duplicate item with a custom fuel value. Skipping duplicate item entry.", fuelStr);
+                continue;
+            }
+
+            if (split.length != 2) {
+                JemsCampfires.LOGGER.warn("Config error in custom fuel values: \"{}\" was not " +
+                        "formatted correctly, too many ','. Format example: \"minecraft:stick,200\"", fuelStr);
+                continue;
+            }
+
+            Integer fuelVal;
+            try {
+                fuelVal = Integer.parseInt(split[1]);
+            } catch (NumberFormatException e) {
+                JemsCampfires.LOGGER.warn("Config error in custom fuel values: \"{}\" did not " +
+                        "produce a valid item integer fuel value in ticks. Format example: \"minecraft:stick,200\"", fuelStr);
+                continue;
+            }
+
+            if ((fuelVal <= 0) || (fuelVal > 1000000000)) {
+                JemsCampfires.LOGGER.warn("Config error in custom fuel values: \"{}\" " +
+                        "produced an out-of-bounds (expected: 0 < val <= 1,000,000,000) fuel value of: {}. " +
+                        "Skipping invalid entry.", fuelStr, fuelVal);
+                continue;
+            }
+            customFuelItemMap.put(fuelItem, fuelVal);
+        }
+    }
+
+    public static int getCustomFuelVal(Item item) {
+        return customFuelItemMap.getOrDefault(item, 0);
+    }
+
     public static ForgeConfigSpec SERVER_SPEC;
 
     // Default values
     // Misc
+    private static final List<? extends String> customFuelValues = new ArrayList<>();
     private static final boolean need_fire_poker = true; // Is a fire poker needed for checking campfire info? Sneak + right-click with an empty hand if 'false' - Default: true
     private static final boolean extinguished_drop_items = false; // Will campfires drop items when extinguished (restores pre-1.17 behavior) - Default: false
     private static final boolean player_check_fix = false; // Enable compatibility fix for mods that let you build a campfire in-world, may rarely cause an issue with world-genned campfires - Default: false
@@ -80,6 +145,7 @@ public class ServerConfig {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Misc
+    public static ForgeConfigSpec.ConfigValue<List<? extends String>> CUSTOM_FUEL_VALS;
     public static ForgeConfigSpec.BooleanValue NEED_FIRE_POKER;
     public static ForgeConfigSpec.BooleanValue EXTINGUISHED_DROP_ITEMS;
     public static ForgeConfigSpec.BooleanValue PLAYER_CHECK_FIX;
@@ -151,6 +217,10 @@ public class ServerConfig {
         final ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
 
         builder.push("Misc Options");
+
+        CUSTOM_FUEL_VALS = builder.comment("A list of custom item fuel values in ticks (min 1, max 1000000000). Value is affected by the fuel multiplier config.",
+                        "Format examples: \"minecraft:coal,300\", \"minecraft:shears,2500\"")
+                .defineListAllowEmpty("customFuelValues", customFuelValues, ((objectIn) -> objectIn instanceof String));
         NEED_FIRE_POKER = builder.comment("Is a fire poker needed for checking campfire info? Sneak + right-click with an empty hand if 'false' - Default: true")
                 .define("needFirePoker", need_fire_poker);
         EXTINGUISHED_DROP_ITEMS = builder.comment("Will campfires drop items when extinguished (restores pre-1.17 behavior) - Default: false ")
@@ -356,5 +426,6 @@ public class ServerConfig {
                 .autosave().writingMode(WritingMode.REPLACE).build();
         configData.load();
         serverSpec.setConfig(configData);
+
     }
 }

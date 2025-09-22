@@ -1,6 +1,5 @@
 package com.jemmerl.jemscampfires.mixin.compat.farmersdelight;
 
-import com.jemmerl.jemscampfires.JemsCampfires;
 import com.jemmerl.jemscampfires.init.ServerConfig;
 import com.jemmerl.jemscampfires.util.IFueledCampfire;
 import com.jemmerl.jemscampfires.util.Util;

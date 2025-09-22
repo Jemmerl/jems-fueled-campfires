@@ -20,7 +20,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.common.ForgeHooks;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -99,7 +98,7 @@ public abstract class FDStoveTEMixins extends SyncedBlockEntity implements IFuel
             ItemStack itemStack = itemEntity.getItem();
             if (Util.failsFuelFilter(false, itemStack)) continue;
 
-            int baseBurnTicks = ForgeHooks.getBurnTime(itemStack, null);
+            int baseBurnTicks = Util.getItemFuelVal(itemStack);
             boolean eternalItem = ServerConfig.CAMPFIRE_ALLOW_ETERNAL_ITEMS.get() && itemStack.is(ModTags.JC_ETERNAL) && (!isEternal);
 
             if ((baseBurnTicks > 0) || eternalItem) {

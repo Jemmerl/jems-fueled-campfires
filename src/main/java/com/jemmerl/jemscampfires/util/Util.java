@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.text.DecimalFormat;
@@ -42,6 +43,11 @@ public class Util {
             return (itemStack.is(ModTags.SOUL_CF_FILTERED_FUELS) != ServerConfig.SOUL_CAMPFIRE_USE_WHITELIST.get());
         }
         return (itemStack.is(ModTags.CF_FILTERED_FUELS) != ServerConfig.CAMPFIRE_USE_WHITELIST.get());
+    }
+
+    public static int getItemFuelVal(ItemStack itemStack) {
+        int val = ServerConfig.getCustomFuelVal(itemStack.getItem());
+        return (val > 0) ? val : ForgeHooks.getBurnTime(itemStack, null);
     }
 
     // TODO: This hashmap is for fuels that are in containers (ex: lava buckets)

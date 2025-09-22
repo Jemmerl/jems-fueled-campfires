@@ -77,6 +77,7 @@ public abstract class JemsCampfireBlockMixins extends BaseEntityBlock {
 
     @Override
     public void setPlacedBy(Level worldIn, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+        super.setPlacedBy(worldIn, pos, state, placer, stack);
         if(!worldIn.isClientSide()) {
             IFueledCampfire cfTileEntity = Util.getCFTE(worldIn, pos);
             if (cfTileEntity != null) {
@@ -85,7 +86,6 @@ public abstract class JemsCampfireBlockMixins extends BaseEntityBlock {
                         ServerConfig.PLACE_SOUL_CAMPFIRE_ETERNAL.get() : ServerConfig.PLACE_CAMPFIRE_ETERNAL.get());
             }
         }
-        super.setPlacedBy(worldIn, pos, state, placer, stack);
     }
 
     @Inject(at = @At("RETURN"), method = "getStateForPlacement(Lnet/minecraft/world/item/context/BlockPlaceContext;)Lnet/minecraft/world/level/block/state/BlockState;", cancellable = true)
