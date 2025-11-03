@@ -4,8 +4,11 @@ import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
 import com.jemmerl.jemscampfires.JemsCampfires;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagFile;
 import net.minecraft.tags.TagKey;
+import net.minecraft.tags.TagLoader;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -24,6 +27,9 @@ public class ServerConfig {
     private static final HashMap<TagKey<Item>, Integer> customFuelTagMap = new HashMap<>();
 
     public static void updateCustomFuelList() {
+        TagLoader;
+        TagFile;
+        SimpleJsonResourceReloadListener
         customFuelItemMap.clear();
         customFuelTagMap.clear();
         List<? extends String> unparsedCustomFuelList = CUSTOM_FUEL_VALS.get();

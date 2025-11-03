@@ -4,6 +4,7 @@ import com.jemmerl.jemscampfires.init.ClientConfig;
 import com.jemmerl.jemscampfires.init.ServerConfig;
 import com.jemmerl.jemscampfires.items.ModItems;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -28,6 +29,7 @@ public class JemsCampfires
 //        eventBus.addListener(this::setup);
 //        eventBus.addListener(this::doClientStuff);
         eventBus.addListener(this::onConfigLoad);
+        eventBus.addListener(this::onAddReloadListeners);
 //        eventBus.addListener(ModEvents::buildContents);
 
         ModItems.register(eventBus);
@@ -43,11 +45,15 @@ public class JemsCampfires
 //    private void setup(final FMLCommonSetupEvent event) {}
 //    private void doClientStuff(final FMLClientSetupEvent event) {}
 
-    @SubscribeEvent
     public void onConfigLoad(ModConfigEvent event) {
         // Only run during loading and reloading event types
         if (event instanceof ModConfigEvent.Unloading) return;
         ServerConfig.updateCustomFuelList();
+    }
+
+    void onAddReloadListeners(AddReloadListenerEvent event)
+    {
+        event.addListener(FlavorTags.DATA_LOADER);
     }
 
 
