@@ -46,6 +46,7 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     private int fuelTicks = -1;
     private boolean isEternal = false;
     private boolean isBonfire = false;
+    private boolean markChanged = false;
 
     // **TODO BOARD** //
     // TODO: Maybe add fuel-based lighting in the future as a resource-expensive optional setting.
@@ -93,9 +94,11 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
             if (!this.getBlockState().get(CampfireBlock.LIT)) {
                 return;
             }
+            markChanged = false;
             getFuel();
             normalStuff();
             if (isBonfire) bonfireStuff();
+            if (markChanged) this.markDirty();
         }
     }
 
@@ -103,10 +106,10 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
     @Inject(at = @At(value = "FIELD", target = "net/minecraft/tileentity/CampfireTileEntity.cookingTimes:[I", opcode = Opcodes.GETFIELD, args = "array=get", ordinal = 0, shift = At.Shift.BY, by = -2), locals = LocalCapture.CAPTURE_FAILHARD, method = "cookAndDrop()V")
     private void cookAndDrop(CallbackInfo ci, int i, ItemStack itemstack) {
         if (isEternal && getLoseEternalCook(isSoul)) {
-            this.isEternal = false;
+            isEternal = false;
         }
         if (isBonfire) {
-            this.cookingTimes[i] += (getBonfireCookMult(isSoul) - 1);
+            cookingTimes[i] += (getBonfireCookMult(isSoul) - 1);
             //j = cookingTimes[i];
         }
     }
@@ -143,6 +146,7 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
                         itemEntity.setItem(stackCopy);
                     }
                 }
+                markChanged = true;
             }
         }
     }
@@ -200,6 +204,7 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
             fuelTicks = 0;
             outOfFuel();
         }
+        markChanged = true;
     }
 
     private void bonfireStuff() {
@@ -245,6 +250,7 @@ public abstract class JemsCampfireTEMixins extends TileEntity implements IFueled
                 return true;
             } else {
                 fuelTicks = Math.max(fuelTicks-getRainFuelLoss(isSoul), 0);
+                markChanged = true;
                 return (fuelTicks <= 0);
             }
         }
