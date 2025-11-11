@@ -44,29 +44,6 @@ public abstract class JemsCampfireBlockMixins extends BaseEntityBlock {
     @Shadow
     private boolean spawnParticles;
 
-    @Inject(at = @At(value = "JUMP", opcode = Opcodes.IFEQ, ordinal = 1), locals = LocalCapture.CAPTURE_FAILHARD,
-            method = "animateTick(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;)V")
-    private void animateTick(BlockState pState, Level pLevel, BlockPos pPos, RandomSource pRand, CallbackInfo ci) {
-        if (this.spawnParticles && ClientConfig.BONFIRE_EXTRA_PARTICLES.get() && checkBonfire(pLevel, pPos)) {
-            pLevel.addAlwaysVisibleParticle(ParticleTypes.CAMPFIRE_SIGNAL_SMOKE, true,
-                    (double)pPos.getX() + 0.5D + pRand.nextDouble() / 3.0D * (double)(pRand.nextBoolean() ? 1 : -1),
-                    (double)pPos.getY() + pRand.nextDouble() + pRand.nextDouble(),
-                    (double)pPos.getZ() + 0.5D + pRand.nextDouble() / 3.0D * (double)(pRand.nextBoolean() ? 1 : -1),
-                    (pRand.nextFloat()*0.02D-0.01D), 0.07D, (pRand.nextFloat()*0.02D-0.01D));
-            pLevel.addParticle(ParticleTypes.LAVA, (double)pPos.getX() + 0.5D, (double)pPos.getY() + 0.5D, (double)pPos.getZ() + 0.5D, pRand.nextFloat(), 10.0E-5D, pRand.nextFloat());
-            pLevel.addParticle(ParticleTypes.LAVA, (double)pPos.getX() + 0.5D, (double)pPos.getY() + 0.5D, (double)pPos.getZ() + 0.5D, (pRand.nextFloat() / 1.5F), 8.0E-5D, (pRand.nextFloat() / 1.5F));
-            pLevel.addParticle(ParticleTypes.LAVA, (double)pPos.getX() + 0.5D, (double)pPos.getY() + 0.5D, (double)pPos.getZ() + 0.5D, (pRand.nextFloat() / 2.0F), 5.0E-5D, (pRand.nextFloat() / 2.0F));
-        }
-    }
-
-    private boolean checkBonfire(Level worldIn, BlockPos posIn) {
-        IFueledCampfire cfTileEntity = Util.getCFTE(worldIn, posIn);
-        if (cfTileEntity != null) {
-            return cfTileEntity.getBonfire();
-        }
-        return false;
-    }
-
     @Inject(at = @At(value = "INVOKE", target = "net/minecraft/world/level/block/entity.CampfireBlockEntity.dowse()V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD,
             method = "dowse(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/level/LevelAccessor;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)V")
     private static void extinguishDropsAndEternal(Entity arg0, LevelAccessor pLevel, BlockPos pPos, BlockState pState, CallbackInfo ci, BlockEntity blockentity) {
@@ -103,30 +80,4 @@ public abstract class JemsCampfireBlockMixins extends BaseEntityBlock {
             cir.setReturnValue(InteractionResult.SUCCESS);
         }
     }
-
-//// ...NEVER never mind. Would have to update the fuel value a lot, and this code runs frequently.
-//// Maybe will revisit again later. Maybe.
-//    @Override
-//    public int getLightValue(BlockState state, IBlockReader world, BlockPos pos) {
-//        if (state.get(CampfireBlock.LIT)) {
-//            boolean isSoul = this.getDefaultState().getBlock() == Blocks.SOUL_CAMPFIRE;
-//            if (isSoul ? true : true) {
-//                IFueledCampfire cfTileEntity = Util.getCFTE(world, pos);
-//                if (cfTileEntity != null) {
-//                    float fuel = cfTileEntity.getFuelTicks();
-//                    float maxFuel = isSoul ? ServerConfig.SOUL_CAMPFIRE_MAX_FUEL_TICKS.get() : ServerConfig.CAMPFIRE_MAX_FUEL_TICKS.get();
-//                    float maxLight = isSoul ? 10f : 15f;
-//                    if (fuel >= maxFuel) {
-//                        if (isSoul && cfTileEntity.getBonfire() && true) {
-//                            maxLight = 15f;
-//                        }
-//                        return (int)maxLight;
-//                    }
-//                    return (int)Math.ceil(maxLight * (fuel/maxFuel));
-//                }
-//            }
-//        }
-//        return super.getLightValue(state, world, pos);
-//    }
-
 }

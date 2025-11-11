@@ -27,9 +27,9 @@ public class ServerConfig {
     private static final HashMap<TagKey<Item>, Integer> customFuelTagMap = new HashMap<>();
 
     public static void updateCustomFuelList() {
-        TagLoader;
-        TagFile;
-        SimpleJsonResourceReloadListener
+//        TagLoader;
+//        TagFile;
+//        SimpleJsonResourceReloadListener
         customFuelItemMap.clear();
         customFuelTagMap.clear();
         List<? extends String> unparsedCustomFuelList = CUSTOM_FUEL_VALS.get();

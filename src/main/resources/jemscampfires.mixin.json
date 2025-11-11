@@ -9,6 +9,9 @@
     "compat.farmersdelight.FDStoveTEMixins",
     "compat.farmersdelight.FDStoveBlockMixins"
   ],
+  "client": [
+    "JemsCampfireBlockClientMixins"
+  ],
   "plugin": "com.jemmerl.jemscampfires.mixin.JemsCampfireMixinPlugin",
   "minVersion": "0.8",
   "injectors": {

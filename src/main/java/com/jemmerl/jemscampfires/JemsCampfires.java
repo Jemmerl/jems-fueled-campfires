@@ -29,7 +29,7 @@ public class JemsCampfires
 //        eventBus.addListener(this::setup);
 //        eventBus.addListener(this::doClientStuff);
         eventBus.addListener(this::onConfigLoad);
-        eventBus.addListener(this::onAddReloadListeners);
+//        eventBus.addListener(this::onAddReloadListeners);
 //        eventBus.addListener(ModEvents::buildContents);
 
         ModItems.register(eventBus);
@@ -51,9 +51,10 @@ public class JemsCampfires
         ServerConfig.updateCustomFuelList();
     }
 
+    // wrong event type, mod v forge bus
     void onAddReloadListeners(AddReloadListenerEvent event)
     {
-        event.addListener(FlavorTags.DATA_LOADER);
+//        event.addListener(FlavorTags.DATA_LOADER);
     }
 
 
