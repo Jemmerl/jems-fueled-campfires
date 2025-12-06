@@ -2,9 +2,16 @@ package com.jemmerl.jemscampfires;
 
 import com.jemmerl.jemscampfires.init.ClientConfig;
 import com.jemmerl.jemscampfires.init.ServerConfig;
+import com.jemmerl.jemscampfires.init.fueloverrides.FuelOverrideDataManager;
+import com.jemmerl.jemscampfires.init.fueloverrides.FuelOverrideEntry;
+import com.jemmerl.jemscampfires.init.fueloverrides.FuelOverrides;
 import com.jemmerl.jemscampfires.items.ModItems;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.Tags;
 import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -28,12 +35,12 @@ public class JemsCampfires
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
 //        eventBus.addListener(this::setup);
 //        eventBus.addListener(this::doClientStuff);
-        eventBus.addListener(this::onConfigLoad);
-//        eventBus.addListener(this::onAddReloadListeners);
-//        eventBus.addListener(ModEvents::buildContents);
+//        eventBus.addListener(this::onConfigLoad);
+        eventBus.addListener(this::buildContents);
 
         ModItems.register(eventBus);
 
+        MinecraftForge.EVENT_BUS.addListener(this::onAddReloadListeners);
         MinecraftForge.EVENT_BUS.register(this);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ClientConfig.CLIENT_SPEC);
@@ -45,16 +52,17 @@ public class JemsCampfires
 //    private void setup(final FMLCommonSetupEvent event) {}
 //    private void doClientStuff(final FMLClientSetupEvent event) {}
 
-    public void onConfigLoad(ModConfigEvent event) {
-        // Only run during loading and reloading event types
-        if (event instanceof ModConfigEvent.Unloading) return;
-        ServerConfig.updateCustomFuelList();
+    public void buildContents(final BuildCreativeModeTabContentsEvent event) {
+        if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
+            event.accept(ModItems.FIRE_POKER);
+        }
     }
 
-    // wrong event type, mod v forge bus
-    void onAddReloadListeners(AddReloadListenerEvent event)
-    {
-//        event.addListener(FlavorTags.DATA_LOADER);
+    //Fixed it by passing in registry access to my reload listener during AddReloadListenerEvent since it provides registry access
+    public void onAddReloadListeners(AddReloadListenerEvent event) {
+        FuelOverrideEntry.buildCodec(event.getRegistryAccess());
+        FuelOverrideDataManager.buildDataLoader(event.getRegistryAccess());
+        event.addListener(FuelOverrideDataManager.getDataLoader());
     }
 
 

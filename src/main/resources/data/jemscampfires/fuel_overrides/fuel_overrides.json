@@ -1,0 +1,14 @@
+{
+  "replace": false,
+    "fuel_overrides": [
+
+      {
+        "fuel_ticks": 2000,
+        "input": "#minecraft:stone_buttons"
+      },
+      {
+        "fuel_ticks": 4000,
+        "input": "#minecraft:logs"
+      }
+    ]
+}

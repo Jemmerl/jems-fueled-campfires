@@ -3,6 +3,12 @@ package com.jemmerl.jemscampfires.init;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
 import com.jemmerl.jemscampfires.JemsCampfires;
+import com.jemmerl.jemscampfires.init.fueloverrides.FuelOverrideDataManager;
+import com.jemmerl.jemscampfires.init.fueloverrides.FuelOverrideEntry;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.tags.ItemTags;
@@ -12,6 +18,10 @@ import net.minecraft.tags.TagLoader;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.common.data.GlobalLootModifierProvider;
+import net.minecraftforge.common.loot.LootModifierManager;
+import net.minecraftforge.event.OnDatapackSyncEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -19,16 +29,19 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Mod.EventBusSubscriber(modid = JemsCampfires.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ServerConfig {
 
-    private static final HashMap<Item, Integer> customFuelItemMap = new HashMap<>();
-    private static final HashMap<TagKey<Item>, Integer> customFuelTagMap = new HashMap<>();
+    //"you have to extend SimplePreparableReloadListener which is a bit lower-level and load resource stacks there"
 
+    private static final List<FuelOverrideEntry> fuelOverrides = new ArrayList<>();
+//    private static final HashMap<HolderSet<Item>, Integer> fuelOverrides = new HashMap<>();
+//    private static final HashMap<TagKey<Item>, Integer> customFuelTagMap = new HashMap<>();
+
+    /*
     public static void updateCustomFuelList() {
-//        TagLoader;
-//        TagFile;
 //        SimpleJsonResourceReloadListener
         customFuelItemMap.clear();
         customFuelTagMap.clear();
@@ -72,10 +85,42 @@ public class ServerConfig {
             customFuelItemMap.put(fuelItem, fuelVal);
         }
     }
+    */
+
+    //System.out.println("reloadeds");
+
+    @SubscribeEvent
+    public static void reloadFuelOverrides(OnDatapackSyncEvent event) {
+        fuelOverrides.clear();
+        fuelOverrides.addAll(FuelOverrideDataManager.getData());
+    }
 
     public static int getCustomFuelVal(Item item) {
-        return customFuelItemMap.getOrDefault(item, 0);
+        for (FuelOverrideEntry entry : fuelOverrides) {
+            if (entry.getValues().get().contains(BuiltInRegistries.ITEM.wrapAsHolder(item))) {
+                return entry.getFuelticks();
+            }
+        }
+        return 0;
     }
+
+    ////        Items.STONE_HOE.getDefaultInstance().is(ItemTags.ACACIA_LOGS);
+    //        //System.out.println("true: " + entry.getFuelticks());
+
+
+//        ResourceLocation rl = BuiltInRegistries.ITEM.getKey(item);
+//        for (Map.Entry<HolderSet<Item>, Integer> entry : fuelOverrides.entrySet()) {
+//            if (entry.getKey().contains(BuiltInRegistries.ITEM.wrapAsHolder(item))) {
+//                System.out.println("true: " + entry.getValue());
+//                return entry.getValue();
+//            }
+//        }
+//
+//        for (Map.Entry<Integer, FuelOverrideEntry> entry : fuelOverrides.entrySet()) {
+//            if (entry.getValue().getItems().contains(rl)) {
+//                return entry.getKey();
+//            }
+//        }
 
     public static ForgeConfigSpec SERVER_SPEC;
 
@@ -432,6 +477,5 @@ public class ServerConfig {
                 .autosave().writingMode(WritingMode.REPLACE).build();
         configData.load();
         serverSpec.setConfig(configData);
-
     }
 }
