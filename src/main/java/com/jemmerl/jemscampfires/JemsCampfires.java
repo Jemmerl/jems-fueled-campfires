@@ -6,6 +6,7 @@ import com.jemmerl.jemscampfires.init.fueloverrides.FuelOverrideDataManager;
 import com.jemmerl.jemscampfires.init.fueloverrides.FuelOverrideEntry;
 import com.jemmerl.jemscampfires.init.fueloverrides.FuelOverrides;
 import com.jemmerl.jemscampfires.items.ModItems;
+import com.jemmerl.jemscampfires.network.JCPacketHandler;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.common.MinecraftForge;
@@ -18,6 +19,7 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLConfig;
 import net.minecraftforge.fml.loading.FMLPaths;
@@ -33,7 +35,7 @@ public class JemsCampfires
 
     public JemsCampfires() {
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
-//        eventBus.addListener(this::setup);
+        eventBus.addListener(this::setup);
 //        eventBus.addListener(this::doClientStuff);
 //        eventBus.addListener(this::onConfigLoad);
         eventBus.addListener(this::buildContents);
@@ -49,7 +51,12 @@ public class JemsCampfires
                 .resolve(FMLConfig.defaultConfigPath()).resolve(MOD_ID + "-server.toml"));
     }
 
-//    private void setup(final FMLCommonSetupEvent event) {}
+    private void setup(final FMLCommonSetupEvent event) {
+        event.enqueueWork(() -> {
+            JCPacketHandler.register();
+        });
+    }
+
 //    private void doClientStuff(final FMLClientSetupEvent event) {}
 
     public void buildContents(final BuildCreativeModeTabContentsEvent event) {

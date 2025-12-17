@@ -1,0 +1,78 @@
+package com.jemmerl.jemscampfires.network;
+
+import com.jemmerl.jemscampfires.init.ClientConfig;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+
+import java.text.DecimalFormat;
+
+public class ClientHelper {
+
+    public static void campfireMessage(LocalPlayer player, boolean lit, boolean waterlogged, boolean bonfire, boolean eternal, ChatFormatting timeColor, int fuelTicks) {
+        if (lit) {
+            // CALCULATE BONFIRE % BEFORE PACKEET, COLOR IS ALREADY DETERMINGD
+            // SAM WITH WATERLOGGED
+
+            MutableComponent msg;
+            MutableComponent timeRemaining = convertTime(fuelTicks).withStyle(timeColor);
+
+            if (eternal) {
+                if (bonfire) {
+                    msg = Component.translatable("info.jemscampfires.eternalbonfire", timeRemaining);
+                } else {
+                    msg = Component.translatable( "info.jemscampfires.eternalcozy", timeRemaining);
+                }
+            } else {
+                if (bonfire) {
+                    msg = Component.translatable( "info.jemscampfires.regularbonfire", timeRemaining);
+                } else {
+                    msg = Component.translatable("info.jemscampfires.regularcozy", timeRemaining);
+                }
+            }
+
+            if (ClientConfig.DEBUG_TICKS_REMAINING.get()) {
+                msg = msg.append(Component.translatable("info.jemscampfires.ticks", fuelTicks));
+            } else {
+                msg = msg.append(".");
+            }
+            player.displayClientMessage(msg, !ClientConfig.CF_INFO_IN_CHAT.get());
+        } else {
+            Component msg;
+            if (waterlogged) {
+                msg = Component.translatable("info.jemscampfires.waterlogged");
+            } else if (eternal) {
+                if (fuelTicks <= 0) {
+                    msg = Component.translatable("info.jemscampfires.unliteternalnofuel");
+                } else {
+                    msg = Component.translatable("info.jemscampfires.unliteternalfuel");
+                }
+            } else {
+                if (fuelTicks <= 0) {
+                    msg = Component.translatable("info.jemscampfires.unlitnofuel");
+                } else {
+                    msg = Component.translatable("info.jemscampfires.unlitfuel");
+                }
+            }
+            player.displayClientMessage(msg, !ClientConfig.CF_INFO_IN_CHAT.get());
+        }
+    }
+
+    private static MutableComponent convertTime(int fuelTicks) {
+        if (fuelTicks < 2400) {
+            return Component.translatable("info.jemscampfires.seconds", (fuelTicks / 20));
+        } else if (fuelTicks < 144000) {
+            return Component.translatable("info.jemscampfires.minutes", formatTimeOutput(fuelTicks / 1200d));
+        } else {
+            return Component.translatable("info.jemscampfires.hours", formatTimeOutput(fuelTicks / 72000d));
+        }
+    }
+
+    private static String formatTimeOutput(double doubleIn) {
+        double doubleOut = Math.round(doubleIn * 10) / 10d;
+        DecimalFormat formatter = new DecimalFormat("0.#####");
+        return formatter.format(doubleOut);
+    }
+
+}

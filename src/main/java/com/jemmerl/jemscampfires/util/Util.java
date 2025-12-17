@@ -1,12 +1,17 @@
 package com.jemmerl.jemscampfires.util;
 
+import com.jemmerl.jemscampfires.JemsCampfires;
+import com.jemmerl.jemscampfires.init.ClientConfig;
 import com.jemmerl.jemscampfires.init.ModTags;
 import com.jemmerl.jemscampfires.init.ServerConfig;
+import com.jemmerl.jemscampfires.network.JCPacketHandler;
+import com.jemmerl.jemscampfires.network.S2C_CFInfoPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -60,86 +65,36 @@ public class Util {
         fuelContainers.put(Items.LAVA_BUCKET, Items.BUCKET);
     }
 
-    public static void displayCampfireInfo(Level level, BlockPos pos, BlockState state, Player player, IFueledCampfire cfTileEntity) {
-        if (state.getValue(CampfireBlock.LIT)) {
-            if(level.isClientSide) {
-                if (!ForgeRegistries.BLOCKS.getKey(state.getBlock()).toString().contains("soul")) {
-                    RandomSource randomSource = level.getRandom();
-                    int n = randomSource.nextInt(4) + 1;
-                    for (int i = 0; i < n; i++) {
-                        level.addParticle(ParticleTypes.LAVA, (double)pos.getX() + 0.5D, (double)pos.getY() + 0.5D, (double)pos.getZ() + 0.5D,
-                                (randomSource.nextFloat() / 2.0F), 3.0E-5D, (randomSource.nextFloat() / 2.0F));
-                    }
-                }
-            } else {
-                ChatFormatting color = ChatFormatting.WHITE;
-                float bonfireLimit = cfTileEntity.getFuelTicks() / (float)cfTileEntity.getBonfireLimit();
-                if (bonfireLimit > 0.90f) {
-                    color = ChatFormatting.RED;
-                } else if (bonfireLimit > 0.75f) {
-                    color = ChatFormatting.YELLOW;
-                }
+    public static void dispatchCampfireInfo(Level level, BlockPos pos, BlockState state, Player player, IFueledCampfire cfTileEntity) {
+        if(level.isClientSide) {
+            if (!state.getValue(CampfireBlock.LIT)) return;
 
-                MutableComponent msg;
-                MutableComponent timeRemaining = convertTime(cfTileEntity.getFuelTicks()).withStyle(color);
-
-                if (cfTileEntity.getEternal()) {
-                    if (cfTileEntity.getBonfire()) {
-                        msg = Component.translatable("info.jemscampfires.eternalbonfire", timeRemaining);
-                    } else {
-                        msg = Component.translatable( "info.jemscampfires.eternalcozy", timeRemaining);
-                    }
-                } else {
-                    if (cfTileEntity.getBonfire()) {
-                        msg = Component.translatable( "info.jemscampfires.regularbonfire", timeRemaining);
-                    } else {
-                        msg = Component.translatable("info.jemscampfires.regularcozy", timeRemaining);
-                    }
+            if (!ForgeRegistries.BLOCKS.getKey(state.getBlock()).toString().contains("soul")) {
+                RandomSource randomSource = level.getRandom();
+                int n = randomSource.nextInt(4) + 1;
+                for (int i = 0; i < n; i++) {
+                    level.addParticle(ParticleTypes.LAVA, (double)pos.getX() + 0.5D, (double)pos.getY() + 0.5D, (double)pos.getZ() + 0.5D,
+                            (randomSource.nextFloat() / 2.0F), 3.0E-5D, (randomSource.nextFloat() / 2.0F));
                 }
-
-                if (ServerConfig.DEBUG_TICKS_REMAINING.get()) {
-                    msg = msg.append(Component.translatable("info.jemscampfires.ticks", cfTileEntity.getFuelTicks()));
-                } else {
-                    msg = msg.append(".");
-                }
-                player.displayClientMessage(msg, !ServerConfig.DEBUG_INFO_IN_CHAT.get());
             }
         } else {
-            if(!level.isClientSide) {
-                Component msg;
-                if (state.hasProperty(BlockStateProperties.WATERLOGGED) && state.getValue(BlockStateProperties.WATERLOGGED)) {
-                    msg = Component.translatable("info.jemscampfires.waterlogged");
-                } else if (cfTileEntity.getEternal()) {
-                    if (cfTileEntity.getFuelTicks() <= 0) {
-                        msg = Component.translatable("info.jemscampfires.unliteternalnofuel");
-                    } else {
-                        msg = Component.translatable("info.jemscampfires.unliteternalfuel");
-                    }
-                } else {
-                    if (cfTileEntity.getFuelTicks() <= 0) {
-                        msg = Component.translatable("info.jemscampfires.unlitnofuel");
-                    } else {
-                        msg = Component.translatable("info.jemscampfires.unlitfuel");
-                    }
-                }
-                player.displayClientMessage(msg, !ServerConfig.DEBUG_INFO_IN_CHAT.get());
+            ChatFormatting color = ChatFormatting.WHITE;
+            float bonfireLimit = cfTileEntity.getFuelTicks() / (float)cfTileEntity.getBonfireLimit();
+            if (bonfireLimit > 0.90f) {
+                color = ChatFormatting.RED;
+            } else if (bonfireLimit > 0.75f) {
+                color = ChatFormatting.YELLOW;
             }
-        }
-    }
+            boolean waterlogged = state.hasProperty(BlockStateProperties.WATERLOGGED) && state.getValue(BlockStateProperties.WATERLOGGED);
 
-    private static MutableComponent convertTime(int fuelTicks) {
-        if (fuelTicks < 2400) {
-            return Component.translatable("info.jemscampfires.seconds", (fuelTicks / 20));
-        } else if (fuelTicks < 144000) {
-            return Component.translatable("info.jemscampfires.minutes", formatTimeOutput(fuelTicks / 1200d));
-        } else {
-            return Component.translatable("info.jemscampfires.hours", formatTimeOutput(fuelTicks / 72000d));
-        }
-    }
+            if (!(player instanceof ServerPlayer)) {
+                JemsCampfires.LOGGER.error("Player not instance of ServerPlayer, failed to send campfire info packet.");
+                return;
+            }
 
-    private static String formatTimeOutput(double doubleIn) {
-        double doubleOut = Math.round(doubleIn * 10) / 10d;
-        DecimalFormat formatter = new DecimalFormat("0.#####");
-        return formatter.format(doubleOut);
+            JCPacketHandler.sendToClient(new S2C_CFInfoPacket(state.getValue(CampfireBlock.LIT), waterlogged,
+                    cfTileEntity.getBonfire(), cfTileEntity.getEternal(), color, cfTileEntity.getFuelTicks()),
+                    (ServerPlayer) player);
+        }
     }
 }

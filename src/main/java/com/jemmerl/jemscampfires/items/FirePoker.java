@@ -26,7 +26,7 @@ public class FirePoker extends Item {
                 return super.onItemUseFirst(stack, context);
             }
             player.getCooldowns().addCooldown(this, 10);
-            Util.displayCampfireInfo(world, context.getClickedPos(), state, player, cfTileEntity);
+            Util.dispatchCampfireInfo(world, context.getClickedPos(), state, player, cfTileEntity);
             return InteractionResult.sidedSuccess(world.isClientSide());
         }
         return super.onItemUseFirst(stack, context);

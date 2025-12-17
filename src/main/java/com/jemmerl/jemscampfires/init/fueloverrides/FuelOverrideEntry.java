@@ -27,7 +27,7 @@ public class FuelOverrideEntry {
     }
 
     private static Supplier<HolderSet<Item>> buildTagSupplier(TagKey<?> tagKey) {
-        return () -> (HolderSet<Item>)BuiltInRegistries.ITEM.getTagOrEmpty((TagKey<Item>) tagKey);
+        return () -> (HolderSet<Item>) BuiltInRegistries.ITEM.getTagOrEmpty((TagKey<Item>) tagKey);
     }
 
     private static Supplier<HolderSet<Item>> buildItemSupplier(HolderSet<Item> set) {
@@ -47,13 +47,14 @@ public class FuelOverrideEntry {
 
         CODEC = RecordCodecBuilder.create(instance -> instance.group(
                         Codec.INT.flatXmap(checkMin(), checkMin()).fieldOf("fuel_ticks").forGetter(FuelOverrideEntry::getFuelticks),
-                        Codec.either(TagKey.hashedCodec(BuiltInRegistries.ITEM.key())
-                                                .xmap(FuelOverrideEntry::buildTagSupplier, holderSetSupplier -> null),
-                                        HolderSetCodec.create(Registries.ITEM, BuiltInRegistries.ITEM.holderByNameCodec(),false)
-                                                .xmap(FuelOverrideEntry::buildItemSupplier, Supplier::get))
-                                .xmap(either -> either.map(Function.identity(), Function.identity()), Either::right)
-                                .fieldOf("input").forGetter(FuelOverrideEntry::getValues)
-                        ).apply(instance, FuelOverrideEntry::new));
+                        Codec.either(
+                                TagKey.hashedCodec(BuiltInRegistries.ITEM.key()),
+                                HolderSetCodec.create(Registries.ITEM, BuiltInRegistries.ITEM.holderByNameCodec(),false))
+                                .xmap(
+                                        either -> either.map(FuelOverrideEntry::buildTagSupplier, FuelOverrideEntry::buildItemSupplier),
+                                        supplier -> Either.right(supplier.get()))
+                                .fieldOf("input").forGetter(FuelOverrideEntry::getValues))
+                                .apply(instance, FuelOverrideEntry::new));
     }
 
 

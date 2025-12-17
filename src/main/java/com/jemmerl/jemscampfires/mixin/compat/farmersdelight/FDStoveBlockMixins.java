@@ -64,7 +64,7 @@ public abstract class FDStoveBlockMixins extends BaseEntityBlock {
     public void use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult arg5, CallbackInfoReturnable<InteractionResult> cir, ItemStack heldStack, Item heldItem, BlockEntity tileEntity) {
         if (!ServerConfig.FARMERS_DELIGHT_STOVE_COMPAT.get()) return;
         if (!ServerConfig.NEED_FIRE_POKER.get() && player.isCrouching() && heldStack.isEmpty() && (tileEntity instanceof IFueledCampfire)) {
-            Util.displayCampfireInfo(level, pos, state, player, (IFueledCampfire)tileEntity);
+            Util.dispatchCampfireInfo(level, pos, state, player, (IFueledCampfire)tileEntity);
             cir.setReturnValue(InteractionResult.SUCCESS);
         }
     }

@@ -132,10 +132,6 @@ public class ServerConfig {
     private static final boolean player_check_fix = false; // Enable compatibility fix for mods that let you build a campfire in-world, may rarely cause an issue with world-genned campfires - Default: false
     private static final boolean farmersDelightCompat = true; // Enable compatibility changes for the Farmer's Delight stove block - Default true
 
-    // Debug
-    private static final boolean debug_ticks_remaining = false; // Debug/Dev: Fuel info messages also show the time remaining in ticks - Default false
-    private static final boolean debug_info_in_chat = false; // Debug/Dev: Fuel info messages are logged in the chat window instead of the action-bar - Default false
-
     // General
     private static final boolean place_cf_lit = false; // Are regular campfires placed by players initially lit - Default: false
     private static final boolean place_soul_cf_lit = false; // Are soul campfires placed by players initially lit - Default: false
@@ -201,10 +197,6 @@ public class ServerConfig {
     public static ForgeConfigSpec.BooleanValue EXTINGUISHED_DROP_ITEMS;
     public static ForgeConfigSpec.BooleanValue PLAYER_CHECK_FIX;
     public static ForgeConfigSpec.BooleanValue FARMERS_DELIGHT_STOVE_COMPAT;
-
-    // Debug
-    public static ForgeConfigSpec.BooleanValue DEBUG_TICKS_REMAINING;
-    public static ForgeConfigSpec.BooleanValue DEBUG_INFO_IN_CHAT;
 
     // General
     public static ForgeConfigSpec.BooleanValue PLACE_CAMPFIRE_LIT;
@@ -280,15 +272,6 @@ public class ServerConfig {
                 .define("enableCampfireBuildCompatibilityFix", player_check_fix);
         FARMERS_DELIGHT_STOVE_COMPAT = builder.comment("Enable compatibility changes for the Farmer's Delight stove block - Default true")
                 .define("enableFarmersDelightStoveCompat", farmersDelightCompat);
-        builder.pop();
-
-        builder.push("Debug/Dev Options");
-        DEBUG_TICKS_REMAINING = builder
-                .comment("Debug/Dev: Fuel info messages also show the time remaining in ticks - Default false")
-                .define("debugTicksRemaining", debug_ticks_remaining);
-        DEBUG_INFO_IN_CHAT = builder
-                .comment("Debug/Dev: Fuel info messages are logged in the chat window instead of the action-bar - Default false")
-                .define("debugInfoInChat", debug_info_in_chat);
         builder.pop();
 
         builder.push("General Options");

@@ -1,12 +1,9 @@
 package com.jemmerl.jemscampfires.mixin;
 
-import com.jemmerl.jemscampfires.init.ClientConfig;
 import com.jemmerl.jemscampfires.init.ServerConfig;
 import com.jemmerl.jemscampfires.util.IFueledCampfire;
 import com.jemmerl.jemscampfires.util.Util;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -24,7 +21,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.registries.ForgeRegistries;
-import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -76,7 +72,7 @@ public abstract class JemsCampfireBlockMixins extends BaseEntityBlock {
                 method = "use(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/phys/BlockHitResult;)Lnet/minecraft/world/InteractionResult;")
     public void use(BlockState arg0, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult arg5, CallbackInfoReturnable<InteractionResult> cir, BlockEntity blockentity, CampfireBlockEntity campfireblockentity, ItemStack itemstack) {
         if (!ServerConfig.NEED_FIRE_POKER.get() && pPlayer.isCrouching() && itemstack.isEmpty() && (campfireblockentity instanceof IFueledCampfire)) {
-            Util.displayCampfireInfo(pLevel, pPos, arg0, pPlayer, (IFueledCampfire)campfireblockentity);
+            Util.dispatchCampfireInfo(pLevel, pPos, arg0, pPlayer, (IFueledCampfire)campfireblockentity);
             cir.setReturnValue(InteractionResult.SUCCESS);
         }
     }
