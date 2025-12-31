@@ -1,9 +1,6 @@
 package com.jemmerl.jemscampfires.network;
 
-import com.jemmerl.jemscampfires.JemsCampfires;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
@@ -56,26 +53,8 @@ public class S2C_CFInfoPacket {
 
     public void messageConsumer(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            LocalPlayer player = Minecraft.getInstance().player;
-            if (player == null) {
-                JemsCampfires.LOGGER.warn("Player was somehow null for client campfire info message packet!");
-                return;
-            }
-            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientHelper.campfireMessage(player, lit, waterlogged, bonfire, eternal, timeColor, fuelTicks));
+            ClientPacketHandler.campfireMessage(lit, waterlogged, bonfire, eternal, timeColor, fuelTicks);
         });
         ctx.get().setPacketHandled(true);
     }
-
-    /*
-    public void handle(CustomPayloadEvent.Context ctx){
-        ctx.enqueueWork(() -> {
-            Minecraft client = Minecraft.getInstance();
-            ClientLevel level = client.level;
-            if (level == null) return;
-
-            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> client.execute(() -> ChargedEnderPearlEntity.handlePearlImpact(this.pos)));
-        });
-        ctx.setPacketHandled(true);
-    }
-     */
 }

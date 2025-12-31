@@ -1,20 +1,29 @@
 package com.jemmerl.jemscampfires.network;
 
+import com.jemmerl.jemscampfires.JemsCampfires;
 import com.jemmerl.jemscampfires.init.ClientConfig;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
 import java.text.DecimalFormat;
 
-public class ClientHelper {
+public class ClientPacketHandler {
 
-    public static void campfireMessage(LocalPlayer player, boolean lit, boolean waterlogged, boolean bonfire, boolean eternal, ChatFormatting timeColor, int fuelTicks) {
+    public static void campfireMessage(boolean lit, boolean waterlogged, boolean bonfire, boolean eternal, ChatFormatting timeColor, int fuelTicks) {
+        ClientLevel clientLevel = Minecraft.getInstance().level;
+        if ((clientLevel == null) || (!clientLevel.isClientSide)) return;
+
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player == null) {
+            JemsCampfires.LOGGER.warn("Player was somehow null for client campfire info message packet!");
+            return;
+        }
+
         if (lit) {
-            // CALCULATE BONFIRE % BEFORE PACKEET, COLOR IS ALREADY DETERMINGD
-            // SAM WITH WATERLOGGED
-
             MutableComponent msg;
             MutableComponent timeRemaining = convertTime(fuelTicks).withStyle(timeColor);
 

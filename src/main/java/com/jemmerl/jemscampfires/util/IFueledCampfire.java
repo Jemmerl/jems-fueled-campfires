@@ -21,4 +21,9 @@ public interface IFueledCampfire {
 
     void clearChanged();
     boolean getChanged();
+
+    void setFuelLightLevel(int lightLevel);
+    int getFuelLightLevel();
+
+    void updateLighting();
 }
