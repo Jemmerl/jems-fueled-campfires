@@ -1,6 +1,7 @@
 package com.jemmerl.jemscampfires.util;
 
 import com.jemmerl.jemscampfires.JemsCampfires;
+import com.jemmerl.jemscampfires.compat.StarlightCompat;
 import com.jemmerl.jemscampfires.init.ClientConfig;
 import com.jemmerl.jemscampfires.init.ModTags;
 import com.jemmerl.jemscampfires.init.ServerConfig;
@@ -36,8 +37,8 @@ public class Util {
     }
 
     public static IFueledCampfire getCFTE(BlockGetter worldIn, BlockPos posIn) {
-        BlockEntity tileentity = worldIn.getBlockEntity(posIn);
-        if (tileentity instanceof IFueledCampfire) {
+        BlockEntity tileentity = StarlightCompat.getBlockEntityForLight(worldIn, posIn);
+        if ((tileentity instanceof IFueledCampfire)) {
             return (IFueledCampfire) tileentity;
         }
         return null;

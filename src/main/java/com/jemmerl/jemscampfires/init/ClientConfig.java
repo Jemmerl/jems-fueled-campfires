@@ -5,8 +5,6 @@ import net.minecraftforge.common.ForgeConfigSpec;
 public class ClientConfig {
     public static ForgeConfigSpec CLIENT_SPEC;
 
-
-
     private static final boolean bonfire_extra_particles = true; // Render additional bonfire embers and smoke - Default true
     private static final boolean cf_info_in_chat = false; // Campfire info messages are logged in the chat window instead of the action-bar - Default false
 

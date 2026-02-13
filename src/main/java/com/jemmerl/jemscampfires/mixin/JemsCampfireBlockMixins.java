@@ -1,5 +1,6 @@
 package com.jemmerl.jemscampfires.mixin;
 
+import com.jemmerl.jemscampfires.JemsCampfires;
 import com.jemmerl.jemscampfires.init.ServerConfig;
 import com.jemmerl.jemscampfires.util.IFueledCampfire;
 import com.jemmerl.jemscampfires.util.Util;
@@ -11,6 +12,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -20,6 +22,7 @@ import net.minecraft.world.level.block.entity.CampfireBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.common.extensions.IForgeBlockGetter;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -75,5 +78,19 @@ public abstract class JemsCampfireBlockMixins extends BaseEntityBlock {
             Util.dispatchCampfireInfo(pLevel, pPos, arg0, pPlayer, (IFueledCampfire)campfireblockentity);
             cir.setReturnValue(InteractionResult.SUCCESS);
         }
+    }
+
+    @Override
+    public int getLightEmission(BlockState state, BlockGetter level, BlockPos pos) {
+        if (!state.getValue(BlockStateProperties.LIT) || !ServerConfig.FUEL_BASED_LIGHTING.get()) return super.getLightEmission(state, level, pos);
+
+        // I am not entirely sure if this is needed, because the light source isn't position dependant, but it can't hurt to keep.
+        if (pos == BlockPos.ZERO) return 15;
+
+        IFueledCampfire cfTileEntity = Util.getCFTE(level, pos);
+        if ((cfTileEntity == null) || cfTileEntity.getEternal()) return super.getLightEmission(state, level, pos);
+        int light = cfTileEntity.getFuelLightLevel();
+
+        return (light < 1) ? super.getLightEmission(state, level, pos) : light;
     }
 }

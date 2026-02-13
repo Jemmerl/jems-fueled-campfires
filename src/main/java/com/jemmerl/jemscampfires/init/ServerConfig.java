@@ -130,6 +130,7 @@ public class ServerConfig {
     private static final boolean need_fire_poker = true; // Is a fire poker needed for checking campfire info? Sneak + right-click with an empty hand if 'false' - Default: true
     private static final boolean extinguished_drop_items = false; // Will campfires drop items when extinguished (restores pre-1.17 behavior) - Default: false
     private static final boolean player_check_fix = false; // Enable compatibility fix for mods that let you build a campfire in-world, may rarely cause an issue with world-genned campfires - Default: false
+    private static final boolean fuel_based_lighting = false; // Enable campfire dimming when low on fuel. Changes may require world-restart. WARNING: Feature is buggy pre-1.21 NeoForge, does not work with eternal campfires, and needs to be updated after chunkloading - Default: false
     private static final boolean farmersDelightCompat = true; // Enable compatibility changes for the Farmer's Delight stove block - Default true
 
     // General
@@ -196,6 +197,7 @@ public class ServerConfig {
     public static ForgeConfigSpec.BooleanValue NEED_FIRE_POKER;
     public static ForgeConfigSpec.BooleanValue EXTINGUISHED_DROP_ITEMS;
     public static ForgeConfigSpec.BooleanValue PLAYER_CHECK_FIX;
+    public static ForgeConfigSpec.BooleanValue FUEL_BASED_LIGHTING;
     public static ForgeConfigSpec.BooleanValue FARMERS_DELIGHT_STOVE_COMPAT;
 
     // General
@@ -270,6 +272,8 @@ public class ServerConfig {
                 .define("dropItemsWhenExtinguish", extinguished_drop_items);
         PLAYER_CHECK_FIX = builder.comment("Enable compatibility fix for mods that let you build a campfire in-world, may rarely cause an issue with world-genned campfires - Default: false")
                 .define("enableCampfireBuildCompatibilityFix", player_check_fix);
+        FUEL_BASED_LIGHTING = builder.comment("Enable campfire dimming when low on fuel. Changes may require world-restart. WARNING: Feature is buggy pre-1.21 NeoForge, does not work with eternal campfires, and needs to be updated after chunkloading - Default: false")
+                .worldRestart().define("enableFuelBasedLighting", fuel_based_lighting);
         FARMERS_DELIGHT_STOVE_COMPAT = builder.comment("Enable compatibility changes for the Farmer's Delight stove block - Default true")
                 .define("enableFarmersDelightStoveCompat", farmersDelightCompat);
         builder.pop();

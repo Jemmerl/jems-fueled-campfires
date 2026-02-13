@@ -1,5 +1,6 @@
 package com.jemmerl.jemscampfires;
 
+import com.jemmerl.jemscampfires.compat.StarlightCompat;
 import com.jemmerl.jemscampfires.init.ClientConfig;
 import com.jemmerl.jemscampfires.init.ServerConfig;
 import com.jemmerl.jemscampfires.init.fueloverrides.FuelOverrideDataManager;
@@ -37,7 +38,6 @@ public class JemsCampfires
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
         eventBus.addListener(this::setup);
 //        eventBus.addListener(this::doClientStuff);
-//        eventBus.addListener(this::onConfigLoad);
         eventBus.addListener(this::buildContents);
 
         ModItems.register(eventBus);
@@ -49,6 +49,8 @@ public class JemsCampfires
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ServerConfig.SERVER_SPEC);
         ServerConfig.loadConfig(ServerConfig.SERVER_SPEC, FMLPaths.GAMEDIR.get()
                 .resolve(FMLConfig.defaultConfigPath()).resolve(MOD_ID + "-server.toml"));
+
+        StarlightCompat.init();
     }
 
     private void setup(final FMLCommonSetupEvent event) {

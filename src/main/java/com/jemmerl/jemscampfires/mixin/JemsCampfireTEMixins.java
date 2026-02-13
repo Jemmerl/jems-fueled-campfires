@@ -52,10 +52,6 @@ import java.util.List;
 public abstract class JemsCampfireTEMixins extends BlockEntity implements IFueledCampfire {
     private static final VoxelShape COLLECTION_AREA_SHAPE = Block.box(-1.0D, 3.0D, -1.0D, 17.0D, 16.0D, 17.0D);
 
-    // PLACEHOLDER FOR A CONFIG (SERVER? COMMON?) VALUE. ALWAYS TRUE FOR TESTING.
-    private static final boolean CONFIGGG = true;
-
-
     // Properties
     private boolean isSoul;
     private int fuelTicks = -1;
@@ -97,7 +93,7 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
                 }
                 fuelTicks = Math.min((isSoul ? ServerConfig.SOUL_CAMPFIRE_INITIAL_FUEL_TICKS.get() : ServerConfig.CAMPFIRE_INITIAL_FUEL_TICKS.get()), getStandardMaxFuelTicks(isSoul));
             }
-            if (CONFIGGG) dynamicLightLevelUpdate();
+            if (!isEternal && ServerConfig.FUEL_BASED_LIGHTING.get()) dynamicLightLevelUpdate();
         }
     }
 
@@ -237,7 +233,7 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
             fuelTicks = 0;
             outOfFuel();
         }
-        if (CONFIGGG) dynamicLightLevelUpdate();
+        if (ServerConfig.FUEL_BASED_LIGHTING.get()) dynamicLightLevelUpdate();
         markChanged = true;
     }
 
@@ -439,7 +435,8 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
 
     @Override
     public void setEternal(boolean eternal) {
-        if (CONFIGGG && (level != null)) dynamicLightLevelUpdate();
+        // TODO Disabled until bugs fixed.
+//        if (ServerConfig.FUEL_BASED_LIGHTING.get() && (level != null)) dynamicLightLevelUpdate();
         isEternal = eternal;
     }
 
@@ -466,9 +463,30 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
             isBonfire = bonfire;
             if ((level != null) && !level.isClientSide) {
                 BlockState state = getBlockState();
-                level.sendBlockUpdated(worldPosition, state, state, 18); // Uses 2 client updates, and 16 no observers
-                // TODO change to 26? UPDATE_ALL?
+                level.sendBlockUpdated(worldPosition, state, state, 26); // Uses 2 client updates, 8 forces main render thread, and 16 no observers
             }
+        }
+    }
+
+    private void dynamicLightLevelUpdate() {
+        int rampPeak = Math.min((int)(getStandardMaxFuelTicks(isSoul) * 0.5f), 3600);
+        if (fuelTicks < rampPeak) {
+            float perc = fuelTicks / (float)rampPeak;
+            int val = (int)(isSoul ? (6 + 3 * perc) : (8 + 7 * perc));
+            setFuelLightLevel(val);
+            return;
+        }
+        setFuelLightLevel(0);
+    }
+
+    @Override
+    public void setFuelLightLevel(int fuelLightLevel) {
+        if (this.fuelLightLevel != fuelLightLevel) {
+            this.fuelLightLevel = fuelLightLevel;
+            if (level == null) {
+                return;
+            }
+            updateLighting();
         }
     }
 
@@ -478,37 +496,12 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
     }
 
     @Override
-    public void setFuelLightLevel(int fuelLightLevel) {
-        if (this.fuelLightLevel != fuelLightLevel) {
-            this.fuelLightLevel = fuelLightLevel;
-            JemsCampfires.LOGGER.info("new light level: " + fuelLightLevel);
-            if (level == null) {
-                JemsCampfires.LOGGER.info("NULL LEVEL IN SET LIGHT");
-                return;
-            }
-            updateLighting();
-        }
-    }
-
-    private void dynamicLightLevelUpdate() {
-        int rampPeak = Math.min((int)(getStandardMaxFuelTicks(isSoul) * 0.5f), 3600);
-        if (fuelTicks < rampPeak) {
-            float perc = fuelTicks / (float)rampPeak;
-            int val = (int) (8 + 7 * perc);
-            // int val = (int)(isSoul ? (5 + 10 * perc) : (8 + 7 * perc));
-            setFuelLightLevel(val);
-        }
-        setFuelLightLevel(0);
-    }
-
-    @Override
     public void updateLighting() {
-        if (CONFIGGG) {
-            if (!level.isClientSide) JemsCampfires.LOGGER.info("New light level packet requested");
+        if (!isEternal && ServerConfig.FUEL_BASED_LIGHTING.get()) {
             BlockState state = getBlockState();
 //                level.sendBlockUpdated(worldPosition, state, state, 18); // Uses 2 client updates, and 16 no observers
 //                level.sendBlockUpdated(worldPosition, state, state, 26); // Uses 2 client updates, 8 forces main render thread, and 16 no observers
-            level.sendBlockUpdated(worldPosition, state, state, Block.UPDATE_ALL);
+            level.sendBlockUpdated(worldPosition, state, state, 26);
             setChanged();
             level.getChunkSource().getLightEngine().checkBlock(worldPosition);
         }
@@ -531,10 +524,9 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
 
     @Override
     public CompoundTag getUpdateTag() {
-        System.out.println("SEND PACKET");
         CompoundTag compoundtag = new CompoundTag();
         compoundtag.putBoolean("IsBonfire", isBonfire);
-        if (CONFIGGG /*&& (fuelLightLevel != -1)*/) {
+        if (ServerConfig.FUEL_BASED_LIGHTING.get() && (fuelLightLevel != -1)) {
             compoundtag.putByte("FuelLight", (byte)fuelLightLevel);
         }
         ContainerHelper.saveAllItems(compoundtag, items, true);
@@ -544,11 +536,10 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
     @Inject(at = @At("RETURN"), method = "saveAdditional(Lnet/minecraft/nbt/CompoundTag;)V", cancellable = true)
     private void saveFueled(CompoundTag nbtTag, CallbackInfo ci) {
         if (nbtTag != null) {
-            JemsCampfires.LOGGER.info("SAVING: " + fuelTicks + ", "+ isBonfire + ", "+ isEternal + ", "+ fuelLightLevel);
             nbtTag.putInt("FuelTicks", fuelTicks);
             nbtTag.putBoolean("IsEternal", isEternal);
             nbtTag.putBoolean("IsBonfire", isBonfire);
-            if (CONFIGGG) {
+            if (ServerConfig.FUEL_BASED_LIGHTING.get()) {
                 nbtTag.putByte("FuelLight", (byte) fuelLightLevel);
             }
         }
@@ -570,8 +561,5 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
         } else {
             setFuelLightLevel(0);
         }
-
-        if (level == null) JemsCampfires.LOGGER.info("level is null");
-        JemsCampfires.LOGGER.info("LOADING: " + fuelTicks + ", "+ isBonfire + ", "+ isEternal + ", "+ fuelLightLevel);
     }
 }
