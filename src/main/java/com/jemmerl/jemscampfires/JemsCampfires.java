@@ -8,6 +8,7 @@ import com.jemmerl.jemscampfires.init.fueloverrides.FuelOverrideEntry;
 import com.jemmerl.jemscampfires.init.fueloverrides.FuelOverrides;
 import com.jemmerl.jemscampfires.items.ModItems;
 import com.jemmerl.jemscampfires.network.JCPacketHandler;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.common.MinecraftForge;
@@ -33,6 +34,25 @@ public class JemsCampfires
 {
     public static final String MOD_ID = "jemscampfires";
     public static final Logger LOGGER = LogManager.getLogger();
+
+    // Future TODO
+    // - TECache for getting the tile entity?
+
+    // tweak dynamic light equation
+
+    // bug report on discord about byoc
+
+    // fuel override stuff probably. caching.
+
+
+    // This bug happened a while ago. Haven't seen it since. Race condition with checkBlock?
+    /*
+    java.lang.NullPointerException: Cannot invoke "it.unimi.dsi.fastutil.longs.LongArrayList.getLong(int)" because "this.wrapped" is null
+	at it.unimi.dsi.fastutil.longs.LongOpenHashSet$SetIterator.nextLong(LongOpenHashSet.java:545) ~[fastutil-8.5.9.jar:?]
+	at net.minecraft.world.level.lighting.LightEngine.runLightUpdates(LightEngine.java:143) ~[forge-1.20.1-47.3.12_mapped_parchment_2023.09.03-1.20.1-recomp.jar:?]
+	at net.minecraft.world.level.lighting.LevelLightEngine.runLightUpdates(LevelLightEngine.java:48) ~[forge-1.20.1-47.3.12_mapped_parchment_2023.09.03-1.20.1-recomp.jar:?]
+     */
+
 
     public JemsCampfires() {
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -69,8 +89,8 @@ public class JemsCampfires
 
     //Fixed it by passing in registry access to my reload listener during AddReloadListenerEvent since it provides registry access
     public void onAddReloadListeners(AddReloadListenerEvent event) {
-        FuelOverrideEntry.buildCodec(event.getRegistryAccess());
-        FuelOverrideDataManager.buildDataLoader(event.getRegistryAccess());
+//        FuelOverrideEntry.buildCodec(event.getRegistryAccess());
+        FuelOverrideDataManager.buildDataLoader(event.getServerResources(), event.getRegistryAccess());
         event.addListener(FuelOverrideDataManager.getDataLoader());
     }
 

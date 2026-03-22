@@ -1,6 +1,7 @@
 package com.jemmerl.jemscampfires.mixin;
 
 import com.jemmerl.jemscampfires.JemsCampfires;
+import com.jemmerl.jemscampfires.compat.StarlightCompat;
 import com.jemmerl.jemscampfires.init.ServerConfig;
 import com.jemmerl.jemscampfires.util.IFueledCampfire;
 import com.jemmerl.jemscampfires.util.Util;
@@ -85,12 +86,15 @@ public abstract class JemsCampfireBlockMixins extends BaseEntityBlock {
         if (!state.getValue(BlockStateProperties.LIT) || !ServerConfig.FUEL_BASED_LIGHTING.get()) return super.getLightEmission(state, level, pos);
 
         // I am not entirely sure if this is needed, because the light source isn't position dependant, but it can't hurt to keep.
-        if (pos == BlockPos.ZERO) return 15;
+        if (pos == BlockPos.ZERO) return 1;
 
         IFueledCampfire cfTileEntity = Util.getCFTE(level, pos);
-        if ((cfTileEntity == null) || cfTileEntity.getEternal()) return super.getLightEmission(state, level, pos);
+        if ((cfTileEntity == null) || (cfTileEntity.getEternal() && !ServerConfig.FUEL_BASED_LIGHTING_ETERNAL.get())) return super.getLightEmission(state, level, pos);
         int light = cfTileEntity.getFuelLightLevel();
 
+        // Note: Thought this was helping the initial lighting flicker, but doesn't seem to be true.
+        //  Also, it completely fries Starlight.
+//        cfTileEntity.updateLighting();
         return (light < 1) ? super.getLightEmission(state, level, pos) : light;
     }
 }

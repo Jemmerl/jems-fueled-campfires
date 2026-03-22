@@ -76,6 +76,8 @@ dependencies {
 
 //    implementation fg.deobf("curse.maven:farmers-delight-398521:6597298")
     compileOnly("curse.maven:farmers-delight-398521:6597298")
+//    implementation fg.deobf("curse.maven:starlight-forge-526854:4631193")
+
 }
 
 mixin {

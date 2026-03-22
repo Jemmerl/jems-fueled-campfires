@@ -2,16 +2,14 @@ package com.jemmerl.jemscampfires.util;
 
 import com.jemmerl.jemscampfires.JemsCampfires;
 import com.jemmerl.jemscampfires.compat.StarlightCompat;
-import com.jemmerl.jemscampfires.init.ClientConfig;
 import com.jemmerl.jemscampfires.init.ModTags;
 import com.jemmerl.jemscampfires.init.ServerConfig;
+import com.jemmerl.jemscampfires.init.fueloverrides.FuelOverrideDataManager;
 import com.jemmerl.jemscampfires.network.JCPacketHandler;
 import com.jemmerl.jemscampfires.network.S2C_CFInfoPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
@@ -27,7 +25,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.text.DecimalFormat;
 import java.util.HashMap;
 
 public class Util {
@@ -37,7 +34,7 @@ public class Util {
     }
 
     public static IFueledCampfire getCFTE(BlockGetter worldIn, BlockPos posIn) {
-        BlockEntity tileentity = StarlightCompat.getBlockEntityForLight(worldIn, posIn);
+        BlockEntity tileentity = StarlightCompat.getBlockEntitySafely(worldIn, posIn);
         if ((tileentity instanceof IFueledCampfire)) {
             return (IFueledCampfire) tileentity;
         }
@@ -52,7 +49,7 @@ public class Util {
     }
 
     public static int getItemFuelVal(ItemStack itemStack) {
-        int val = ServerConfig.getCustomFuelVal(itemStack.getItem());
+        int val = FuelOverrideDataManager.getCustomFuelVal(itemStack.getItem());
         return (val > 0) ? val : ForgeHooks.getBurnTime(itemStack, null);
     }
 

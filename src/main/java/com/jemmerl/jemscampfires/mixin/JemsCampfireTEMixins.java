@@ -37,6 +37,7 @@ import net.minecraft.world.level.block.entity.CampfireBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
@@ -93,7 +94,12 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
                 }
                 fuelTicks = Math.min((isSoul ? ServerConfig.SOUL_CAMPFIRE_INITIAL_FUEL_TICKS.get() : ServerConfig.CAMPFIRE_INITIAL_FUEL_TICKS.get()), getStandardMaxFuelTicks(isSoul));
             }
-            if (!isEternal && ServerConfig.FUEL_BASED_LIGHTING.get()) dynamicLightLevelUpdate();
+
+            if (!ServerConfig.FUEL_BASED_LIGHTING.get() || (isEternal && !ServerConfig.FUEL_BASED_LIGHTING_ETERNAL.get())) {
+                updateLighting();
+                return;
+            }
+            dynamicLightLevelUpdate();
         }
     }
 
@@ -227,7 +233,13 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
             }
         }
 
-        if (isEternal) return;
+        if (isEternal) {
+            // The only time markChanged is true here is if fuel was added, which is when this update may be needed.
+            if (markChanged && ServerConfig.FUEL_BASED_LIGHTING.get() && ServerConfig.FUEL_BASED_LIGHTING_ETERNAL.get()) {
+                dynamicLightLevelUpdate();
+            }
+            return;
+        }
         fuelTicks -= isBonfire ? getBonfireFuelUse(isSoul) : 1;
         if (fuelTicks <= 0) {
             fuelTicks = 0;
@@ -239,12 +251,6 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
 
     public void bonfireStuff() {
         RandomSource randomsource = level.random;
-
-        // No longer seems to be needed, if it ever was.
-//        if (ServerConfig.ALLOW_CLIENT_PACKETS.get() && (level.getGameTime() % 20L == 0L)) {
-//            BlockState state = getBlockState();
-//            level.sendBlockUpdated(worldPosition, state, state, 18); // Uses 2 client updates, and 16 no observers
-//        }
 
         if (getBonfireFirespread(isSoul)) {
             if (randomsource.nextInt(40) != 0) return;
@@ -435,8 +441,11 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
 
     @Override
     public void setEternal(boolean eternal) {
-        // TODO Disabled until bugs fixed.
-//        if (ServerConfig.FUEL_BASED_LIGHTING.get() && (level != null)) dynamicLightLevelUpdate();
+        if ((level == null) || !ServerConfig.FUEL_BASED_LIGHTING.get() || !ServerConfig.FUEL_BASED_LIGHTING_ETERNAL.get()) {
+            setFuelLightLevel(isSoul ? 10 : 15);
+        } else {
+            dynamicLightLevelUpdate();
+        }
         isEternal = eternal;
     }
 
@@ -497,14 +506,11 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
 
     @Override
     public void updateLighting() {
-        if (!isEternal && ServerConfig.FUEL_BASED_LIGHTING.get()) {
-            BlockState state = getBlockState();
-//                level.sendBlockUpdated(worldPosition, state, state, 18); // Uses 2 client updates, and 16 no observers
-//                level.sendBlockUpdated(worldPosition, state, state, 26); // Uses 2 client updates, 8 forces main render thread, and 16 no observers
-            level.sendBlockUpdated(worldPosition, state, state, 26);
-            setChanged();
-            level.getChunkSource().getLightEngine().checkBlock(worldPosition);
-        }
+        BlockState state = getBlockState();
+//        level.sendBlockUpdated(worldPosition, state, state, 18); // Uses 2 client updates, and 16 no observers
+        level.sendBlockUpdated(worldPosition, state, state, 26); // Uses 2 client updates, 8 forces main render thread, and 16 no observers
+        setChanged();
+        level.getChunkSource().getLightEngine().checkBlock(worldPosition);
     }
 
     @Override
@@ -552,10 +558,16 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
         }
         if (nbtTag.contains("IsEternal", 99)) {
             setEternal(nbtTag.getBoolean("IsEternal"));
+        } else {
+            setEternal(false); // Ensure eternal is false if failed to load NBT
         }
         if (nbtTag.contains("IsBonfire", 99)) {
             setBonfire(nbtTag.getBoolean("IsBonfire"));
         }
+
+        if (!ServerConfig.FUEL_BASED_LIGHTING.get() ||
+                (isEternal && !ServerConfig.FUEL_BASED_LIGHTING_ETERNAL.get())) return;
+
         if (nbtTag.contains("FuelLight", 1)) {
             setFuelLightLevel(nbtTag.getByte("FuelLight"));
         } else {

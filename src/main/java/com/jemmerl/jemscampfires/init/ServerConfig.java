@@ -5,6 +5,7 @@ import com.electronwill.nightconfig.core.io.WritingMode;
 import com.jemmerl.jemscampfires.JemsCampfires;
 import com.jemmerl.jemscampfires.init.fueloverrides.FuelOverrideDataManager;
 import com.jemmerl.jemscampfires.init.fueloverrides.FuelOverrideEntry;
+import com.mojang.datafixers.util.Either;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -16,6 +17,7 @@ import net.minecraft.tags.TagFile;
 import net.minecraft.tags.TagKey;
 import net.minecraft.tags.TagLoader;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.data.GlobalLootModifierProvider;
@@ -31,96 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Mod.EventBusSubscriber(modid = JemsCampfires.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ServerConfig {
-
-    //"you have to extend SimplePreparableReloadListener which is a bit lower-level and load resource stacks there"
-
-    private static final List<FuelOverrideEntry> fuelOverrides = new ArrayList<>();
-//    private static final HashMap<HolderSet<Item>, Integer> fuelOverrides = new HashMap<>();
-//    private static final HashMap<TagKey<Item>, Integer> customFuelTagMap = new HashMap<>();
-
-    /*
-    public static void updateCustomFuelList() {
-//        SimpleJsonResourceReloadListener
-        customFuelItemMap.clear();
-        customFuelTagMap.clear();
-        List<? extends String> unparsedCustomFuelList = CUSTOM_FUEL_VALS.get();
-        for (String fuelStr : unparsedCustomFuelList) {
-            String[] split = fuelStr.split(",");
-
-            ResourceLocation itemResource = new ResourceLocation(split[0]);
-            Item fuelItem = ForgeRegistries.ITEMS.getValue(itemResource);
-            if ((fuelItem == null) || (fuelItem == Items.AIR)) {
-                JemsCampfires.LOGGER.warn("Config error in custom fuel values: \"{}\" is either an invalid " +
-                        "item, from a not-installed mod, or is Air. Format example: \"minecraft:stick,200\"", fuelStr);
-                continue;
-            } else if (customFuelItemMap.containsKey(fuelItem)) {
-                JemsCampfires.LOGGER.warn("Config error in custom fuel values: \"{}\" has a " +
-                        "duplicate item with a custom fuel value. Skipping duplicate item entry.", fuelStr);
-                continue;
-            }
-
-            if (split.length != 2) {
-                JemsCampfires.LOGGER.warn("Config error in custom fuel values: \"{}\" was not " +
-                        "formatted correctly, too many ','. Format example: \"minecraft:stick,200\"", fuelStr);
-                continue;
-            }
-
-            Integer fuelVal;
-            try {
-                fuelVal = Integer.parseInt(split[1]);
-            } catch (NumberFormatException e) {
-                JemsCampfires.LOGGER.warn("Config error in custom fuel values: \"{}\" did not " +
-                        "produce a valid item integer fuel value in ticks. Format example: \"minecraft:stick,200\"", fuelStr);
-                continue;
-            }
-
-            if ((fuelVal <= 0) || (fuelVal > 1000000000)) {
-                JemsCampfires.LOGGER.warn("Config error in custom fuel values: \"{}\" " +
-                        "produced an out-of-bounds (expected: 0 < val <= 1,000,000,000) fuel value of: {}. " +
-                        "Skipping invalid entry.", fuelStr, fuelVal);
-                continue;
-            }
-            customFuelItemMap.put(fuelItem, fuelVal);
-        }
-    }
-    */
-
-    //System.out.println("reloadeds");
-
-    @SubscribeEvent
-    public static void reloadFuelOverrides(OnDatapackSyncEvent event) {
-        fuelOverrides.clear();
-        fuelOverrides.addAll(FuelOverrideDataManager.getData());
-    }
-
-    public static int getCustomFuelVal(Item item) {
-        for (FuelOverrideEntry entry : fuelOverrides) {
-            if (entry.getValues().get().contains(BuiltInRegistries.ITEM.wrapAsHolder(item))) {
-                return entry.getFuelticks();
-            }
-        }
-        return 0;
-    }
-
-    ////        Items.STONE_HOE.getDefaultInstance().is(ItemTags.ACACIA_LOGS);
-    //        //System.out.println("true: " + entry.getFuelticks());
-
-
-//        ResourceLocation rl = BuiltInRegistries.ITEM.getKey(item);
-//        for (Map.Entry<HolderSet<Item>, Integer> entry : fuelOverrides.entrySet()) {
-//            if (entry.getKey().contains(BuiltInRegistries.ITEM.wrapAsHolder(item))) {
-//                System.out.println("true: " + entry.getValue());
-//                return entry.getValue();
-//            }
-//        }
-//
-//        for (Map.Entry<Integer, FuelOverrideEntry> entry : fuelOverrides.entrySet()) {
-//            if (entry.getValue().getItems().contains(rl)) {
-//                return entry.getKey();
-//            }
-//        }
 
     public static ForgeConfigSpec SERVER_SPEC;
 
@@ -130,7 +43,8 @@ public class ServerConfig {
     private static final boolean need_fire_poker = true; // Is a fire poker needed for checking campfire info? Sneak + right-click with an empty hand if 'false' - Default: true
     private static final boolean extinguished_drop_items = false; // Will campfires drop items when extinguished (restores pre-1.17 behavior) - Default: false
     private static final boolean player_check_fix = false; // Enable compatibility fix for mods that let you build a campfire in-world, may rarely cause an issue with world-genned campfires - Default: false
-    private static final boolean fuel_based_lighting = false; // Enable campfire dimming when low on fuel. Changes may require world-restart. WARNING: Feature is buggy pre-1.21 NeoForge, does not work with eternal campfires, and needs to be updated after chunkloading - Default: false
+    private static final boolean fuel_based_lighting = false; // Enable campfire dimming when low on fuel. Changes may require world-restart. WARNING: Potentially buggy, may need manually updated on world/chunk-load, may not work with Starlight installed - Default: false
+    private static final boolean fuel_based_lighting_eternal = false; // "Enable campfire fuel dimming for eternal campfires. Requires \'enableFuelBasedLighting\' to be true. Changes may require world restart. WARNING: Potentially buggy, manually updating eternal campfires is inherently tricky - Default: false
     private static final boolean farmersDelightCompat = true; // Enable compatibility changes for the Farmer's Delight stove block - Default true
 
     // General
@@ -198,6 +112,7 @@ public class ServerConfig {
     public static ForgeConfigSpec.BooleanValue EXTINGUISHED_DROP_ITEMS;
     public static ForgeConfigSpec.BooleanValue PLAYER_CHECK_FIX;
     public static ForgeConfigSpec.BooleanValue FUEL_BASED_LIGHTING;
+    public static ForgeConfigSpec.BooleanValue FUEL_BASED_LIGHTING_ETERNAL;
     public static ForgeConfigSpec.BooleanValue FARMERS_DELIGHT_STOVE_COMPAT;
 
     // General
@@ -262,7 +177,6 @@ public class ServerConfig {
         final ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
 
         builder.push("Misc Options");
-
         CUSTOM_FUEL_VALS = builder.comment("A list of custom item fuel values in ticks (min 1, max 1000000000). Value is affected by the fuel multiplier config.",
                         "Format examples: \"minecraft:coal,300\", \"minecraft:shears,2500\"")
                 .defineListAllowEmpty("customFuelValues", customFuelValues, ((objectIn) -> objectIn instanceof String));
@@ -272,8 +186,12 @@ public class ServerConfig {
                 .define("dropItemsWhenExtinguish", extinguished_drop_items);
         PLAYER_CHECK_FIX = builder.comment("Enable compatibility fix for mods that let you build a campfire in-world, may rarely cause an issue with world-genned campfires - Default: false")
                 .define("enableCampfireBuildCompatibilityFix", player_check_fix);
-        FUEL_BASED_LIGHTING = builder.comment("Enable campfire dimming when low on fuel. Changes may require world-restart. WARNING: Feature is buggy pre-1.21 NeoForge, does not work with eternal campfires, and needs to be updated after chunkloading - Default: false")
+        FUEL_BASED_LIGHTING = builder.comment("Enable campfire dimming when low on fuel. Changes may require world-restart.",
+                        "WARNING: Potentially buggy, may need manually updated on world/chunk-load, may not work with Starlight installed - Default: false")
                 .worldRestart().define("enableFuelBasedLighting", fuel_based_lighting);
+        FUEL_BASED_LIGHTING_ETERNAL = builder.comment("Enable campfire fuel dimming for eternal campfires. Requires \'enableFuelBasedLighting\' to be true. Changes may require world restart.",
+                        "WARNING: Potentially buggy, manually updating eternal campfires is inherently tricky - Default: false")
+                .worldRestart().define("enableEternalFuelBasedLighting", fuel_based_lighting_eternal);
         FARMERS_DELIGHT_STOVE_COMPAT = builder.comment("Enable compatibility changes for the Farmer's Delight stove block - Default true")
                 .define("enableFarmersDelightStoveCompat", farmersDelightCompat);
         builder.pop();
@@ -338,27 +256,6 @@ public class ServerConfig {
                 .define("soulCampfireUseWhitelist", soul_cf_use_whitelist);
         builder.pop();
         builder.pop();
-
-//        builder.push("Advanced Options");
-////        builder.push("Regular Campfires");
-//////        CAMPFIRE_FUEL_BASED_LIGHT = builder
-//////                .comment("Campfire light-level is based on its remaining fuel percent from max - Default true")
-//////                .define("campfireFuelBasedLight", cf_fuel_based_light);
-////
-//////        CAMPFIRE_BURN_WHEN_SLEEP = builder
-//////                .comment("Campfires lose the appropriate fuel when you sleep - Default false")
-//////                .define("campfiresBurnFuelWhenSleep", cf_burn_when_sleep);
-////        builder.pop();
-////        builder.push("Soul Campfires");
-//////        SOUL_CAMPFIRE_FUEL_BASED_LIGHT = builder
-//////                .comment("Soul Campfire light-level is based on its remaining fuel percent from max - Default true")
-//////                .define("soulCampfireFuelBasedLight", soul_cf_fuel_based_light);
-////
-//////        SOUL_CAMPFIRE_BURN_WHEN_SLEEP = builder
-//////                .comment("Soul campfires lose the appropriate fuel when you sleep - Default false")
-//////                .define("soulCampfiresBurnFuelWhenSleep", soul_cf_burn_when_sleep);
-////        builder.pop();
-//        builder.pop();
 
         builder.push("Decorative Options");
         builder.push("Regular Campfires");

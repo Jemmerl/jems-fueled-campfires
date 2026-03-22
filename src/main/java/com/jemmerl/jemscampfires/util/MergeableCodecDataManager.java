@@ -38,6 +38,8 @@ import java.util.function.Function;
 
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.RegistryOps;
+import net.minecraft.server.ReloadableServerResources;
+import net.minecraft.tags.TagManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -93,6 +95,7 @@ public class MergeableCodecDataManager<RAW, FINE> extends SimplePreparableReload
     /** the loaded data **/
     protected Map<ResourceLocation, FINE> data = new HashMap<>();
 
+    private final ReloadableServerResources reloadableServerResources;
     private final RegistryAccess registryAccess;
 
     private final String folderName;
@@ -112,8 +115,8 @@ public class MergeableCodecDataManager<RAW, FINE> extends SimplePreparableReload
      * As an example, consider vanilla's Tags: mods or datapacks can define tags with the same modid:name id,
      * and then all tag jsons defined with the same ID are merged additively into a single set of items, etc
      */
-    public MergeableCodecDataManager(RegistryAccess registryAccess, final String folderName, Codec<RAW> codec, final Function<List<RAW>, FINE> merger)
-    {
+    public MergeableCodecDataManager(ReloadableServerResources reloadableServerResources, RegistryAccess registryAccess, final String folderName, Codec<RAW> codec, final Function<List<RAW>, FINE> merger) {
+        this.reloadableServerResources = reloadableServerResources;
         this.registryAccess = registryAccess;
 
         this.folderName = folderName;
@@ -124,21 +127,18 @@ public class MergeableCodecDataManager<RAW, FINE> extends SimplePreparableReload
     /**
      * @return The immutable map of data entries
      */
-    public Map<ResourceLocation, FINE> getData()
-    {
+    public Map<ResourceLocation, FINE> getData() {
         return this.data;
     }
 
     /** Off-thread processing (can include reading files from hard drive) **/
     @Override
-    protected Map<ResourceLocation, FINE> prepare(final ResourceManager resourceManager, final ProfilerFiller profiler)
-    {
+    protected Map<ResourceLocation, FINE> prepare(final ResourceManager resourceManager, final ProfilerFiller profiler) {
         LOGGER.info("Beginning loading of data for data loader: {}", this.folderName);
         final Map<ResourceLocation, FINE> map = new HashMap<>();
 
         Map<ResourceLocation,List<Resource>> resourceStacks = resourceManager.listResourceStacks(this.folderName, id -> id.getPath().endsWith(JSON_EXTENSION));
-        for (var entry : resourceStacks.entrySet())
-        {
+        for (var entry : resourceStacks.entrySet()) {
             List<RAW> raws = new ArrayList<>();
             ResourceLocation fullId = entry.getKey();
             String fullPath = fullId.getPath(); // includes folderName/ and .json
@@ -146,17 +146,14 @@ public class MergeableCodecDataManager<RAW, FINE> extends SimplePreparableReload
                     fullId.getNamespace(),
                     fullPath.substring(this.folderName.length() + 1, fullPath.length() - JSON_EXTENSION_LENGTH));
 
-            for (Resource resource : entry.getValue())
-            {
-                try(Reader reader = resource.openAsReader())
-                {
+            for (Resource resource : entry.getValue()) {
+                try(Reader reader = resource.openAsReader()) {
                     JsonElement jsonElement = JsonParser.parseReader(reader);
                     this.codec.parse(RegistryOps.create(JsonOps.INSTANCE, registryAccess), jsonElement)
                             .resultOrPartial(errorMsg -> LOGGER.error("Error deserializing json {} in folder {} from pack {}: {}", id, this.folderName, resource.sourcePackId(), errorMsg))
                             .ifPresent(raws::add);
                 }
-                catch(Exception e)
-                {
+                catch(Exception e) {
                     LOGGER.error(String.format(Locale.ENGLISH, "Error reading resource %s in folder %s from pack %s: ", id, this.folderName, resource.sourcePackId()), e);
                 }
             }
@@ -169,8 +166,7 @@ public class MergeableCodecDataManager<RAW, FINE> extends SimplePreparableReload
 
     /** Main-thread processing, runs after prepare concludes **/
     @Override
-    protected void apply(final Map<ResourceLocation, FINE> processedData, final ResourceManager resourceManager, final ProfilerFiller profiler)
-    {
+    protected void apply(final Map<ResourceLocation, FINE> processedData, final ResourceManager resourceManager, final ProfilerFiller profiler) {
         // now that we're on the main thread, we can finalize the data
         this.data = processedData;
     }
@@ -184,16 +180,14 @@ public class MergeableCodecDataManager<RAW, FINE> extends SimplePreparableReload
      * @return this manager object
      */
     public <PACKET> MergeableCodecDataManager<RAW, FINE> subscribeAsSyncable(final SimpleChannel channel,
-                                                                             final Function<Map<ResourceLocation, FINE>, PACKET> packetFactory)
-    {
+                                                                             final Function<Map<ResourceLocation, FINE>, PACKET> packetFactory) {
         MinecraftForge.EVENT_BUS.addListener(this.getDatapackSyncListener(channel, packetFactory));
         return this;
     }
 
     /** Generate an event listener function for the on-datapack-sync event **/
     private <PACKET> Consumer<OnDatapackSyncEvent> getDatapackSyncListener(final SimpleChannel channel,
-                                                                           final Function<Map<ResourceLocation, FINE>, PACKET> packetFactory)
-    {
+                                                                           final Function<Map<ResourceLocation, FINE>, PACKET> packetFactory) {
         return event -> {
             ServerPlayer player = event.getPlayer();
             PACKET packet = packetFactory.apply(this.data);

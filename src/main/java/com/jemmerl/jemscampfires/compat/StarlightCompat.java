@@ -16,7 +16,7 @@ public class StarlightCompat {
     }
 
     // "Using IForgeBlockGetter#getExistingBlockEntity() with Starlight causes chunk-loading deadlocks"
-    public static BlockEntity getBlockEntityForLight(BlockGetter world, BlockPos pos) {
+    public static BlockEntity getBlockEntitySafely(BlockGetter world, BlockPos pos) {
         return loaded ? world.getBlockEntity(pos) : world.getExistingBlockEntity(pos);
     }
 }
