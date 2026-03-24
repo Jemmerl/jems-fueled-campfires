@@ -12,7 +12,4 @@ public record FuelOverrides(boolean replace, List<FuelOverrideEntry> entries) {
             FuelOverrideEntry.CODEC.listOf().fieldOf("fuel_overrides").forGetter(FuelOverrides::entries)
     ).apply(instance, FuelOverrides::new));
 
-    public FuelOverrides {
-        System.out.println("created file");
-    }
 }

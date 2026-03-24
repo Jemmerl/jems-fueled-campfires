@@ -27,27 +27,12 @@ SOFTWARE.
 
 package com.jemmerl.jemscampfires.util;
 
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Function;
-
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.RegistryOps;
-import net.minecraft.server.ReloadableServerResources;
-import net.minecraft.tags.TagManager;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
-
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.Resource;
@@ -59,6 +44,13 @@ import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
 import net.minecraftforge.network.simple.SimpleChannel;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.io.Reader;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 // Credit to Commoble's Data Buddy
 // https://github.com/Commoble/databuddy
@@ -95,7 +87,6 @@ public class MergeableCodecDataManager<RAW, FINE> extends SimplePreparableReload
     /** the loaded data **/
     protected Map<ResourceLocation, FINE> data = new HashMap<>();
 
-    private final ReloadableServerResources reloadableServerResources;
     private final RegistryAccess registryAccess;
 
     private final String folderName;
@@ -115,8 +106,7 @@ public class MergeableCodecDataManager<RAW, FINE> extends SimplePreparableReload
      * As an example, consider vanilla's Tags: mods or datapacks can define tags with the same modid:name id,
      * and then all tag jsons defined with the same ID are merged additively into a single set of items, etc
      */
-    public MergeableCodecDataManager(ReloadableServerResources reloadableServerResources, RegistryAccess registryAccess, final String folderName, Codec<RAW> codec, final Function<List<RAW>, FINE> merger) {
-        this.reloadableServerResources = reloadableServerResources;
+    public MergeableCodecDataManager(RegistryAccess registryAccess, final String folderName, Codec<RAW> codec, final Function<List<RAW>, FINE> merger) {
         this.registryAccess = registryAccess;
 
         this.folderName = folderName;

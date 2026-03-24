@@ -75,8 +75,7 @@ public abstract class FDStoveTEMixins extends SyncedBlockEntity implements IFuel
     }
 
     @Inject(at = @At(value = "FIELD", target = "vectorwing/farmersdelight/common/block/entity/StoveBlockEntity.cookingTimes:[I",
-            opcode = Opcodes.GETFIELD, args = "array=get", ordinal = 0, shift = At.Shift.BY, by = -2),
-            /*locals = LocalCapture.PRINT,*/ method = "cookAndOutputItems()V", remap = false)
+            opcode = Opcodes.GETFIELD, args = "array=get", ordinal = 0, shift = At.Shift.BY, by = -2), method = "cookAndOutputItems()V", remap = false)
     private void cookAndOutputItems(CallbackInfo ci) {
         IFueledCampfire fueledCampfire = (IFueledCampfire) this;
         if (fueledCampfire.getEternal() && ServerConfig.CAMPFIRE_LOSE_ETERNAL_WHEN_COOKING.get()) {

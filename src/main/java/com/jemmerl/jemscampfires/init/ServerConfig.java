@@ -2,36 +2,9 @@ package com.jemmerl.jemscampfires.init;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
-import com.jemmerl.jemscampfires.JemsCampfires;
-import com.jemmerl.jemscampfires.init.fueloverrides.FuelOverrideDataManager;
-import com.jemmerl.jemscampfires.init.fueloverrides.FuelOverrideEntry;
-import com.mojang.datafixers.util.Either;
-import net.minecraft.core.Holder;
-import net.minecraft.core.HolderSet;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.data.recipes.RecipeProvider;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.TagFile;
-import net.minecraft.tags.TagKey;
-import net.minecraft.tags.TagLoader;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.common.data.GlobalLootModifierProvider;
-import net.minecraftforge.common.loot.LootModifierManager;
-import net.minecraftforge.event.OnDatapackSyncEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class ServerConfig {
 
@@ -39,7 +12,6 @@ public class ServerConfig {
 
     // Default values
     // Misc
-    private static final List<? extends String> customFuelValues = new ArrayList<>();
     private static final boolean need_fire_poker = true; // Is a fire poker needed for checking campfire info? Sneak + right-click with an empty hand if 'false' - Default: true
     private static final boolean extinguished_drop_items = false; // Will campfires drop items when extinguished (restores pre-1.17 behavior) - Default: false
     private static final boolean player_check_fix = false; // Enable compatibility fix for mods that let you build a campfire in-world, may rarely cause an issue with world-genned campfires - Default: false
@@ -66,12 +38,6 @@ public class ServerConfig {
     private static final int soul_cf_rain_fuel_tick_loss = 5; // Soul campfire fuel lost per tick from rain (-1 for instant burnout without loss, 0 to disable) - Default 5 ticks of fuel
     private static final boolean cf_use_whitelist = false; // Switch regular campfire filtered-fuels tag to a whitelist (blacklist by default) - Default false
     private static final boolean soul_cf_use_whitelist = false; // Switch soul campfire filtered-fuels tag to a whitelist (blacklist by default) - Default false
-
-    // Postponed
-    //private static final boolean cf_fuel_based_light = true; // Campfire light-level is based on its remaining fuel percent from max - Default true
-    //private static final boolean soul_cf_fuel_based_light = false; // Soul campfire light-level is based on its remaining fuel percent from max - Default true
-    //private static final boolean cf_burn_when_sleep = false; // Campfires lose the appropriate fuel when you sleep - Default false
-    //private static final boolean soul_cf_burn_when_sleep = false; // Soul campfires lose the appropriate fuel when you sleep - Default false
 
     // Decorative
     private static final boolean place_cf_eternal = false; // Regular campfires placed by players don't burn fuel (eternal) - Default: false
@@ -107,7 +73,6 @@ public class ServerConfig {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Misc
-    public static ForgeConfigSpec.ConfigValue<List<? extends String>> CUSTOM_FUEL_VALS;
     public static ForgeConfigSpec.BooleanValue NEED_FIRE_POKER;
     public static ForgeConfigSpec.BooleanValue EXTINGUISHED_DROP_ITEMS;
     public static ForgeConfigSpec.BooleanValue PLAYER_CHECK_FIX;
@@ -134,12 +99,6 @@ public class ServerConfig {
     public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_RAIN_FUEL_TICK_LOSS;
     public static ForgeConfigSpec.BooleanValue CAMPFIRE_USE_WHITELIST;
     public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_USE_WHITELIST;
-
-    // Postponed
-    //public static ForgeConfigSpec.BooleanValue CAMPFIRE_FUEL_BASED_LIGHT; //postponed
-    //public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_FUEL_BASED_LIGHT; //postponed
-    //public static ForgeConfigSpec.BooleanValue CAMPFIRE_BURN_WHEN_SLEEP; //postponed
-    //public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BURN_WHEN_SLEEP; //postponed
 
     // Decorative
     public static ForgeConfigSpec.BooleanValue PLACE_CAMPFIRE_ETERNAL;
@@ -177,9 +136,6 @@ public class ServerConfig {
         final ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
 
         builder.push("Misc Options");
-        CUSTOM_FUEL_VALS = builder.comment("A list of custom item fuel values in ticks (min 1, max 1000000000). Value is affected by the fuel multiplier config.",
-                        "Format examples: \"minecraft:coal,300\", \"minecraft:shears,2500\"")
-                .defineListAllowEmpty("customFuelValues", customFuelValues, ((objectIn) -> objectIn instanceof String));
         NEED_FIRE_POKER = builder.comment("Is a fire poker needed for checking campfire info? Sneak + right-click with an empty hand if 'false' - Default: true")
                 .define("needFirePoker", need_fire_poker);
         EXTINGUISHED_DROP_ITEMS = builder.comment("Will campfires drop items when extinguished (restores pre-1.17 behavior) - Default: false ")

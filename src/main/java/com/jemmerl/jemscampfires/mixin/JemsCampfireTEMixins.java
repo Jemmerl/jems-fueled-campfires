@@ -1,25 +1,16 @@
 package com.jemmerl.jemscampfires.mixin;
 
-import com.jemmerl.jemscampfires.JemsCampfires;
 import com.jemmerl.jemscampfires.init.ModTags;
 import com.jemmerl.jemscampfires.init.ServerConfig;
 import com.jemmerl.jemscampfires.util.IFueledCampfire;
 import com.jemmerl.jemscampfires.util.Util;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientChunkCache;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.Connection;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.server.TickTask;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.TaskChainer;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.EntitySelector;
@@ -35,9 +26,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.CampfireBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
@@ -146,7 +135,7 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
             }
         }
 
-        for(ItemEntity itemEntity : getCaptureItems()) {
+        for (ItemEntity itemEntity : getCaptureItems()) {
             ItemStack itemStack = itemEntity.getItem();
             if (Util.failsFuelFilter(isSoul, itemStack)) continue;
 
@@ -477,8 +466,9 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
         }
     }
 
+    // TODO add config for this formula? Not unless someone asks.
     private void dynamicLightLevelUpdate() {
-        int rampPeak = Math.min((int)(getStandardMaxFuelTicks(isSoul) * 0.5f), 3600);
+        int rampPeak = Math.min((int)(getStandardMaxFuelTicks(isSoul) * 0.34f), 3600);
         if (fuelTicks < rampPeak) {
             float perc = fuelTicks / (float)rampPeak;
             int val = (int)(isSoul ? (6 + 3 * perc) : (8 + 7 * perc));

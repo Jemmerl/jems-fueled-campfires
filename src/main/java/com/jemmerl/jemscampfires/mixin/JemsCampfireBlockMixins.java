@@ -1,7 +1,5 @@
 package com.jemmerl.jemscampfires.mixin;
 
-import com.jemmerl.jemscampfires.JemsCampfires;
-import com.jemmerl.jemscampfires.compat.StarlightCompat;
 import com.jemmerl.jemscampfires.init.ServerConfig;
 import com.jemmerl.jemscampfires.util.IFueledCampfire;
 import com.jemmerl.jemscampfires.util.Util;
@@ -23,7 +21,6 @@ import net.minecraft.world.level.block.entity.CampfireBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.common.extensions.IForgeBlockGetter;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

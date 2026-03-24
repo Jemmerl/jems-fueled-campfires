@@ -9,14 +9,13 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.ReloadableServerResources;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.event.TagsUpdatedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Mod.EventBusSubscriber(modid = JemsCampfires.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class FuelOverrideDataManager {
@@ -28,7 +27,13 @@ public class FuelOverrideDataManager {
     // Caching
     private static final int CACHE_SIZE = 64; // TODO: I am sure an optimal value of this can be found.
     private static Reference2IntOpenHashMap<Item> unrolledMap = null;
-    private static final Reference2IntLinkedOpenHashMap<Item> cache = new Reference2IntLinkedOpenHashMap<>(CACHE_SIZE);
+    private static final Reference2IntLinkedOpenHashMap<Item> cache = initCache();
+
+    private static Reference2IntLinkedOpenHashMap<Item> initCache() {
+        Reference2IntLinkedOpenHashMap<Item> c = new Reference2IntLinkedOpenHashMap<>(CACHE_SIZE);
+        c.defaultReturnValue(-1);
+        return c;
+    }
 
     @SubscribeEvent
     public static void reloadFuelOverrides(TagsUpdatedEvent event) {
@@ -47,7 +52,7 @@ public class FuelOverrideDataManager {
 
         if (unrolledMap == null) {
             int fuelVal = cache.getAndMoveToFirst(item);
-            if (fuelVal > 0) return fuelVal; // If the cache is used, check if present- if not, check all entries.
+            if (fuelVal > -1) return fuelVal; // Returns -1 for nothing in cache, returns 0 for in cache but no custom
         } else {
             return unrolledMap.getInt(item); // If the map is populated, return the result or default 0 (no custom).
         }
@@ -60,6 +65,7 @@ public class FuelOverrideDataManager {
                 return fuelVal;
             }
         }
+        put(item, 0);
         return 0;
     }
 
@@ -84,8 +90,6 @@ public class FuelOverrideDataManager {
 
     private static void reloadCacheMap() {
         unrolledMap = unroll(); // Will be null if the unrolled size is > CACHE_SIZE*4;
-        System.out.println("use cache? : " + (unrolledMap == null));
-        System.out.println(unrolledMap.toString());
         reloadCache = false;
     }
 
@@ -116,9 +120,9 @@ public class FuelOverrideDataManager {
 
     private static MergeableCodecDataManager<FuelOverrides, List<FuelOverrideEntry>> DATA_LOADER = null;
 
-    public static void buildDataLoader(ReloadableServerResources reloadableServerResources, RegistryAccess registryAccess) {
+    public static void buildDataLoader(RegistryAccess registryAccess) {
         if (DATA_LOADER != null) return;
-        DATA_LOADER = new MergeableCodecDataManager<>(reloadableServerResources, registryAccess, "fuel_overrides",
+        DATA_LOADER = new MergeableCodecDataManager<>(registryAccess, "fuel_overrides",
                 FuelOverrides.CODEC, FuelOverrideDataManager::processOverrides);
     }
 
@@ -152,86 +156,6 @@ public class FuelOverrideDataManager {
         list.addAll(rawEntries);
         return list;
     }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-//    public static List<FuelOverrideEntry> combinePartialMaps(List<FuelOverrideEntry> map1, List<FuelOverrideEntry> map2) {
-//        List<FuelOverrideEntry> mergedMap = new HashMap<>(map1);
-//        mergedMap.putAll(map2);
-//        return mergedMap;
-//    }
-//
-//    // Takes in the current group of merged objects, as well as the next to be merged
-//    public static List<FuelOverrideEntry> 1processOverrides(final List<FuelOverrideEntry> map, final FuelOverrides raw) {
-//        return mergeOverrideEntries(raw.getReplace() ? new HashMap<>() : map, raw.getEntries());
-//    }
-//
-//    //
-//    public static List<FuelOverrideEntry> mergeOverrideEntries(final List<FuelOverrideEntry> map, final List<FuelOverrideEntry> entries) {
-//        for (FuelOverrideEntry entry : entries) {
-//            map.merge(entry.getfuelTicks(), entry, FuelOverrideDataManager::mergeEntries);
-//        }
-//        return map;
-//    }
-//
-//    // Assumes both entries have the same fuel ticks.
-//    private static FuelOverrideEntry mergeEntries(FuelOverrideEntry entry1, FuelOverrideEntry entry2) {
-//        Set<ResourceLocation> mergeItemSet = new HashSet<>(entry1.getItems());
-//        mergeItemSet.addAll(entry2.getItems());
-//        return new FuelOverrideEntry(entry1.getfuelTicks(), new ArrayList<>(mergeItemSet));
-//    }
-
-    /*
-        public static final MergeableCodecDataManager<FuelOverrides, Map<Integer, FuelOverrideEntry>> DATA_LOADER = new MergeableCodecDataManager<>(
-            "fuel_overrides",
-            FuelOverrides.CODEC,
-            FuelOverrideDataManager::combineAllOverrides);
-
-    public static Map<Integer, FuelOverrideEntry> getData() {
-        System.out.println("data get");
-        return DATA_LOADER.getData().get(new ResourceLocation("jemscampfires", "fuel_overrides"));
-    }
-
-
-
-    // Takes in all the fuel overrides of the same id (jemscamp:file_name) from every mod, then reduces to a map.
-    public static Map<Integer, FuelOverrideEntry> combineAllOverrides(final List<FuelOverrides> raws) {
-        return raws.stream().reduce(new HashMap<>(), FuelOverrideDataManager::processOverrides, FuelOverrideDataManager::combinePartialMaps);
-    }
-
-    public static HashMap<Integer, FuelOverrideEntry> combinePartialMaps(HashMap<Integer, FuelOverrideEntry> map1, HashMap<Integer, FuelOverrideEntry> map2) {
-        HashMap<Integer, FuelOverrideEntry> mergedMap = new HashMap<>(map1);
-        mergedMap.putAll(map2);
-        return mergedMap;
-    }
-
-    // Takes in the current group of merged objects, as well as the next to be merged
-    public static HashMap<Integer, FuelOverrideEntry> processOverrides(final HashMap<Integer, FuelOverrideEntry> map, final FuelOverrides raw) {
-        return mergeOverrideEntries(raw.getReplace() ? new HashMap<>() : map, raw.getEntries());
-    }
-
-    //
-    public static HashMap<Integer, FuelOverrideEntry> mergeOverrideEntries(final HashMap<Integer, FuelOverrideEntry> map, final List<FuelOverrideEntry> entries) {
-        for (FuelOverrideEntry entry : entries) {
-            map.merge(entry.getfuelTicks(), entry, FuelOverrideDataManager::mergeEntries);
-        }
-        return map;
-    }
-
-    // Assumes both entries have the same fuel ticks.
-    private static FuelOverrideEntry mergeEntries(FuelOverrideEntry entry1, FuelOverrideEntry entry2) {
-        Set<ResourceLocation> mergeItemSet = new HashSet<>(entry1.getItems());
-        mergeItemSet.addAll(entry2.getItems());
-        return new FuelOverrideEntry(entry1.getfuelTicks(), new ArrayList<>(mergeItemSet));
-    }
-     */
-
 }
 
 
