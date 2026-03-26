@@ -15,6 +15,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Mod.EventBusSubscriber(modid = JemsCampfires.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
@@ -41,7 +42,8 @@ public class FuelOverrideDataManager {
             fuelOverrides.clear();
             invalidateCache();
             fuelOverrides.addAll(DATA_LOADER.getData()
-                    .get(new ResourceLocation("jemscampfires", "fuel_overrides")));
+                    .getOrDefault(new ResourceLocation("jemscampfires", "fuel_overrides"),
+                            Collections.emptyList()));
         }
     }
 
