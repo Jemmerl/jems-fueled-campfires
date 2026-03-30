@@ -61,11 +61,22 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
     maven { url = 'https://repo.spongepowered.org/maven' }
+    maven {
+        url 'https://www.cursemaven.com'
+        // FG4: It's recommended to uncomment the following block
+        // content {
+        //     includeGroup "curse.maven"
+        // }
+    }
 }
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
+
+    // No Farmers Delight for 1.19.4
+    //    compileOnly("curse.maven:farmers-delight-398521:5051241")
+//     implementation fg.deobf("curse.maven:starlight-forge-526854:3836016")
 }
 
 mixin {
