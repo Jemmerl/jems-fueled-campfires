@@ -5,7 +5,15 @@
   "refmap": "jemscampfires.mixin-refmap.json",
   "mixins": [
     "JemsCampfireBlockMixins",
-    "JemsCampfireTEMixins"
+    "JemsCampfireTEMixins",
+    "compat.farmersdelight.FDStoveTEMixins",
+    "compat.farmersdelight.FDStoveBlockMixins"
   ],
-  "minVersion": "0.8"
+  "client": [
+    "JemsCampfireBlockClientMixins"
+  ],
+  "minVersion": "0.8",
+  "injectors": {
+    "defaultRequire": 1
+  }
 }
