@@ -9,6 +9,7 @@ public interface IFueledCampfire {
 
     boolean getBonfire();
     void setBonfire(boolean bonfire);
+    int getBonfireLimit();
 
     boolean isSoul();
     int[] fetchCookingVariable();
@@ -17,4 +18,12 @@ public interface IFueledCampfire {
     void normalStuff();
     void bonfireStuff();
     void doExtinguishDrops();
+
+    void clearChanged();
+    boolean getChanged();
+
+    void setFuelLightLevel(int lightLevel);
+    int getFuelLightLevel();
+
+    void updateLighting();
 }
