@@ -8,7 +8,8 @@ import net.minecraftforge.common.Tags;
 
 public class ModTags {
     public static final Tags.IOptionalNamedTag<Item> JC_ETERNAL = createTag("jc_eternal_fuels");
-    public static final Tags.IOptionalNamedTag<Item> JC_FUEL_BLACKLIST = createTag("jc_blacklist_fuels");
+    public static final Tags.IOptionalNamedTag<Item> CF_FILTERED_FUELS = createTag("cf_filtered_fuels");
+    public static final Tags.IOptionalNamedTag<Item> SOUL_CF_FILTERED_FUELS = createTag("soul_cf_filtered_fuels");
 
     private static Tags.IOptionalNamedTag<Item> createTag(String name) {
         return ItemTags.createOptional(new ResourceLocation(JemsCampfires.MOD_ID, name));

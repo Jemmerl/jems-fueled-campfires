@@ -5,7 +5,9 @@
   "refmap": "jemscampfires.mixin-refmap.json",
   "mixins": [
     "JemsCampfireBlockMixins",
-    "JemsCampfireTEMixins"
+    "JemsCampfireTEMixins",
+    "compat.farmersdelight.FDStoveTEMixins",
+    "compat.farmersdelight.FDStoveBlockMixins"
   ],
   "client": [
     "JemsCampfireBlockClientMixins"

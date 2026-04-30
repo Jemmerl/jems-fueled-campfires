@@ -2,13 +2,15 @@ package com.jemmerl.jemscampfires;
 
 import com.jemmerl.jemscampfires.init.ClientConfig;
 import com.jemmerl.jemscampfires.init.ServerConfig;
+import com.jemmerl.jemscampfires.init.fueloverrides.FuelOverrideDataManager;
 import com.jemmerl.jemscampfires.items.ModItems;
+import com.jemmerl.jemscampfires.network.JCPacketHandler;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLConfig;
@@ -25,10 +27,10 @@ public class JemsCampfires
     public JemsCampfires() {
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
         eventBus.addListener(this::setup);
-        eventBus.addListener(this::doClientStuff);
 
         ModItems.register(eventBus);
 
+        MinecraftForge.EVENT_BUS.addListener(this::onAddReloadListeners);
         MinecraftForge.EVENT_BUS.register(this);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ClientConfig.CLIENT_SPEC);
@@ -37,7 +39,15 @@ public class JemsCampfires
                 .resolve(FMLConfig.defaultConfigPath()).resolve(MOD_ID + "-server.toml"));
     }
 
-    private void setup(final FMLCommonSetupEvent event) {}
-    private void doClientStuff(final FMLClientSetupEvent event) {}
+    private void setup(final FMLCommonSetupEvent event) {
+        event.enqueueWork(() -> {
+            JCPacketHandler.register();
+        });
+    }
+
+    //Fixed it by passing in registry access to my reload listener during AddReloadListenerEvent since it provides registry access
+    public void onAddReloadListeners(AddReloadListenerEvent event) {
+        event.addListener(FuelOverrideDataManager.getDataLoader());
+    }
 
 }

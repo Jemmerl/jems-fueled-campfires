@@ -13,14 +13,15 @@ public class ServerConfig {
     // Misc
     private static final boolean need_fire_poker = true; // Is a fire poker needed for checking campfire info? Sneak + right-click with an empty hand if 'false' - Default: true
     private static final boolean player_check_fix = false; // Enable compatibility fix for mods that let you build a campfire in-world, may rarely cause an issue with world-genned campfires - Default: false
-    private static final boolean debug_ticks_remaining = false; // Debug/Dev: Fuel info messages also show the time remaining in ticks - Default false
-    private static final boolean debug_info_in_chat = false; // Debug/Dev: Fuel info messages are logged in the chat window instead of the action-bar - Default false
+    private static final boolean fuel_based_lighting = false; // Enable campfire dimming when low on fuel. Changes may require world-restart. WARNING: Potentially buggy, may need manually updated on world/chunk-load, may not work with Starlight installed - Default: false
+    private static final boolean fuel_based_lighting_eternal = false; // Enable campfire fuel dimming for eternal campfires. Requires \'enableFuelBasedLighting\' to be true. Changes may require world restart. WARNING: Potentially buggy, manually updating eternal campfires is inherently tricky - Default: false
+    private static final boolean farmersDelightCompat = true; // Enable compatibility changes for the Farmer's Delight stove block - Default true
 
     // General
     private static final boolean place_cf_lit = false; // Are regular campfires placed by players initially lit - Default: false
     private static final boolean place_soul_cf_lit = false; // Are soul campfires placed by players initially lit - Default: false
-    private static final int cf_max_fuel_ticks = 4800; // Maximum regular campfire fuel in ticks - Default 4800 ticks (4 minutes; 20 ticks/second)
-    private static final int soul_cf_max_fuel_ticks = 4800; // Maximum soul campfire fuel in ticks - Default 4800 ticks (4 minutes; 20 ticks/second)
+    private static final int cf_max_fuel_ticks = 12000; // Maximum regular campfire fuel in ticks - Default 12000 ticks (10 minutes; 20 ticks/second)
+    private static final int soul_cf_max_fuel_ticks = 12000; // Maximum soul campfire fuel in ticks - Default 12000 ticks (10 minutes; 20 ticks/second)
     private static final int cf_initial_fuel_ticks = 200; // Initial regular campfire fuel in ticks (can't be more than the configured max) - Default 200 ticks (10 seconds)
     private static final int soul_cf_initial_fuel_ticks = 200; // Initial soul campfire fuel in ticks (can't be more than the configured max) - Default 200 ticks (10 seconds)
     private static final double cf_fuel_multiplier = 1.0; // Multiplies the burn time of fuel added to regular campfires - Default 1.0
@@ -33,12 +34,8 @@ public class ServerConfig {
     private static final boolean soul_cf_firespread = false; // Will soul campfires spread fire to adjacent flammable blocks - Default false
     private static final int cf_rain_fuel_tick_loss = 10; // Regular campfire fuel lost per tick from rain (-1 for instant burnout without loss, 0 to disable) - Default 10 ticks of fuel
     private static final int soul_cf_rain_fuel_tick_loss = 5; // Soul campfire fuel lost per tick from rain (-1 for instant burnout without loss, 0 to disable) - Default 5 ticks of fuel
-
-    // Postponed
-    //private static final boolean cf_fuel_based_light = true; // Campfire light-level is based on its remaining fuel percent from max - Default true
-    //private static final boolean soul_cf_fuel_based_light = false; // Soul campfire light-level is based on its remaining fuel percent from max - Default true
-    //private static final boolean cf_burn_when_sleep = false; // Campfires lose the appropriate fuel when you sleep - Default false
-    //private static final boolean soul_cf_burn_when_sleep = false; // Soul campfires lose the appropriate fuel when you sleep - Default false
+    private static final boolean cf_use_whitelist = false; // Switch regular campfire filtered-fuels tag to a whitelist (blacklist by default) - Default false
+    private static final boolean soul_cf_use_whitelist = false; // Switch soul campfire filtered-fuels tag to a whitelist (blacklist by default) - Default false
 
     // Decorative
     private static final boolean place_cf_eternal = false; // Regular campfires placed by players don't burn fuel (eternal) - Default: false
@@ -59,8 +56,8 @@ public class ServerConfig {
     // Bonfire
     private static final boolean cf_can_bonfire = false; // Will regular campfires become a bonfire if over-fueled - Default false
     private static final boolean soul_cf_can_bonfire = false; // Will soul campfires become a bonfire if over-fueled - Default false
-    private static final int cf_bonfire_fuel_ticks = 800; // Regular bonfire fuel capacity, this gets added onto the normal max fuel - Default 800 ticks (40 seconds)
-    private static final int soul_cf_bonfire_fuel_ticks = 800; // Soul bonfire fuel capacity, this gets added onto the normal max fuel - Default 800 ticks (40 seconds)
+    private static final int cf_bonfire_fuel_ticks = 1200; // Regular bonfire fuel capacity, this gets added onto the normal max fuel - Default 1200 ticks (1 minute)
+    private static final int soul_cf_bonfire_fuel_ticks = 1200; // Soul bonfire fuel capacity, this gets added onto the normal max fuel - Default 1200 ticks (1 minute)
     private static final boolean cf_bonfire_lose_fuel = true; // Will regular bonfires lose their extra bonfire fuel when extinguished (returns to a normal fire) - Default true
     private static final boolean soul_cf_bonfire_lose_fuel = true; // Will soul bonfires lose their extra bonfire fuel when extinguished (returns to a normal fire) - Default true
     private static final int cf_bonfire_burn_mult = 2; // Regular bonfire fuel use multiplier - Default 2
@@ -76,8 +73,9 @@ public class ServerConfig {
     // Misc
     public static ForgeConfigSpec.BooleanValue NEED_FIRE_POKER;
     public static ForgeConfigSpec.BooleanValue PLAYER_CHECK_FIX;
-    public static ForgeConfigSpec.BooleanValue DEBUG_TICKS_REMAINING;
-    public static ForgeConfigSpec.BooleanValue DEBUG_INFO_IN_CHAT;
+    public static ForgeConfigSpec.BooleanValue FUEL_BASED_LIGHTING;
+    public static ForgeConfigSpec.BooleanValue FUEL_BASED_LIGHTING_ETERNAL;
+    public static ForgeConfigSpec.BooleanValue FARMERS_DELIGHT_STOVE_COMPAT;
 
     // General
     public static ForgeConfigSpec.BooleanValue PLACE_CAMPFIRE_LIT;
@@ -96,12 +94,8 @@ public class ServerConfig {
     public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_FIRESPREAD;
     public static ForgeConfigSpec.IntValue CAMPFIRE_RAIN_FUEL_TICK_LOSS;
     public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_RAIN_FUEL_TICK_LOSS;
-
-    // Postponed
-    //public static ForgeConfigSpec.BooleanValue CAMPFIRE_FUEL_BASED_LIGHT; //postponed
-    //public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_FUEL_BASED_LIGHT; //postponed
-    //public static ForgeConfigSpec.BooleanValue CAMPFIRE_BURN_WHEN_SLEEP; //postponed
-    //public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BURN_WHEN_SLEEP; //postponed
+    public static ForgeConfigSpec.BooleanValue CAMPFIRE_USE_WHITELIST;
+    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_USE_WHITELIST;
 
     // Decorative
     public static ForgeConfigSpec.BooleanValue PLACE_CAMPFIRE_ETERNAL;
@@ -134,7 +128,6 @@ public class ServerConfig {
     public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BONFIRE_FIRESPREAD;
     //public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BRIGHT_BONFIRE;
 
-
     static {
         final ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
 
@@ -143,15 +136,14 @@ public class ServerConfig {
                 .define("needFirePoker", need_fire_poker);
         PLAYER_CHECK_FIX = builder.comment("Enable compatibility fix for mods that let you build a campfire in-world, may rarely cause an issue with world-genned campfires - Default: false")
                 .define("enableCampfireBuildCompatibilityFix", player_check_fix);
-        builder.pop();
-
-        builder.push("Debug/Dev Options");
-        DEBUG_TICKS_REMAINING = builder
-                .comment("Debug/Dev: Fuel info messages also show the time remaining in ticks - Default false")
-                .define("debugTicksRemaining", debug_ticks_remaining);
-        DEBUG_INFO_IN_CHAT = builder
-                .comment("Debug/Dev: Fuel info messages are logged in the chat window instead of the action-bar - Default false")
-                .define("debugInfoInChat", debug_info_in_chat);
+        FUEL_BASED_LIGHTING = builder.comment("Enable campfire dimming when low on fuel. Changes may require world-restart.",
+                        "WARNING: Potentially buggy, may need manually updated on world/chunk-load, may not work with Starlight installed - Default: false")
+                .worldRestart().define("enableFuelBasedLighting", fuel_based_lighting);
+        FUEL_BASED_LIGHTING_ETERNAL = builder.comment("Enable campfire fuel dimming for eternal campfires. Requires \'enableFuelBasedLighting\' to be true. Changes may require world restart.",
+                        "WARNING: Potentially buggy, manually updating eternal campfires is inherently tricky - Default: false")
+                .worldRestart().define("enableEternalFuelBasedLighting", fuel_based_lighting_eternal);
+        FARMERS_DELIGHT_STOVE_COMPAT = builder.comment("Enable compatibility changes for the Farmer's Delight stove block - Default true")
+                .define("enableFarmersDelightStoveCompat", farmersDelightCompat);
         builder.pop();
 
         builder.push("General Options");
@@ -160,7 +152,7 @@ public class ServerConfig {
                 .comment("Are regular campfires placed by players initially lit - Default: false")
                 .define("placedCampfiresAreLit", place_cf_lit);
         CAMPFIRE_MAX_FUEL_TICKS = builder
-                .comment("Maximum regular campfire fuel in ticks - Default 4800 ticks (4 minutes; 20 ticks/second)")
+                .comment("Maximum regular campfire fuel in ticks - Default 12000 ticks (10 minutes; 20 ticks/second)")
                 .defineInRange("campfireMaxFuelTicks", cf_max_fuel_ticks, 100, 1000000000);
         CAMPFIRE_INITIAL_FUEL_TICKS = builder
                 .comment("Initial regular campfire fuel in ticks (can't be more than the configured max) - Default 200 ticks (10 seconds)")
@@ -180,13 +172,16 @@ public class ServerConfig {
         CAMPFIRE_RAIN_FUEL_TICK_LOSS = builder
                 .comment("Regular campfire fuel lost per tick from rain (-1 for instant burnout without loss, 0 to disable) - Default 200 ticks")
                 .defineInRange("campfireRainFuelLoss", cf_rain_fuel_tick_loss, -1, 2000000000);
+        CAMPFIRE_USE_WHITELIST = builder
+                .comment("Switch regular campfire filtered-fuels tag to a whitelist (blacklist by default) - Default false")
+                .define("campfireUseWhitelist", cf_use_whitelist);
         builder.pop();
         builder.push("Soul Campfires");
         PLACE_SOUL_CAMPFIRE_LIT = builder
                 .comment("Are soul campfires placed by players initially lit - Default: false")
                 .define("placedSoulCampfiresAreLit", place_soul_cf_lit);
         SOUL_CAMPFIRE_MAX_FUEL_TICKS = builder
-                .comment("Maximum soul campfire fuel in ticks - Default 4800 ticks (4 minutes; 20 ticks/second)")
+                .comment("Maximum soul campfire fuel in ticks - Default 12000 ticks (10 minutes; 20 ticks/second)")
                 .defineInRange("soulCampfireMaxFuelTicks", soul_cf_max_fuel_ticks, 100, 1000000000);
         SOUL_CAMPFIRE_INITIAL_FUEL_TICKS = builder
                 .comment("Initial soul campfire fuel in ticks (can't be more than the configured max) - Default 200 ticks (10 seconds)")
@@ -206,29 +201,11 @@ public class ServerConfig {
         SOUL_CAMPFIRE_RAIN_FUEL_TICK_LOSS = builder
                 .comment("Soul campfire fuel lost per tick from rain (-1 for instant burnout without loss, 0 to disable) - Default 200 ticks")
                 .defineInRange("soulCampfireRainFuelLoss", soul_cf_rain_fuel_tick_loss, -1, 2000000000);
+        SOUL_CAMPFIRE_USE_WHITELIST = builder
+                .comment("Switch soul campfire filtered-fuels tag to a whitelist (blacklist by default) - Default false")
+                .define("soulCampfireUseWhitelist", soul_cf_use_whitelist);
         builder.pop();
         builder.pop();
-
-//        builder.push("Advanced Options");
-////        builder.push("Regular Campfires");
-//////        CAMPFIRE_FUEL_BASED_LIGHT = builder
-//////                .comment("Campfire light-level is based on its remaining fuel percent from max - Default true")
-//////                .define("campfireFuelBasedLight", cf_fuel_based_light);
-////
-//////        CAMPFIRE_BURN_WHEN_SLEEP = builder
-//////                .comment("Campfires lose the appropriate fuel when you sleep - Default false")
-//////                .define("campfiresBurnFuelWhenSleep", cf_burn_when_sleep);
-////        builder.pop();
-////        builder.push("Soul Campfires");
-//////        SOUL_CAMPFIRE_FUEL_BASED_LIGHT = builder
-//////                .comment("Soul Campfire light-level is based on its remaining fuel percent from max - Default true")
-//////                .define("soulCampfireFuelBasedLight", soul_cf_fuel_based_light);
-////
-//////        SOUL_CAMPFIRE_BURN_WHEN_SLEEP = builder
-//////                .comment("Soul campfires lose the appropriate fuel when you sleep - Default false")
-//////                .define("soulCampfiresBurnFuelWhenSleep", soul_cf_burn_when_sleep);
-////        builder.pop();
-//        builder.pop();
 
         builder.push("Decorative Options");
         builder.push("Regular Campfires");
@@ -285,7 +262,7 @@ public class ServerConfig {
                 .comment("Will regular campfires become a bonfire if over-fueled - Default false")
                 .define("enableRegularBonfire", cf_can_bonfire);
         CAMPFIRE_BONFIRE_FUEL_TICKS = builder
-                .comment("Regular bonfire fuel capacity, this gets added onto the normal max fuel - Default 800 ticks (40 seconds)")
+                .comment("Regular bonfire fuel capacity, this gets added onto the normal max fuel - Default 1200 ticks (1 minute)")
                 .defineInRange("regularBonfireFuel", cf_bonfire_fuel_ticks, 100, 1000000000);
         CAMPFIRE_BONFIRE_LOSE_FUEL_EXTINGUISH = builder
                 .comment("Will regular bonfires lose their extra bonfire fuel when extinguished (returns to a normal fire) - Default true")
@@ -305,7 +282,7 @@ public class ServerConfig {
                 .comment("Will soul campfires become a bonfire if over-fueled - Default false")
                 .define("enableSoulBonfire", soul_cf_can_bonfire);
         SOUL_CAMPFIRE_BONFIRE_FUEL_TICKS = builder
-                .comment("Soul bonfire fuel capacity, this gets added onto the normal max fuel - Default 800 ticks (40 seconds)")
+                .comment("Soul bonfire fuel capacity, this gets added onto the normal max fuel - Default 1200 ticks (1 minute)")
                 .defineInRange("soulBonfireFuel", soul_cf_bonfire_fuel_ticks, 100, 1000000000);
         SOUL_CAMPFIRE_BONFIRE_LOSE_FUEL_EXTINGUISH = builder
                 .comment("Will soul bonfires lose their extra bonfire fuel when extinguished (returns to a regular fire) - Default true")

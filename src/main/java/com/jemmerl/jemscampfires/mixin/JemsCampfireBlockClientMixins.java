@@ -46,35 +46,6 @@ public abstract class JemsCampfireBlockClientMixins extends ContainerBlock {
 
     private boolean checkBonfire(World worldIn, BlockPos posIn) {
         IFueledCampfire cfTileEntity = Util.getCFTE(worldIn, posIn);
-        if (cfTileEntity != null) {
-            return cfTileEntity.getBonfire();
-        }
-        return false;
+        return ((cfTileEntity != null) && (cfTileEntity.getBonfire()));
     }
-
-// ...NEVER never mind. Would have to update the fuel value a lot, and this code runs frequently.
-// Maybe will revisit again later. Maybe.
-//    @Override
-//    public int getLightValue(BlockState state, IBlockReader world, BlockPos pos) {
-//        if (state.get(CampfireBlock.LIT)) {
-//            boolean isSoul = this.getDefaultState().getBlock() == Blocks.SOUL_CAMPFIRE;
-//            if (isSoul ? true : true) {
-//                IFueledCampfire cfTileEntity = Util.getCFTE(world, pos);
-//                if (cfTileEntity != null) {
-//                    float fuel = cfTileEntity.getFuelTicks();
-//                    float maxFuel = isSoul ? ServerConfig.SOUL_CAMPFIRE_MAX_FUEL_TICKS.get() : ServerConfig.CAMPFIRE_MAX_FUEL_TICKS.get();
-//                    float maxLight = isSoul ? 10f : 15f;
-//                    if (fuel >= maxFuel) {
-//                        if (isSoul && cfTileEntity.getBonfire() && true) {
-//                            maxLight = 15f;
-//                        }
-//                        return (int)maxLight;
-//                    }
-//                    return (int)Math.ceil(maxLight * (fuel/maxFuel));
-//                }
-//            }
-//        }
-//        return super.getLightValue(state, world, pos);
-//    }
-
 }

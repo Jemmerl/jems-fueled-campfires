@@ -1,19 +1,29 @@
 package com.jemmerl.jemscampfires.util;
 
+import com.jemmerl.jemscampfires.JemsCampfires;
+import com.jemmerl.jemscampfires.init.ModTags;
 import com.jemmerl.jemscampfires.init.ServerConfig;
+import com.jemmerl.jemscampfires.init.fueloverrides.FuelOverrideDataManager;
+import com.jemmerl.jemscampfires.network.JCPacketHandler;
+import com.jemmerl.jemscampfires.network.S2C_CFInfoPacket;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.CampfireBlock;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.particles.ParticleTypes;
+import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.registries.ForgeRegistries;
 
-import java.text.DecimalFormat;
+import java.util.HashMap;
 import java.util.Random;
 
 public class Util {
@@ -30,77 +40,59 @@ public class Util {
         return null;
     }
 
-    public static void displayCampfireInfo(World world, BlockPos pos, BlockState state, PlayerEntity player, IFueledCampfire cfTileEntity) {
-        if (state.get(CampfireBlock.LIT)) {
-            if(world.isRemote) {
+    public static boolean failsFuelFilter(boolean soul, Item item) {
+        if (soul) {
+            return (item.isIn(ModTags.SOUL_CF_FILTERED_FUELS) != ServerConfig.SOUL_CAMPFIRE_USE_WHITELIST.get());
+        }
+        return (item.isIn(ModTags.CF_FILTERED_FUELS) != ServerConfig.CAMPFIRE_USE_WHITELIST.get());
+    }
+
+    public static int getItemFuelVal(ItemStack itemStack, Item item) {
+        int val = FuelOverrideDataManager.getCustomFuelVal(item);
+        return (val > 0) ? val : ForgeHooks.getBurnTime(itemStack, null);
+    }
+
+    // TODO: This hashmap is for fuels that are in containers (ex: lava buckets)
+    //       Modders/pack-devs can use mixin injects (or any other way, idk) to add new items, make sure not to
+    //       overwrite/clear the map unless you know what you are doing!
+    // If anyone genuinely uses this feature and does not like this method, just ask! I will do an API for it.
+    // But I don't feel like it right now, because I don't know how to do an API and do not expect ppl to use this -Jem
+    public static HashMap<Item, Item> fuelContainers = new HashMap<>();
+    static {
+        fuelContainers.put(Items.LAVA_BUCKET, Items.BUCKET);
+    }
+
+    public static void dispatchCampfireInfo(World world, BlockPos pos, BlockState state, PlayerEntity player, IFueledCampfire cfTileEntity) {
+        if(world.isRemote) {
+            if (!state.get(BlockStateProperties.LIT)) return;
+
+            if (!ForgeRegistries.BLOCKS.getKey(state.getBlock()).toString().contains("soul")) {
                 Random random = world.getRandom();
                 int n = random.nextInt(4) + 1;
                 for (int i = 0; i < n; i++) {
                     world.addParticle(ParticleTypes.LAVA, (double)pos.getX() + 0.5D, (double)pos.getY() + 0.5D, (double)pos.getZ() + 0.5D,
                             (random.nextFloat() / 2.0F), 3.0E-5D, (random.nextFloat() / 2.0F));
                 }
-            } else {
-                IFormattableTextComponent msg;
-                TranslationTextComponent timeRemaining = convertTime(cfTileEntity.getFuelTicks());
-
-                if (cfTileEntity.getEternal()) {
-                    if (cfTileEntity.getBonfire()) {
-                        msg = new TranslationTextComponent("info.jemscampfires.eternalbonfire", timeRemaining);
-                    } else {
-                        msg = new TranslationTextComponent( "info.jemscampfires.eternalcozy", timeRemaining);
-                    }
-                } else {
-                    if (cfTileEntity.getBonfire()) {
-                        msg = new TranslationTextComponent( "info.jemscampfires.regularbonfire", timeRemaining);
-                    } else {
-                        msg = new TranslationTextComponent("info.jemscampfires.regularcozy", timeRemaining);
-                    }
-                }
-
-                if (ServerConfig.DEBUG_TICKS_REMAINING.get()) {
-                    msg = msg.appendSibling(new TranslationTextComponent("info.jemscampfires.ticks", cfTileEntity.getFuelTicks()));
-                } else {
-                    msg = msg.appendString(".");
-                }
-                player.sendStatusMessage(msg, !ServerConfig.DEBUG_INFO_IN_CHAT.get());
             }
         } else {
-            if(!world.isRemote) {
-                ITextComponent msg;
-                if (state.get(CampfireBlock.WATERLOGGED)) {
-                    msg = new TranslationTextComponent("info.jemscampfires.waterlogged");
-                } else if (cfTileEntity.getEternal()) {
-                    if (cfTileEntity.getFuelTicks() <= 0) {
-                        msg = new TranslationTextComponent("info.jemscampfires.unliteternalnofuel");
-                    } else {
-                        msg = new TranslationTextComponent("info.jemscampfires.unliteternalfuel");
-                    }
-                } else {
-                    if (cfTileEntity.getFuelTicks() <= 0) {
-                        msg = new TranslationTextComponent("info.jemscampfires.unlitnofuel");
-                    } else {
-                        msg = new TranslationTextComponent("info.jemscampfires.unlitfuel");
-                    }
-                }
-                player.sendStatusMessage(msg, !ServerConfig.DEBUG_INFO_IN_CHAT.get());
+            TextFormatting color = TextFormatting.WHITE;
+            float bonfireLimit = cfTileEntity.getFuelTicks() / (float)cfTileEntity.getBonfireLimit();
+            if (bonfireLimit > 0.90f) {
+                color = TextFormatting.RED;
+            } else if (bonfireLimit > 0.75f) {
+                color = TextFormatting.YELLOW;
             }
-        }
-    }
+            boolean waterlogged = state.hasProperty(BlockStateProperties.WATERLOGGED) && state.get(BlockStateProperties.WATERLOGGED);
 
-    private static TranslationTextComponent convertTime(int fuelTicks) {
-        if (fuelTicks < 2400) {
-            return new TranslationTextComponent("info.jemscampfires.seconds", (fuelTicks / 20));
-        } else if (fuelTicks < 144000) {
-            return new TranslationTextComponent("info.jemscampfires.minutes", formatTimeOutput(fuelTicks / 1200d));
-        } else {
-            return new TranslationTextComponent("info.jemscampfires.hours", formatTimeOutput(fuelTicks / 72000d));
-        }
-    }
+            if (!(player instanceof ServerPlayerEntity)) {
+                JemsCampfires.LOGGER.error("Player not instance of ServerPlayer, failed to send campfire info packet.");
+                return;
+            }
 
-    private static String formatTimeOutput(double doubleIn) {
-        double doubleOut = Math.round(doubleIn * 10) / 10d;
-        DecimalFormat formatter = new DecimalFormat("0.#####");
-        return formatter.format(doubleOut);
+            JCPacketHandler.sendToClient(new S2C_CFInfoPacket(state.get(CampfireBlock.LIT), waterlogged,
+                            cfTileEntity.getBonfire(), cfTileEntity.getEternal(), color, cfTileEntity.getFuelTicks()),
+                    (ServerPlayerEntity) player);
+        }
     }
 
 }
