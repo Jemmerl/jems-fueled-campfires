@@ -43,6 +43,7 @@ public class JemsCampfires
 
     public JemsCampfires() {
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
+
         eventBus.addListener(this::setup);
 //        eventBus.addListener(this::doClientStuff);
         eventBus.addListener(this::buildContents);

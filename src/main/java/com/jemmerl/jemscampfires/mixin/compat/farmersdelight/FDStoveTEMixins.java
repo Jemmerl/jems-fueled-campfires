@@ -16,6 +16,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -25,15 +26,14 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import vectorwing.farmersdelight.common.block.entity.StoveBlockEntity;
-import vectorwing.farmersdelight.common.block.entity.SyncedBlockEntity;
+import vectorwing.farmersdelight.common.block.entity.AbstractStoveBlockEntity;
 
 import java.util.List;
 
 // Compat mixin done with permission from vectorwing with condition of configurability! :)
 @SuppressWarnings("target")
-@Mixin(value = StoveBlockEntity.class, priority = 0)
-public abstract class FDStoveTEMixins extends SyncedBlockEntity implements IFueledCampfire {
+@Mixin(value = AbstractStoveBlockEntity.class, priority = 0)
+public abstract class FDStoveTEMixins extends BlockEntity implements IFueledCampfire {
 
     // Front box, rotates based on stove block rotation
     private static final VoxelShape COLLECTION_AREA_SHAPE_N = Block.box(0.0D, 0.0D, -1.0D, 16.0D, 6.0D, 0.0D);
@@ -62,11 +62,13 @@ public abstract class FDStoveTEMixins extends SyncedBlockEntity implements IFuel
         }
     }
 
-    @Inject(at = @At("HEAD"), remap = false, method = "cookingTick(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lvectorwing/farmersdelight/common/block/entity/StoveBlockEntity;)V")
-    private static void cookingTick(Level pLevel, BlockPos pPos, BlockState pState, StoveBlockEntity pStove, CallbackInfo ci) {
-        // cookTick only fires if the campfire is lit and on the server side
+    @Inject(at = @At("HEAD"), remap = false, method = "serverTick(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lvectorwing/farmersdelight/common/block/entity/AbstractStoveBlockEntity;)V",
+    require = 0)
+    private static void serverTick(Level pLevel, BlockPos pPos, BlockState pState, AbstractStoveBlockEntity pStove, CallbackInfo ci) {
+        // This should only ever be on the server
         if (!ServerConfig.FARMERS_DELIGHT_STOVE_COMPAT.get()) return;
         if (pLevel == null) return;
+        if (pState.hasProperty(BlockStateProperties.LIT) && !pState.getValue(BlockStateProperties.LIT)) return;
         IFueledCampfire fueledCampfire = (IFueledCampfire) pStove;
         fueledCampfire.clearChanged();
         fueledCampfire.getFuel();
@@ -74,8 +76,9 @@ public abstract class FDStoveTEMixins extends SyncedBlockEntity implements IFuel
         if (fueledCampfire.getChanged()) pStove.setChanged();
     }
 
-    @Inject(at = @At(value = "FIELD", target = "vectorwing/farmersdelight/common/block/entity/StoveBlockEntity.cookingTimes:[I",
-            opcode = Opcodes.GETFIELD, args = "array=get", ordinal = 0, shift = At.Shift.BY, by = -2), method = "cookAndOutputItems()V", remap = false)
+    @Inject(at = @At(value = "FIELD", target = "vectorwing/farmersdelight/common/block/entity/AbstractStoveBlockEntity.cookingProgress:[I",
+            opcode = Opcodes.GETFIELD, args = "array=get", ordinal = 1, shift = At.Shift.BY, by = -2), method = "cookAndOutputItems()V", remap = false,
+            require = 0)
     private void cookAndOutputItems(CallbackInfo ci) {
         IFueledCampfire fueledCampfire = (IFueledCampfire) this;
         if (fueledCampfire.getEternal() && ServerConfig.CAMPFIRE_LOSE_ETERNAL_WHEN_COOKING.get()) {
@@ -258,7 +261,7 @@ public abstract class FDStoveTEMixins extends SyncedBlockEntity implements IFuel
     //                                            Data Handling Stuff                                              //
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    @Inject(at = @At("RETURN"), method = "load(Lnet/minecraft/nbt/CompoundTag;)V")
+    @Inject(at = @At("RETURN"), method = "load(Lnet/minecraft/nbt/CompoundTag;)V", require = 0)
     private void loadFueled(CompoundTag compound, CallbackInfo ci) {
         if (compound.contains("FuelTicks", 3)) {
             setFuelTicks(compound.getInt("FuelTicks"));
@@ -268,7 +271,7 @@ public abstract class FDStoveTEMixins extends SyncedBlockEntity implements IFuel
         }
     }
 
-    @Inject(at = @At("RETURN"), method = "saveAdditional(Lnet/minecraft/nbt/CompoundTag;)V")
+    @Inject(at = @At("RETURN"), method = "saveAdditional(Lnet/minecraft/nbt/CompoundTag;)V", require = 0)
     private void saveFueled(CompoundTag compound, CallbackInfo ci) {
         if (compound != null) {
             compound.putInt("FuelTicks", this.fuelTicks);

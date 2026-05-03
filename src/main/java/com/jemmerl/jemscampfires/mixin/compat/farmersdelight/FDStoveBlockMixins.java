@@ -8,7 +8,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
@@ -22,13 +21,13 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-import vectorwing.farmersdelight.common.block.StoveBlock;
+import vectorwing.farmersdelight.common.block.AbstractStoveBlock;
 
 import javax.annotation.Nullable;
 
 // Compat mixin done with permission from vectorwing with condition of configurability! :)
 @SuppressWarnings("target")
-@Mixin(value = StoveBlock.class, priority = 0)
+@Mixin(value = AbstractStoveBlock.class, priority = 0)
 public abstract class FDStoveBlockMixins extends BaseEntityBlock {
 
     protected FDStoveBlockMixins(Properties pProperties) {
@@ -51,20 +50,24 @@ public abstract class FDStoveBlockMixins extends BaseEntityBlock {
     }
 
     @Inject(at = @At("RETURN"), method = "getStateForPlacement(Lnet/minecraft/world/item/context/BlockPlaceContext;)Lnet/minecraft/world/level/block/state/BlockState;",
-            cancellable = true)
+            cancellable = true, require = 0)
     private void getStateForPlacement(BlockPlaceContext context, CallbackInfoReturnable<BlockState> cir) {
         if (!ServerConfig.FARMERS_DELIGHT_STOVE_COMPAT.get()) return;
         cir.setReturnValue(cir.getReturnValue()
                 .setValue(BlockStateProperties.LIT, ServerConfig.PLACE_CAMPFIRE_LIT.get()));
     }
 
-    @Inject(at = @At(value = "INVOKE_ASSIGN", target = "net/minecraft/world/level/Level.getBlockEntity (Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/entity/BlockEntity;", shift = At.Shift.AFTER),
+    @Inject(at = @At(value = "HEAD"),
             locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true,
-            method = "use(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/phys/BlockHitResult;)Lnet/minecraft/world/InteractionResult;")
-    public void use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult arg5, CallbackInfoReturnable<InteractionResult> cir, ItemStack heldStack, Item heldItem, BlockEntity tileEntity) {
+            method = "use(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/phys/BlockHitResult;)Lnet/minecraft/world/InteractionResult;",
+            require = 0)
+    public void use(BlockState state, Level arg1, BlockPos arg2, Player arg3, InteractionHand arg4, BlockHitResult arg5, CallbackInfoReturnable<InteractionResult> cir) {
         if (!ServerConfig.FARMERS_DELIGHT_STOVE_COMPAT.get()) return;
-        if (!ServerConfig.NEED_FIRE_POKER.get() && player.isCrouching() && heldStack.isEmpty() && (tileEntity instanceof IFueledCampfire)) {
-            Util.dispatchCampfireInfo(level, pos, state, player, (IFueledCampfire)tileEntity);
+
+        ItemStack heldStack = arg3.getItemInHand(arg4);
+        BlockEntity tileEntity = arg1.getBlockEntity(arg2);
+        if (!ServerConfig.NEED_FIRE_POKER.get() && arg3.isCrouching() && heldStack.isEmpty() && (tileEntity instanceof IFueledCampfire campfireEntity)) {
+            Util.dispatchCampfireInfo(arg1, arg2, state, arg3, campfireEntity);
             cir.setReturnValue(InteractionResult.SUCCESS);
         }
     }

@@ -44,9 +44,6 @@ public abstract class JemsCampfireBlockClientMixins extends BaseEntityBlock {
 
     private boolean checkBonfire(Level worldIn, BlockPos posIn) {
         IFueledCampfire cfTileEntity = Util.getCFTE(worldIn, posIn);
-        if (cfTileEntity != null) {
-            return cfTileEntity.getBonfire();
-        }
-        return false;
+        return ((cfTileEntity != null) && (cfTileEntity.getBonfire()));
     }
 }
