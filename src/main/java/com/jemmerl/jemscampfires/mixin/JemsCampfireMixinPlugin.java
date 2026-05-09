@@ -1,7 +1,8 @@
 package com.jemmerl.jemscampfires.mixin;
 
 import com.jemmerl.jemscampfires.JemsCampfires;
-import net.minecraftforge.fml.loading.LoadingModList;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.loading.LoadingModList;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
@@ -54,12 +55,16 @@ public class JemsCampfireMixinPlugin implements IMixinConfigPlugin {
             MixinService.getService().getBytecodeProvider().getClassNode(name);
             return true;
         } catch (ClassNotFoundException e) {
-            JemsCampfires.LOGGER.error(JemsCampfires.MOD_ID + ": Mixin into class {} failed; class not present.", name);
+            mixinFailError(name);
             return false;
         } catch (Exception e) {
             e.printStackTrace();
-            JemsCampfires.LOGGER.error(JemsCampfires.MOD_ID + ": Mixin into class {} failed; class not present.", name);
+            mixinFailError(name);
             return false;
         }
+    }
+
+    private static void mixinFailError(String name) {
+        JemsCampfires.LOGGER.error(JemsCampfires.MOD_ID + ": Mixin into class {} failed; class not present.", name);
     }
 }

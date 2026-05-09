@@ -10,15 +10,15 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.event.TagsUpdatedEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.TagsUpdatedEvent;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@Mod.EventBusSubscriber(modid = JemsCampfires.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = JemsCampfires.MOD_ID)
 public class FuelOverrideDataManager {
 
     // load and merge high level files, then merge individual entries with the same fuel ticks
@@ -42,7 +42,7 @@ public class FuelOverrideDataManager {
             fuelOverrides.clear();
             invalidateCache();
             fuelOverrides.addAll(DATA_LOADER.getData()
-                    .getOrDefault(new ResourceLocation("jemscampfires", "fuel_overrides"),
+                    .getOrDefault(ResourceLocation.fromNamespaceAndPath(JemsCampfires.MOD_ID, "fuel_overrides"),
                             Collections.emptyList()));
         }
     }

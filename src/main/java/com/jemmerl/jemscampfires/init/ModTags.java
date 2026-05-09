@@ -12,6 +12,6 @@ public class ModTags {
     public static final TagKey<Item> SOUL_CF_FILTERED_FUELS = createTag("soul_cf_filtered_fuels");
 
     private static TagKey<Item> createTag(String name) {
-        return ItemTags.create(new ResourceLocation(JemsCampfires.MOD_ID, name));
+        return ItemTags.create(ResourceLocation.fromNamespaceAndPath(JemsCampfires.MOD_ID, name));
     }
 }

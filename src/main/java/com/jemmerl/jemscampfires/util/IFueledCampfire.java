@@ -1,29 +1,30 @@
 package com.jemmerl.jemscampfires.util;
 
 public interface IFueledCampfire {
-    int getFuelTicks();
-    void setFuelTicks(int setTicks);
+    int jems_fueled_campfires$getFuelTicks();
+    void jems_fueled_campfires$setFuelTicks(int setTicks);
 
-    boolean getEternal();
-    void setEternal(boolean eternal);
+    boolean jems_fueled_campfires$getEternal();
+    void jems_fueled_campfires$setEternal(boolean eternal);
+    void jems_fueled_campfires$setPlayerPlaced();
 
-    boolean getBonfire();
-    void setBonfire(boolean bonfire);
-    int getBonfireLimit();
+    boolean jems_fueled_campfires$getBonfire();
+    void jems_fueled_campfires$setBonfire(boolean bonfire);
+    int jems_fueled_campfires$getBonfireLimit();
 
-    boolean isSoul();
-    int[] fetchCookingVariable();
+    boolean jems_fueled_campfires$isSoul();
+    int[] jems_fueled_campfires$fetchCookingVariable();
 
-    void getFuel();
-    void normalStuff();
-    void bonfireStuff();
-    void doExtinguishDrops();
+    void jems_fueled_campfires$getFuel();
+    void jems_fueled_campfires$normalStuff();
+    void jems_fueled_campfires$bonfireStuff();
+    void jems_fueled_campfires$doExtinguishDrops();
 
-    void clearChanged();
-    boolean getChanged();
+    void jems_fueled_campfires$clearChanged();
+    boolean jems_fueled_campfires$getChanged();
 
-    void setFuelLightLevel(int lightLevel);
-    int getFuelLightLevel();
+    void jems_fueled_campfires$setFuelLightLevel(int lightLevel);
+    int jems_fueled_campfires$getFuelLightLevel();
 
-    void updateLighting();
+    void jems_fueled_campfires$updateLighting();
 }

@@ -2,13 +2,13 @@ package com.jemmerl.jemscampfires.init;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 import java.nio.file.Path;
 
 public class ServerConfig {
 
-    public static ForgeConfigSpec SERVER_SPEC;
+    public static ModConfigSpec SERVER_SPEC;
 
     // Default values
     // Misc
@@ -73,67 +73,67 @@ public class ServerConfig {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Misc
-    public static ForgeConfigSpec.BooleanValue NEED_FIRE_POKER;
-    public static ForgeConfigSpec.BooleanValue EXTINGUISHED_DROP_ITEMS;
-    public static ForgeConfigSpec.BooleanValue PLAYER_CHECK_FIX;
-    public static ForgeConfigSpec.BooleanValue FUEL_BASED_LIGHTING;
-    public static ForgeConfigSpec.BooleanValue FUEL_BASED_LIGHTING_ETERNAL;
-    public static ForgeConfigSpec.BooleanValue FARMERS_DELIGHT_STOVE_COMPAT;
+    public static ModConfigSpec.BooleanValue NEED_FIRE_POKER;
+    public static ModConfigSpec.BooleanValue EXTINGUISHED_DROP_ITEMS;
+    public static ModConfigSpec.BooleanValue PLAYER_CHECK_FIX;
+    public static ModConfigSpec.BooleanValue FUEL_BASED_LIGHTING;
+    public static ModConfigSpec.BooleanValue FUEL_BASED_LIGHTING_ETERNAL;
+    public static ModConfigSpec.BooleanValue FARMERS_DELIGHT_STOVE_COMPAT;
 
     // General
-    public static ForgeConfigSpec.BooleanValue PLACE_CAMPFIRE_LIT;
-    public static ForgeConfigSpec.BooleanValue PLACE_SOUL_CAMPFIRE_LIT;
-    public static ForgeConfigSpec.IntValue CAMPFIRE_MAX_FUEL_TICKS;
-    public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_MAX_FUEL_TICKS;
-    public static ForgeConfigSpec.IntValue CAMPFIRE_INITIAL_FUEL_TICKS;
-    public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_INITIAL_FUEL_TICKS;
-    public static ForgeConfigSpec.DoubleValue CAMPFIRE_FUEL_MULT;
-    public static ForgeConfigSpec.DoubleValue SOUL_CAMPFIRE_FUEL_MULT;
-    public static ForgeConfigSpec.BooleanValue CAMPFIRE_ALWAYS_BURN_FUEL_ITEMS;
-    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_ALWAYS_BURN_FUEL_ITEMS;
-    public static ForgeConfigSpec.BooleanValue CAMPFIRE_BREAK_UNLIT;
-    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BREAK_UNLIT;
-    public static ForgeConfigSpec.BooleanValue CAMPFIRE_FIRESPREAD;
-    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_FIRESPREAD;
-    public static ForgeConfigSpec.IntValue CAMPFIRE_RAIN_FUEL_TICK_LOSS;
-    public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_RAIN_FUEL_TICK_LOSS;
-    public static ForgeConfigSpec.BooleanValue CAMPFIRE_USE_WHITELIST;
-    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_USE_WHITELIST;
+    public static ModConfigSpec.BooleanValue PLACE_CAMPFIRE_LIT;
+    public static ModConfigSpec.BooleanValue PLACE_SOUL_CAMPFIRE_LIT;
+    public static ModConfigSpec.IntValue CAMPFIRE_MAX_FUEL_TICKS;
+    public static ModConfigSpec.IntValue SOUL_CAMPFIRE_MAX_FUEL_TICKS;
+    public static ModConfigSpec.IntValue CAMPFIRE_INITIAL_FUEL_TICKS;
+    public static ModConfigSpec.IntValue SOUL_CAMPFIRE_INITIAL_FUEL_TICKS;
+    public static ModConfigSpec.DoubleValue CAMPFIRE_FUEL_MULT;
+    public static ModConfigSpec.DoubleValue SOUL_CAMPFIRE_FUEL_MULT;
+    public static ModConfigSpec.BooleanValue CAMPFIRE_ALWAYS_BURN_FUEL_ITEMS;
+    public static ModConfigSpec.BooleanValue SOUL_CAMPFIRE_ALWAYS_BURN_FUEL_ITEMS;
+    public static ModConfigSpec.BooleanValue CAMPFIRE_BREAK_UNLIT;
+    public static ModConfigSpec.BooleanValue SOUL_CAMPFIRE_BREAK_UNLIT;
+    public static ModConfigSpec.BooleanValue CAMPFIRE_FIRESPREAD;
+    public static ModConfigSpec.BooleanValue SOUL_CAMPFIRE_FIRESPREAD;
+    public static ModConfigSpec.IntValue CAMPFIRE_RAIN_FUEL_TICK_LOSS;
+    public static ModConfigSpec.IntValue SOUL_CAMPFIRE_RAIN_FUEL_TICK_LOSS;
+    public static ModConfigSpec.BooleanValue CAMPFIRE_USE_WHITELIST;
+    public static ModConfigSpec.BooleanValue SOUL_CAMPFIRE_USE_WHITELIST;
 
     // Decorative
-    public static ForgeConfigSpec.BooleanValue PLACE_CAMPFIRE_ETERNAL;
-    public static ForgeConfigSpec.BooleanValue PLACE_SOUL_CAMPFIRE_ETERNAL;
-    public static ForgeConfigSpec.BooleanValue SPAWN_CAMPFIRE_ETERNAL;
-    public static ForgeConfigSpec.BooleanValue SPAWN_SOUL_CAMPFIRE_ETERNAL;
-    public static ForgeConfigSpec.BooleanValue CAMPFIRE_ALLOW_ETERNAL_ITEMS;
-    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_ALLOW_ETERNAL_ITEMS;
-    public static ForgeConfigSpec.BooleanValue CAMPFIRE_LOSE_ETERNAL_WHEN_COOKING;
-    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_LOSE_ETERNAL_WHEN_COOKING;
-    public static ForgeConfigSpec.BooleanValue CAMPFIRE_LOSE_ETERNAL_WHEN_EXTINGUISH;
-    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_LOSE_ETERNAL_WHEN_EXTINGUISH;
-    public static ForgeConfigSpec.BooleanValue CAMPFIRE_RAIN_AFFECT_ETERNAL;
-    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_RAIN_AFFECT_ETERNAL;
-    public static ForgeConfigSpec.BooleanValue CAMPFIRE_ETERNAL_BONFIRE;
-    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_ETERNAL_BONFIRE;
+    public static ModConfigSpec.BooleanValue PLACE_CAMPFIRE_ETERNAL;
+    public static ModConfigSpec.BooleanValue PLACE_SOUL_CAMPFIRE_ETERNAL;
+    public static ModConfigSpec.BooleanValue SPAWN_CAMPFIRE_ETERNAL;
+    public static ModConfigSpec.BooleanValue SPAWN_SOUL_CAMPFIRE_ETERNAL;
+    public static ModConfigSpec.BooleanValue CAMPFIRE_ALLOW_ETERNAL_ITEMS;
+    public static ModConfigSpec.BooleanValue SOUL_CAMPFIRE_ALLOW_ETERNAL_ITEMS;
+    public static ModConfigSpec.BooleanValue CAMPFIRE_LOSE_ETERNAL_WHEN_COOKING;
+    public static ModConfigSpec.BooleanValue SOUL_CAMPFIRE_LOSE_ETERNAL_WHEN_COOKING;
+    public static ModConfigSpec.BooleanValue CAMPFIRE_LOSE_ETERNAL_WHEN_EXTINGUISH;
+    public static ModConfigSpec.BooleanValue SOUL_CAMPFIRE_LOSE_ETERNAL_WHEN_EXTINGUISH;
+    public static ModConfigSpec.BooleanValue CAMPFIRE_RAIN_AFFECT_ETERNAL;
+    public static ModConfigSpec.BooleanValue SOUL_CAMPFIRE_RAIN_AFFECT_ETERNAL;
+    public static ModConfigSpec.BooleanValue CAMPFIRE_ETERNAL_BONFIRE;
+    public static ModConfigSpec.BooleanValue SOUL_CAMPFIRE_ETERNAL_BONFIRE;
 
     // Bonfire
-    public static ForgeConfigSpec.BooleanValue CAMPFIRE_CAN_BONFIRE;
-    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_CAN_BONFIRE;
-    public static ForgeConfigSpec.IntValue CAMPFIRE_BONFIRE_FUEL_TICKS;
-    public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_BONFIRE_FUEL_TICKS;
-    public static ForgeConfigSpec.BooleanValue CAMPFIRE_BONFIRE_LOSE_FUEL_EXTINGUISH;
-    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BONFIRE_LOSE_FUEL_EXTINGUISH;
-    public static ForgeConfigSpec.IntValue CAMPFIRE_BONFIRE_BURN_MULT;
-    public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_BONFIRE_BURN_MULT;
-    public static ForgeConfigSpec.IntValue CAMPFIRE_BONFIRE_COOKING_MULT;
-    public static ForgeConfigSpec.IntValue SOUL_CAMPFIRE_BONFIRE_COOKING_MULT;
-    public static ForgeConfigSpec.BooleanValue CAMPFIRE_BONFIRE_FIRESPREAD;
-    public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BONFIRE_FIRESPREAD;
-    //public static ForgeConfigSpec.BooleanValue SOUL_CAMPFIRE_BRIGHT_BONFIRE;
+    public static ModConfigSpec.BooleanValue CAMPFIRE_CAN_BONFIRE;
+    public static ModConfigSpec.BooleanValue SOUL_CAMPFIRE_CAN_BONFIRE;
+    public static ModConfigSpec.IntValue CAMPFIRE_BONFIRE_FUEL_TICKS;
+    public static ModConfigSpec.IntValue SOUL_CAMPFIRE_BONFIRE_FUEL_TICKS;
+    public static ModConfigSpec.BooleanValue CAMPFIRE_BONFIRE_LOSE_FUEL_EXTINGUISH;
+    public static ModConfigSpec.BooleanValue SOUL_CAMPFIRE_BONFIRE_LOSE_FUEL_EXTINGUISH;
+    public static ModConfigSpec.IntValue CAMPFIRE_BONFIRE_BURN_MULT;
+    public static ModConfigSpec.IntValue SOUL_CAMPFIRE_BONFIRE_BURN_MULT;
+    public static ModConfigSpec.IntValue CAMPFIRE_BONFIRE_COOKING_MULT;
+    public static ModConfigSpec.IntValue SOUL_CAMPFIRE_BONFIRE_COOKING_MULT;
+    public static ModConfigSpec.BooleanValue CAMPFIRE_BONFIRE_FIRESPREAD;
+    public static ModConfigSpec.BooleanValue SOUL_CAMPFIRE_BONFIRE_FIRESPREAD;
+    //public static ModConfigSpec.BooleanValue SOUL_CAMPFIRE_BRIGHT_BONFIRE;
 
 
     static {
-        final ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
+        final ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
 
         builder.push("Misc Options");
         NEED_FIRE_POKER = builder.comment("Is a fire poker needed for checking campfire info? Sneak + right-click with an empty hand if 'false' - Default: true")
@@ -311,11 +311,11 @@ public class ServerConfig {
         SERVER_SPEC = builder.build();
     }
 
-
-    public static void loadConfig(ForgeConfigSpec serverSpec, Path configPath) {
-        final CommentedFileConfig configData = CommentedFileConfig.builder(configPath).sync()
-                .autosave().writingMode(WritingMode.REPLACE).build();
-        configData.load();
-        serverSpec.setConfig(configData);
-    }
+// Never understood what this did, but "defaultconfig" does not exist anymore, so unneeded.
+//    public static void loadConfig(ModConfigSpec serverSpec, Path configPath) {
+//        final CommentedFileConfig configData = CommentedFileConfig.builder(configPath).sync()
+//                .autosave().writingMode(WritingMode.REPLACE).build();
+//        configData.load();
+//        serverSpec.setConfig(configData);
+//    }
 }

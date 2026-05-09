@@ -1,27 +1,30 @@
 package com.jemmerl.jemscampfires;
 
-import com.jemmerl.jemscampfires.compat.StarlightCompat;
 import com.jemmerl.jemscampfires.init.ClientConfig;
 import com.jemmerl.jemscampfires.init.ServerConfig;
 import com.jemmerl.jemscampfires.init.fueloverrides.FuelOverrideDataManager;
 import com.jemmerl.jemscampfires.items.ModItems;
-import com.jemmerl.jemscampfires.network.JCPacketHandler;
+import com.jemmerl.jemscampfires.network.ClientPacketHandler;
+import com.jemmerl.jemscampfires.network.S2C_CFInfoPkt;
 import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.FMLConfig;
-import net.minecraftforge.fml.loading.FMLPaths;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.loading.FMLConfig;
+import net.neoforged.fml.loading.FMLPaths;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.handlers.ServerPayloadHandler;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@SuppressWarnings("removal")
 @Mod(JemsCampfires.MOD_ID)
 public class JemsCampfires
 {
@@ -29,7 +32,6 @@ public class JemsCampfires
     public static final Logger LOGGER = LogManager.getLogger();
 
     // TODO Future
-    //  Cache primitive of the config? Could speed up performance if its ever found an issue.
     //  Run profiling somehow. Never done that before.
 
     // This bug happened a while ago. Haven't seen it since. Race condition with checkBlock?
@@ -41,31 +43,28 @@ public class JemsCampfires
      */
 
 
-    public JemsCampfires() {
-        IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
+    public JemsCampfires(final IEventBus modEventBus, final ModContainer modContainer) {
 
-        eventBus.addListener(this::setup);
-//        eventBus.addListener(this::doClientStuff);
-        eventBus.addListener(this::buildContents);
+        modEventBus.addListener(this::buildContents);
 
-        ModItems.register(eventBus);
+        ModItems.register(modEventBus);
 
-        MinecraftForge.EVENT_BUS.addListener(this::onAddReloadListeners);
-        MinecraftForge.EVENT_BUS.register(this);
+        NeoForge.EVENT_BUS.addListener(this::onAddReloadListeners);
+//        NeoForge.EVENT_BUS.register(this);
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ClientConfig.CLIENT_SPEC);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ServerConfig.SERVER_SPEC);
-        ServerConfig.loadConfig(ServerConfig.SERVER_SPEC, FMLPaths.GAMEDIR.get()
-                .resolve(FMLConfig.defaultConfigPath()).resolve(MOD_ID + "-server.toml"));
+        modContainer.registerConfig(ModConfig.Type.CLIENT, ClientConfig.CLIENT_SPEC);
+        modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.SERVER_SPEC);
+//        ServerConfig.loadConfig(ServerConfig.SERVER_SPEC, FMLPaths.GAMEDIR.get()
+//                .resolve(FMLConfig.defaultConfigPath()).resolve(MOD_ID + "-server.toml"));
 
-        StarlightCompat.init();
+//        StarlightCompat.init();
     }
 
-    private void setup(final FMLCommonSetupEvent event) {
-        event.enqueueWork(() -> {
-            JCPacketHandler.register();
-        });
-    }
+//    private void setup(final FMLCommonSetupEvent event) {
+//        event.enqueueWork(() -> {
+//            JCPacketHandler.register();
+//        });
+//    }
 
 //    private void doClientStuff(final FMLClientSetupEvent event) {}
 

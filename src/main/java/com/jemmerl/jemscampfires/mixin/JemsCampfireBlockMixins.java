@@ -3,9 +3,11 @@ package com.jemmerl.jemscampfires.mixin;
 import com.jemmerl.jemscampfires.init.ServerConfig;
 import com.jemmerl.jemscampfires.util.IFueledCampfire;
 import com.jemmerl.jemscampfires.util.Util;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -21,14 +23,13 @@ import net.minecraft.world.level.block.entity.CampfireBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.registries.ForgeRegistries;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import javax.annotation.Nullable;
 
@@ -38,14 +39,15 @@ public abstract class JemsCampfireBlockMixins extends BaseEntityBlock {
         super(builder);
     }
     
+    @Final
     @Shadow
     private boolean spawnParticles;
 
-    @Inject(at = @At(value = "INVOKE", target = "net/minecraft/world/level/block/entity.CampfireBlockEntity.dowse()V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD,
+    @Inject(at = @At(value = "INVOKE", target = "net/minecraft/world/level/block/entity.CampfireBlockEntity.dowse()V", shift = At.Shift.AFTER),
             method = "dowse(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/level/LevelAccessor;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)V")
-    private static void extinguishDropsAndEternal(Entity arg0, LevelAccessor pLevel, BlockPos pPos, BlockState pState, CallbackInfo ci, BlockEntity blockentity) {
+    private static void extinguishDropsAndEternal(Entity arg0, LevelAccessor pLevel, BlockPos pPos, BlockState pState, CallbackInfo ci, @Local BlockEntity blockentity) {
         if (!pLevel.isClientSide()) {
-            ((IFueledCampfire)blockentity).doExtinguishDrops();
+            ((IFueledCampfire)blockentity).jems_fueled_campfires$doExtinguishDrops();
         }
     }
 
@@ -56,8 +58,9 @@ public abstract class JemsCampfireBlockMixins extends BaseEntityBlock {
             IFueledCampfire cfTileEntity = Util.getCFTE(worldIn, pos);
             if (cfTileEntity != null) {
                 // Override world-genned eternal status when placed by a player
-                cfTileEntity.setEternal(ForgeRegistries.BLOCKS.getKey(state.getBlock()).toString().contains("soul") ?
-                        ServerConfig.PLACE_SOUL_CAMPFIRE_ETERNAL.get() : ServerConfig.PLACE_CAMPFIRE_ETERNAL.get());
+//                cfTileEntity.jems_fueled_campfires$setEternal(BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString().contains("soul") ?
+//                        ServerConfig.PLACE_SOUL_CAMPFIRE_ETERNAL.get() : ServerConfig.PLACE_CAMPFIRE_ETERNAL.get());
+                cfTileEntity.jems_fueled_campfires$setPlayerPlaced();
             }
         }
     }
@@ -65,16 +68,16 @@ public abstract class JemsCampfireBlockMixins extends BaseEntityBlock {
     @Inject(at = @At("RETURN"), method = "getStateForPlacement(Lnet/minecraft/world/item/context/BlockPlaceContext;)Lnet/minecraft/world/level/block/state/BlockState;", cancellable = true)
     private void getStateForPlacement(BlockPlaceContext context, CallbackInfoReturnable<BlockState> cir) {
         cir.setReturnValue(cir.getReturnValue()
-                .setValue(BlockStateProperties.LIT, (ForgeRegistries.BLOCKS.getKey(this.asBlock()).toString().contains("soul")) ?
+                .setValue(BlockStateProperties.LIT, (BuiltInRegistries.BLOCK.getKey(this.asBlock()).toString().contains("soul")) ?
                         ServerConfig.PLACE_SOUL_CAMPFIRE_LIT.get() : ServerConfig.PLACE_CAMPFIRE_LIT.get()));
     }
 
-    @Inject(at = @At(value = "INVOKE_ASSIGN", target = "net/minecraft/world/entity/player/Player.getItemInHand(Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/item/ItemStack;", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true,
-                method = "use(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/phys/BlockHitResult;)Lnet/minecraft/world/InteractionResult;")
-    public void use(BlockState arg0, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult arg5, CallbackInfoReturnable<InteractionResult> cir, BlockEntity blockentity, CampfireBlockEntity campfireblockentity, ItemStack itemstack) {
-        if (!ServerConfig.NEED_FIRE_POKER.get() && pPlayer.isCrouching() && itemstack.isEmpty() && (campfireblockentity instanceof IFueledCampfire)) {
-            Util.dispatchCampfireInfo(pLevel, pPos, arg0, pPlayer, (IFueledCampfire)campfireblockentity);
-            cir.setReturnValue(InteractionResult.SUCCESS);
+    @Inject(at = @At(value = "INVOKE_ASSIGN", target = "net/minecraft/world/entity/player/Player.getItemInHand(Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/item/ItemStack;",
+            shift = At.Shift.AFTER), cancellable = true, method = "useItemOn")
+    public void use(ItemStack arg0, BlockState arg1, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult arg6, CallbackInfoReturnable<ItemInteractionResult> cir, @Local CampfireBlockEntity campfireblockentity, @Local(ordinal = 1) ItemStack itemstack) {
+        if (!ServerConfig.NEED_FIRE_POKER.get() && player.isCrouching() && itemstack.isEmpty() && (campfireblockentity instanceof IFueledCampfire)) {
+            Util.dispatchCampfireInfo(level, pos, arg1, player, (IFueledCampfire)campfireblockentity);
+            cir.setReturnValue(ItemInteractionResult.SUCCESS);
         }
     }
 
@@ -86,8 +89,8 @@ public abstract class JemsCampfireBlockMixins extends BaseEntityBlock {
         if (pos == BlockPos.ZERO) return 1;
 
         IFueledCampfire cfTileEntity = Util.getCFTE(level, pos);
-        if ((cfTileEntity == null) || (cfTileEntity.getEternal() && !ServerConfig.FUEL_BASED_LIGHTING_ETERNAL.get())) return super.getLightEmission(state, level, pos);
-        int light = cfTileEntity.getFuelLightLevel();
+        if ((cfTileEntity == null) || (cfTileEntity.jems_fueled_campfires$getEternal() && !ServerConfig.FUEL_BASED_LIGHTING_ETERNAL.get())) return super.getLightEmission(state, level, pos);
+        int light = cfTileEntity.jems_fueled_campfires$getFuelLightLevel();
 
         // Note: Thought this was helping the initial lighting flicker, but doesn't seem to be true.
         //  Also, it completely fries Starlight.

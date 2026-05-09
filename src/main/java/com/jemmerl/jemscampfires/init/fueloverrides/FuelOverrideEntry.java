@@ -12,7 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.common.Tags;
 
 public class FuelOverrideEntry {
 
@@ -22,7 +22,7 @@ public class FuelOverrideEntry {
 
     public static Codec<FuelOverrideEntry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                     ExtraCodecs.intRange(1, 1000000000).optionalFieldOf("fuel_ticks", 1).forGetter(entry -> entry.fuelticks),
-                    Codec.either(Codec.STRING.xmap(s -> s.startsWith("#") ? new ResourceLocation(s.substring(1)) : null,
+                    Codec.either(Codec.STRING.xmap(s -> s.startsWith("#") ? ResourceLocation.parse(s.substring(1)) : null,
                                            ResourceLocation::toString),
                     HolderSetCodec.create(Registries.ITEM, BuiltInRegistries.ITEM.holderByNameCodec(), false))
                             .fieldOf("input").forGetter(entry -> entry.rawValues))
@@ -50,8 +50,8 @@ public class FuelOverrideEntry {
         if (values == null) {
             rawValues
                     .ifLeft(rl -> {
-                        TagKey<Item> itemTagKey = TagKey.create(ForgeRegistries.Keys.ITEMS, rl);
-                        if (ForgeRegistries.ITEMS.tags().getTag(itemTagKey).isBound()) {
+                        TagKey<Item> itemTagKey = TagKey.create(Registries.ITEM, rl);
+                        if (BuiltInRegistries.ITEM.getTag(itemTagKey).isPresent()) {
                             this.values = BuiltInRegistries.ITEM.getOrCreateTag(itemTagKey);
                         } else {
                             JemsCampfires.LOGGER.error("Tag {} not found for fuel override with fuel value {}.", itemTagKey, fuelticks);

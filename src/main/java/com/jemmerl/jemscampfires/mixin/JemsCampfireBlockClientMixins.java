@@ -27,23 +27,24 @@ public abstract class JemsCampfireBlockClientMixins extends BaseEntityBlock {
     @Shadow
     private boolean spawnParticles;
 
-    @Inject(at = @At(value = "JUMP", opcode = Opcodes.IFEQ, ordinal = 1), locals = LocalCapture.CAPTURE_FAILHARD,
+    //value = "JUMP", opcode = Opcodes.IFEQ, ordinal = 1
+    @Inject(at = @At("HEAD"),
             method = "animateTick(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;)V")
-    private void animateTick(BlockState pState, Level pLevel, BlockPos pPos, RandomSource pRand, CallbackInfo ci) {
-        if (this.spawnParticles && ClientConfig.BONFIRE_EXTRA_PARTICLES.get() && checkBonfire(pLevel, pPos)) {
-            pLevel.addAlwaysVisibleParticle(ParticleTypes.CAMPFIRE_SIGNAL_SMOKE, true,
-                    (double)pPos.getX() + 0.5D + pRand.nextDouble() / 3.0D * (double)(pRand.nextBoolean() ? 1 : -1),
-                    (double)pPos.getY() + pRand.nextDouble() + pRand.nextDouble(),
-                    (double)pPos.getZ() + 0.5D + pRand.nextDouble() / 3.0D * (double)(pRand.nextBoolean() ? 1 : -1),
-                    (pRand.nextFloat()*0.02D-0.01D), 0.07D, (pRand.nextFloat()*0.02D-0.01D));
-            pLevel.addParticle(ParticleTypes.LAVA, (double)pPos.getX() + 0.5D, (double)pPos.getY() + 0.5D, (double)pPos.getZ() + 0.5D, pRand.nextFloat(), 10.0E-5D, pRand.nextFloat());
-            pLevel.addParticle(ParticleTypes.LAVA, (double)pPos.getX() + 0.5D, (double)pPos.getY() + 0.5D, (double)pPos.getZ() + 0.5D, (pRand.nextFloat() / 1.5F), 8.0E-5D, (pRand.nextFloat() / 1.5F));
-            pLevel.addParticle(ParticleTypes.LAVA, (double)pPos.getX() + 0.5D, (double)pPos.getY() + 0.5D, (double)pPos.getZ() + 0.5D, (pRand.nextFloat() / 2.0F), 5.0E-5D, (pRand.nextFloat() / 2.0F));
+    private void animateTickanimateTick(BlockState state, Level arg1, BlockPos arg2, RandomSource arg3, CallbackInfo ci) {
+        if (this.spawnParticles && ClientConfig.BONFIRE_EXTRA_PARTICLES.get() && checkBonfire(arg1, arg2)) {
+            arg1.addAlwaysVisibleParticle(ParticleTypes.CAMPFIRE_SIGNAL_SMOKE, true,
+                    (double)arg2.getX() + 0.5D + arg3.nextDouble() / 3.0D * (double)(arg3.nextBoolean() ? 1 : -1),
+                    (double)arg2.getY() + arg3.nextDouble() + arg3.nextDouble(),
+                    (double)arg2.getZ() + 0.5D + arg3.nextDouble() / 3.0D * (double)(arg3.nextBoolean() ? 1 : -1),
+                    (arg3.nextFloat()*0.02D-0.01D), 0.07D, (arg3.nextFloat()*0.02D-0.01D));
+            arg1.addParticle(ParticleTypes.LAVA, (double)arg2.getX() + 0.5D, (double)arg2.getY() + 0.5D, (double)arg2.getZ() + 0.5D, arg3.nextFloat(), 10.0E-5D, arg3.nextFloat());
+            arg1.addParticle(ParticleTypes.LAVA, (double)arg2.getX() + 0.5D, (double)arg2.getY() + 0.5D, (double)arg2.getZ() + 0.5D, (arg3.nextFloat() / 1.5F), 8.0E-5D, (arg3.nextFloat() / 1.5F));
+            arg1.addParticle(ParticleTypes.LAVA, (double)arg2.getX() + 0.5D, (double)arg2.getY() + 0.5D, (double)arg2.getZ() + 0.5D, (arg3.nextFloat() / 2.0F), 5.0E-5D, (arg3.nextFloat() / 2.0F));
         }
     }
 
     private boolean checkBonfire(Level worldIn, BlockPos posIn) {
         IFueledCampfire cfTileEntity = Util.getCFTE(worldIn, posIn);
-        return ((cfTileEntity != null) && (cfTileEntity.getBonfire()));
+        return ((cfTileEntity != null) && (cfTileEntity.jems_fueled_campfires$getBonfire()));
     }
 }

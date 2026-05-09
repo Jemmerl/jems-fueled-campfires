@@ -8,10 +8,26 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadHandler;
 
 import java.text.DecimalFormat;
 
 public class ClientPacketHandler {
+
+    public static void handle(S2C_CFInfoPkt pkt, IPayloadContext context) {
+        byte stateBitSet = pkt.bitMap();
+        ChatFormatting color = pkt.timeColor();
+        if (color == null) color = ChatFormatting.WHITE;
+
+        boolean lit = ((stateBitSet & 1) == 1);
+        boolean waterlogged = (((stateBitSet >> 1) & 1) == 1);
+        boolean bonfire = (((stateBitSet >> 2) & 1) == 1);
+        boolean eternal = (((stateBitSet >> 3) & 1) == 1);
+        ChatFormatting timeColor = color;
+        int fuelTicks = pkt.fuelTicks();
+        campfireMessage(lit, waterlogged, bonfire, eternal, timeColor, fuelTicks);
+    }
 
     public static void campfireMessage(boolean lit, boolean waterlogged, boolean bonfire, boolean eternal, ChatFormatting timeColor, int fuelTicks) {
         ClientLevel clientLevel = Minecraft.getInstance().level;
@@ -83,5 +99,4 @@ public class ClientPacketHandler {
         DecimalFormat formatter = new DecimalFormat("0.#####");
         return formatter.format(doubleOut);
     }
-
 }

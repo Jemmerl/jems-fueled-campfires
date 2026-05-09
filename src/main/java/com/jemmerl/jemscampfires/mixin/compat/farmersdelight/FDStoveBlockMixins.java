@@ -4,23 +4,17 @@ import com.jemmerl.jemscampfires.init.ServerConfig;
 import com.jemmerl.jemscampfires.util.IFueledCampfire;
 import com.jemmerl.jemscampfires.util.Util;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.phys.BlockHitResult;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import vectorwing.farmersdelight.common.block.AbstractStoveBlock;
 
 import javax.annotation.Nullable;
@@ -44,7 +38,8 @@ public abstract class FDStoveBlockMixins extends BaseEntityBlock {
             IFueledCampfire cfTileEntity = Util.getCFTE(worldIn, pos);
             if (cfTileEntity != null) {
                 // Override world-genned eternal status when placed by a player
-                cfTileEntity.setEternal(ServerConfig.PLACE_CAMPFIRE_ETERNAL.get());
+//                cfTileEntity.jems_fueled_campfires$setEternal(ServerConfig.PLACE_CAMPFIRE_ETERNAL.get());
+                cfTileEntity.jems_fueled_campfires$setPlayerPlaced();
             }
         }
     }
@@ -57,18 +52,18 @@ public abstract class FDStoveBlockMixins extends BaseEntityBlock {
                 .setValue(BlockStateProperties.LIT, ServerConfig.PLACE_CAMPFIRE_LIT.get()));
     }
 
-    @Inject(at = @At(value = "HEAD"),
-            locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true,
-            method = "use(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/phys/BlockHitResult;)Lnet/minecraft/world/InteractionResult;",
-            require = 0)
-    public void use(BlockState state, Level arg1, BlockPos arg2, Player arg3, InteractionHand arg4, BlockHitResult arg5, CallbackInfoReturnable<InteractionResult> cir) {
-        if (!ServerConfig.FARMERS_DELIGHT_STOVE_COMPAT.get()) return;
-
-        ItemStack heldStack = arg3.getItemInHand(arg4);
-        BlockEntity tileEntity = arg1.getBlockEntity(arg2);
-        if (!ServerConfig.NEED_FIRE_POKER.get() && arg3.isCrouching() && heldStack.isEmpty() && (tileEntity instanceof IFueledCampfire campfireEntity)) {
-            Util.dispatchCampfireInfo(arg1, arg2, state, arg3, campfireEntity);
-            cir.setReturnValue(InteractionResult.SUCCESS);
-        }
-    }
+//    @Inject(at = @At(value = "HEAD"),
+//            locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true,
+//            method = "use(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/phys/BlockHitResult;)Lnet/minecraft/world/InteractionResult;",
+//            require = 0)
+//    public void use(BlockState state, Level arg1, BlockPos arg2, Player arg3, InteractionHand arg4, BlockHitResult arg5, CallbackInfoReturnable<InteractionResult> cir) {
+//        if (!ServerConfig.FARMERS_DELIGHT_STOVE_COMPAT.get()) return;
+//
+//        ItemStack heldStack = arg3.getItemInHand(arg4);
+//        BlockEntity tileEntity = arg1.getBlockEntity(arg2);
+//        if (!ServerConfig.NEED_FIRE_POKER.get() && arg3.isCrouching() && heldStack.isEmpty() && (tileEntity instanceof IFueledCampfire campfireEntity)) {
+//            Util.dispatchCampfireInfo(arg1, arg2, state, arg3, campfireEntity);
+//            cir.setReturnValue(InteractionResult.SUCCESS);
+//        }
+//    }
 }

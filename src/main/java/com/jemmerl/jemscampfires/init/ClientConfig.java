@@ -1,9 +1,9 @@
 package com.jemmerl.jemscampfires.init;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class ClientConfig {
-    public static ForgeConfigSpec CLIENT_SPEC;
+    public static ModConfigSpec CLIENT_SPEC;
 
     private static final boolean bonfire_extra_particles = true; // Render additional bonfire embers and smoke - Default true
     private static final boolean cf_info_in_chat = false; // Campfire info messages are logged in the chat window instead of the action-bar - Default false
@@ -11,14 +11,14 @@ public class ClientConfig {
     // Debug
     private static final boolean debug_ticks_remaining = false; // Debug/Dev: Campfire info messages also show the time remaining in ticks - Default false
 
-    public static ForgeConfigSpec.BooleanValue BONFIRE_EXTRA_PARTICLES;
-    public static ForgeConfigSpec.BooleanValue CF_INFO_IN_CHAT;
+    public static ModConfigSpec.BooleanValue BONFIRE_EXTRA_PARTICLES;
+    public static ModConfigSpec.BooleanValue CF_INFO_IN_CHAT;
 
     // Debug
-    public static ForgeConfigSpec.BooleanValue DEBUG_TICKS_REMAINING;
+    public static ModConfigSpec.BooleanValue DEBUG_TICKS_REMAINING;
 
     static {
-        final ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
+        final ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
 
         builder.push("Debug/Dev Options");
         DEBUG_TICKS_REMAINING = builder

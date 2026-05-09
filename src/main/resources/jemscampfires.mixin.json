@@ -1,7 +1,7 @@
 {
   "required": true,
   "package": "com.jemmerl.jemscampfires.mixin",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_21",
   "refmap": "jemscampfires.mixin-refmap.json",
   "mixins": [
     "JemsCampfireBlockMixins",
@@ -13,7 +13,7 @@
     "JemsCampfireBlockClientMixins"
   ],
   "plugin": "com.jemmerl.jemscampfires.mixin.JemsCampfireMixinPlugin",
-  "minVersion": "0.8",
+  "minVersion": "0.8.4",
   "injectors": {
     "defaultRequire": 1
   }
