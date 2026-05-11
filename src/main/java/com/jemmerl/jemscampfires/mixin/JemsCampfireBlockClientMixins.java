@@ -10,13 +10,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(value = CampfireBlock.class, priority = 0)
 public abstract class JemsCampfireBlockClientMixins extends BaseEntityBlock {
@@ -27,7 +25,6 @@ public abstract class JemsCampfireBlockClientMixins extends BaseEntityBlock {
     @Shadow
     private boolean spawnParticles;
 
-    //value = "JUMP", opcode = Opcodes.IFEQ, ordinal = 1
     @Inject(at = @At("HEAD"),
             method = "animateTick(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;)V")
     private void animateTickanimateTick(BlockState state, Level arg1, BlockPos arg2, RandomSource arg3, CallbackInfo ci) {

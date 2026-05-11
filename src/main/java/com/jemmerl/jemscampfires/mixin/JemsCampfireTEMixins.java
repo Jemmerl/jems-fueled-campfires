@@ -1,16 +1,21 @@
 package com.jemmerl.jemscampfires.mixin;
 
+import com.jemmerl.jemscampfires.JemsCampfires;
 import com.jemmerl.jemscampfires.init.ModTags;
 import com.jemmerl.jemscampfires.init.ServerConfig;
 import com.jemmerl.jemscampfires.util.IFueledCampfire;
 import com.jemmerl.jemscampfires.util.Util;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -26,6 +31,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.CampfireBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -34,7 +40,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.List;
 
@@ -76,39 +81,40 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
 
     @Override
     public void onLoad() {
-        if ((level != null) && (!level.isClientSide())) {
+        if (level != null) {
             jems_fueled_campfires$isSoul = (BuiltInRegistries.BLOCK.getKey(getBlockState().getBlock()).toString().contains("soul"));
+            if (!level.isClientSide()) {
+                // This is the first load of the campfire TE
+                // Get settings/properties that only matter or are needed when the campfire is first placed
+                if (jems_fueled_campfires$fuelTicks < 0) {
 
-            // This is the first load of the campfire TE
-            // Get settings/properties that only matter or are needed when the campfire is first placed
-            if (jems_fueled_campfires$fuelTicks < 0) {
+                    //  If the player check compat. fix is enabled, this checks if a player is nearby but did
+                    //  not place it physically. This will fix an issue where campfires that are player made but not
+                    //  placed directly, such as with build-in-world campfire mods, are not properly handled.
+                    //  <!> It could cause issues when spawning in near a world-genned campfire, but it's rare.
+                    if (ServerConfig.PLAYER_CHECK_FIX.get() && level.hasNearbyAlivePlayer(worldPosition.getX()+0.5, worldPosition.getY()+0.5, worldPosition.getZ()+0.5, 5.5D)) {
+                        jems_fueled_campfires$playerPlaced = true;
+                    }
 
-                //  If the player check compat. fix is enabled, this checks if a player is nearby but did
-                //  not place it physically. This will fix an issue where campfires that are player made but not
-                //  placed directly, such as with build-in-world campfire mods, are not properly handled.
-                //  <!> It could cause issues when spawning in near a world-genned campfire, but it's rare.
-                if (ServerConfig.PLAYER_CHECK_FIX.get() && level.hasNearbyAlivePlayer(worldPosition.getX()+0.5, worldPosition.getY()+0.5, worldPosition.getZ()+0.5, 5.5D)) {
-                    jems_fueled_campfires$playerPlaced = true;
+                    // Now "onLoad" in the BlockEntity runs before "setPlacedBy" in the Block
+                    if (jems_fueled_campfires$playerPlaced) {
+                        jems_fueled_campfires$isEternal = jems_fueled_campfires$isSoul ?
+                                ServerConfig.PLACE_SOUL_CAMPFIRE_ETERNAL.get() : ServerConfig.PLACE_CAMPFIRE_ETERNAL.get();
+                    } else {
+                        jems_fueled_campfires$isEternal = jems_fueled_campfires$isSoul ?
+                                ServerConfig.SPAWN_SOUL_CAMPFIRE_ETERNAL.get() : ServerConfig.SPAWN_CAMPFIRE_ETERNAL.get();
+
+                    }
+
+                    jems_fueled_campfires$fuelTicks = Math.min((jems_fueled_campfires$isSoul ? ServerConfig.SOUL_CAMPFIRE_INITIAL_FUEL_TICKS.get() : ServerConfig.CAMPFIRE_INITIAL_FUEL_TICKS.get()), jems_fueled_campfires$getStandardMaxFuelTicks(jems_fueled_campfires$isSoul));
                 }
 
-                // Now "onLoad" in the BlockEntity runs before "setPlacedBy" in the Block
-                if (jems_fueled_campfires$playerPlaced) {
-                    jems_fueled_campfires$isEternal = jems_fueled_campfires$isSoul ?
-                            ServerConfig.PLACE_SOUL_CAMPFIRE_ETERNAL.get() : ServerConfig.PLACE_CAMPFIRE_ETERNAL.get();
-                } else {
-                    jems_fueled_campfires$isEternal = jems_fueled_campfires$isSoul ?
-                            ServerConfig.SPAWN_SOUL_CAMPFIRE_ETERNAL.get() : ServerConfig.SPAWN_CAMPFIRE_ETERNAL.get();
-
+                if (!ServerConfig.FUEL_BASED_LIGHTING.get() || (jems_fueled_campfires$isEternal && !ServerConfig.FUEL_BASED_LIGHTING_ETERNAL.get())) {
+                    jems_fueled_campfires$updateLighting();
+                    return;
                 }
-
-                jems_fueled_campfires$fuelTicks = Math.min((jems_fueled_campfires$isSoul ? ServerConfig.SOUL_CAMPFIRE_INITIAL_FUEL_TICKS.get() : ServerConfig.CAMPFIRE_INITIAL_FUEL_TICKS.get()), jems_fueled_campfires$getStandardMaxFuelTicks(jems_fueled_campfires$isSoul));
+                jems_fueled_campfires$dynamicLightLevelUpdate();
             }
-
-            if (!ServerConfig.FUEL_BASED_LIGHTING.get() || (jems_fueled_campfires$isEternal && !ServerConfig.FUEL_BASED_LIGHTING_ETERNAL.get())) {
-                jems_fueled_campfires$updateLighting();
-                return;
-            }
-            jems_fueled_campfires$dynamicLightLevelUpdate();
         }
     }
 
@@ -130,9 +136,9 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
     }
 
     @Inject(at = @At(value = "FIELD", target = "net/minecraft/world/level/block/entity/CampfireBlockEntity.cookingProgress:[I",
-            opcode = Opcodes.GETFIELD, args = "array=get", ordinal = 0, shift = At.Shift.BY, by = -2), locals = LocalCapture.CAPTURE_FAILHARD,
+            opcode = Opcodes.GETFIELD, args = "array=get", ordinal = 0, shift = At.Shift.BY, by = -2),
             method = "cookTick(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/entity/CampfireBlockEntity;)V")
-    private static void cookAndDrop(Level arg0, BlockPos arg1, BlockState arg2, CampfireBlockEntity pBlockEntity, CallbackInfo ci, boolean flag, int i, ItemStack itemstack) {
+    private static void cookAndDrop(Level arg0, BlockPos arg1, BlockState arg2, CampfireBlockEntity pBlockEntity, CallbackInfo ci, @Local int i) {
         IFueledCampfire fueledCampfire = (IFueledCampfire) pBlockEntity;
         if (fueledCampfire.jems_fueled_campfires$getEternal() && jems_fueled_campfires$getLoseEternalCook(fueledCampfire.jems_fueled_campfires$isSoul())) {
             fueledCampfire.jems_fueled_campfires$setEternal(false);
@@ -481,30 +487,19 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
 
     @Override
     public void jems_fueled_campfires$setEternal(boolean eternal) {
-        if ((level == null) || !ServerConfig.FUEL_BASED_LIGHTING.get() || !ServerConfig.FUEL_BASED_LIGHTING_ETERNAL.get()) {
-            jems_fueled_campfires$setFuelLightLevel(jems_fueled_campfires$isSoul ? 10 : 15);
+        jems_fueled_campfires$isEternal = eternal;
+        setChanged();
+        if ((level == null) || !ServerConfig.FUEL_BASED_LIGHTING.get() || (jems_fueled_campfires$isEternal && !ServerConfig.FUEL_BASED_LIGHTING_ETERNAL.get())) {
+            jems_fueled_campfires$setFuelLightLevel(0);
         } else {
             jems_fueled_campfires$dynamicLightLevelUpdate();
         }
-        jems_fueled_campfires$isEternal = eternal;
     }
 
     @Override
     public boolean jems_fueled_campfires$getBonfire() {
         return jems_fueled_campfires$isBonfire;
     }
-
-    /*
-    Block."flag"
-    Sets a block state into this world.Flags are as follows:
-    1 will cause a block update.
-    2 will send the change to clients.
-    4 will prevent the block from being re-rendered.
-    8 will force any re-renders to run on the main thread instead
-    16 will prevent neighbor reactions (e.g. fences connecting, observers pulsing).
-    32 will prevent neighbor reactions from spawning drops.
-    64 will signify the block is being moved. Flags can be OR-ed
-     */
 
     @Override
     public void jems_fueled_campfires$setBonfire(boolean bonfire) {
@@ -534,10 +529,13 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
     @Override
     public void jems_fueled_campfires$setFuelLightLevel(int fuelLightLevel) {
         if (this.jems_fueled_campfires$fuelLightLevel != fuelLightLevel) {
-            this.jems_fueled_campfires$fuelLightLevel = fuelLightLevel;
-            if (level == null) {
-                return;
+            if (fuelLightLevel <= 0) {
+                jems_fueled_campfires$fuelLightLevel = jems_fueled_campfires$isSoul ? 10 : 15;
+            } else {
+                jems_fueled_campfires$fuelLightLevel = fuelLightLevel;
             }
+
+            if (level == null) return;
             jems_fueled_campfires$updateLighting();
         }
     }
@@ -550,11 +548,13 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
 
     @Override
     public void jems_fueled_campfires$updateLighting() {
+        AuxiliaryLightManager lightManager = level.getAuxLightManager(worldPosition);
+        if (lightManager != null) {
+            lightManager.setLightAt(worldPosition, jems_fueled_campfires$fuelLightLevel);
+        }
+
         BlockState state = getBlockState();
-//        level.sendBlockUpdated(worldPosition, state, state, 18); // Uses 2 client updates, and 16 no observers
         level.sendBlockUpdated(worldPosition, state, state, 26); // Uses 2 client updates, 8 forces main render thread, and 16 no observers
-        setChanged();
-        level.getChunkSource().getLightEngine().checkBlock(worldPosition);
     }
 
     @Override
@@ -572,50 +572,51 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
     //                                            Data Handling Stuff                                              //
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//    @Override
-//    public CompoundTag getUpdateTag() {
-//        CompoundTag compoundtag = new CompoundTag();
-//        compoundtag.putBoolean("IsBonfire", isBonfire);
-//        if (ServerConfig.FUEL_BASED_LIGHTING.get() && (fuelLightLevel != -1)) {
-//            compoundtag.putByte("FuelLight", (byte)fuelLightLevel);
-//        }
-//        ContainerHelper.saveAllItems(compoundtag, items, true);
-//        return compoundtag;
-//    }
-//
-//    @Inject(at = @At("RETURN"), method = "saveAdditional(Lnet/minecraft/nbt/CompoundTag;)V", cancellable = true)
-//    private void saveFueled(CompoundTag nbtTag, CallbackInfo ci) {
-//        if (nbtTag != null) {
-//            nbtTag.putInt("FuelTicks", fuelTicks);
-//            nbtTag.putBoolean("IsEternal", isEternal);
-//            nbtTag.putBoolean("IsBonfire", isBonfire);
-//            if (ServerConfig.FUEL_BASED_LIGHTING.get()) {
-//                nbtTag.putByte("FuelLight", (byte) fuelLightLevel);
-//            }
-//        }
-//    }
-//
-//    @Inject(at = @At("RETURN"), method = "load(Lnet/minecraft/nbt/CompoundTag;)V")
-//    private void loadFueled(CompoundTag nbtTag, CallbackInfo ci) {
-//        if (nbtTag.contains("FuelTicks", 3)) {
-//            jems_fueled_campfires$setFuelTicks(nbtTag.getInt("FuelTicks"));
-//        }
-//        if (nbtTag.contains("IsEternal", 99)) {
-//            jems_fueled_campfires$setEternal(nbtTag.getBoolean("IsEternal"));
-//        } else {
-//            jems_fueled_campfires$setEternal(false); // Ensure eternal is false if failed to load NBT
-//        }
-//        if (nbtTag.contains("IsBonfire", 99)) {
-//            jems_fueled_campfires$setBonfire(nbtTag.getBoolean("IsBonfire"));
-//        }
-//
-//        if (!ServerConfig.FUEL_BASED_LIGHTING.get() ||
-//                (isEternal && !ServerConfig.FUEL_BASED_LIGHTING_ETERNAL.get())) return;
-//
-//        if (nbtTag.contains("FuelLight", 1)) {
-//            jems_fueled_campfires$setFuelLightLevel(nbtTag.getByte("FuelLight"));
-//        } else {
-//            jems_fueled_campfires$setFuelLightLevel(0);
-//        }
-//    }
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        CompoundTag compoundtag = new CompoundTag();
+        compoundtag.putBoolean("IsBonfire", jems_fueled_campfires$isBonfire);
+        if (ServerConfig.FUEL_BASED_LIGHTING.get() && (jems_fueled_campfires$fuelLightLevel > 0)) {
+            compoundtag.putByte("FuelLight", (byte)jems_fueled_campfires$fuelLightLevel);
+        }
+        ContainerHelper.saveAllItems(compoundtag, items, true, registries);
+        return compoundtag;
+    }
+
+    @Inject(at = @At("RETURN"), method = "saveAdditional")
+    private void saveFueled(CompoundTag tag, HolderLookup.Provider registries, CallbackInfo ci) {
+        if (tag != null) {
+            tag.putInt("FuelTicks", jems_fueled_campfires$fuelTicks);
+            tag.putBoolean("IsEternal", jems_fueled_campfires$isEternal);
+            tag.putBoolean("IsBonfire", jems_fueled_campfires$isBonfire);
+            if (ServerConfig.FUEL_BASED_LIGHTING.get()) {
+                tag.putByte("FuelLight", (byte) jems_fueled_campfires$fuelLightLevel);
+            }
+        }
+    }
+
+    @Inject(at = @At("RETURN"), method = "loadAdditional")
+    private void loadFueled(CompoundTag tag, HolderLookup.Provider registries, CallbackInfo ci) {
+        if (tag.contains("FuelTicks", 3)) {
+            jems_fueled_campfires$setFuelTicks(tag.getInt("FuelTicks"));
+        }
+        if (tag.contains("IsEternal", 99)) {
+            jems_fueled_campfires$setEternal(tag.getBoolean("IsEternal"));
+        }
+        if (tag.contains("IsBonfire", 99)) {
+            jems_fueled_campfires$setBonfire(tag.getBoolean("IsBonfire"));
+        }
+
+        if (!ServerConfig.FUEL_BASED_LIGHTING.get() ||
+                (jems_fueled_campfires$isEternal && !ServerConfig.FUEL_BASED_LIGHTING_ETERNAL.get())) {
+            jems_fueled_campfires$setFuelLightLevel(0);
+            return;
+        }
+
+        if (tag.contains("FuelLight", 1)) {
+            jems_fueled_campfires$setFuelLightLevel(tag.getByte("FuelLight"));
+        } else {
+            jems_fueled_campfires$setFuelLightLevel(0);
+        }
+    }
 }

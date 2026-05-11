@@ -1,10 +1,6 @@
 package com.jemmerl.jemscampfires.init;
 
-import com.electronwill.nightconfig.core.file.CommentedFileConfig;
-import com.electronwill.nightconfig.core.io.WritingMode;
 import net.neoforged.neoforge.common.ModConfigSpec;
-
-import java.nio.file.Path;
 
 public class ServerConfig {
 
@@ -15,8 +11,8 @@ public class ServerConfig {
     private static final boolean need_fire_poker = true; // Is a fire poker needed for checking campfire info? Sneak + right-click with an empty hand if 'false' - Default: true
     private static final boolean extinguished_drop_items = false; // Will campfires drop items when extinguished (restores pre-1.17 behavior) - Default: false
     private static final boolean player_check_fix = false; // Enable compatibility fix for mods that let you build a campfire in-world, may rarely cause an issue with world-genned campfires - Default: false
-    private static final boolean fuel_based_lighting = false; // Enable campfire dimming when low on fuel. Changes may require world-restart. WARNING: Potentially buggy, may need manually updated on world/chunk-load, may not work with Starlight installed - Default: false
-    private static final boolean fuel_based_lighting_eternal = false; // "Enable campfire fuel dimming for eternal campfires. Requires \'enableFuelBasedLighting\' to be true. Changes may require world restart. WARNING: Potentially buggy, manually updating eternal campfires is inherently tricky - Default: false
+    private static final boolean fuel_based_lighting = false; // Enable campfire dimming when low on fuel. Changes require world-restart. WARNING: Potentially buggy - Default: false
+    private static final boolean fuel_based_lighting_eternal = false; // "Enable campfire fuel dimming for eternal campfires. Requires \'enableFuelBasedLighting\' to be true. Changes require world restart. WARNING: Potentially buggy, manually updating eternal campfires is inherently tricky - Default: false
     private static final boolean farmersDelightCompat = true; // Enable compatibility changes for the Farmer's Delight stove block - Default true
 
     // General
@@ -142,10 +138,10 @@ public class ServerConfig {
                 .define("dropItemsWhenExtinguish", extinguished_drop_items);
         PLAYER_CHECK_FIX = builder.comment("Enable compatibility fix for mods that let you build a campfire in-world, may rarely cause an issue with world-genned campfires - Default: false")
                 .define("enableCampfireBuildCompatibilityFix", player_check_fix);
-        FUEL_BASED_LIGHTING = builder.comment("Enable campfire dimming when low on fuel. Changes may require world-restart.",
-                        "WARNING: Potentially buggy, may need manually updated on world/chunk-load, may not work with Starlight installed - Default: false")
+        FUEL_BASED_LIGHTING = builder.comment("Enable campfire dimming when low on fuel. Changes require world-restart.",
+                        "WARNING: Potentially buggy - Default: false")
                 .worldRestart().define("enableFuelBasedLighting", fuel_based_lighting);
-        FUEL_BASED_LIGHTING_ETERNAL = builder.comment("Enable campfire fuel dimming for eternal campfires. Requires \'enableFuelBasedLighting\' to be true. Changes may require world restart.",
+        FUEL_BASED_LIGHTING_ETERNAL = builder.comment("Enable campfire fuel dimming for eternal campfires. Requires \'enableFuelBasedLighting\' to be true. Changes require world restart.",
                         "WARNING: Potentially buggy, manually updating eternal campfires is inherently tricky - Default: false")
                 .worldRestart().define("enableEternalFuelBasedLighting", fuel_based_lighting_eternal);
         FARMERS_DELIGHT_STOVE_COMPAT = builder.comment("Enable compatibility changes for the Farmer's Delight stove block - Default true")
@@ -311,11 +307,4 @@ public class ServerConfig {
         SERVER_SPEC = builder.build();
     }
 
-// Never understood what this did, but "defaultconfig" does not exist anymore, so unneeded.
-//    public static void loadConfig(ModConfigSpec serverSpec, Path configPath) {
-//        final CommentedFileConfig configData = CommentedFileConfig.builder(configPath).sync()
-//                .autosave().writingMode(WritingMode.REPLACE).build();
-//        configData.load();
-//        serverSpec.setConfig(configData);
-//    }
 }

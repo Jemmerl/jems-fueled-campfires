@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.entity.CampfireBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
+import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -38,10 +39,6 @@ public abstract class JemsCampfireBlockMixins extends BaseEntityBlock {
     protected JemsCampfireBlockMixins(Properties builder) {
         super(builder);
     }
-    
-    @Final
-    @Shadow
-    private boolean spawnParticles;
 
     @Inject(at = @At(value = "INVOKE", target = "net/minecraft/world/level/block/entity.CampfireBlockEntity.dowse()V", shift = At.Shift.AFTER),
             method = "dowse(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/level/LevelAccessor;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)V")
@@ -74,7 +71,7 @@ public abstract class JemsCampfireBlockMixins extends BaseEntityBlock {
 
     @Inject(at = @At(value = "INVOKE_ASSIGN", target = "net/minecraft/world/entity/player/Player.getItemInHand(Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/item/ItemStack;",
             shift = At.Shift.AFTER), cancellable = true, method = "useItemOn")
-    public void use(ItemStack arg0, BlockState arg1, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult arg6, CallbackInfoReturnable<ItemInteractionResult> cir, @Local CampfireBlockEntity campfireblockentity, @Local(ordinal = 1) ItemStack itemstack) {
+    public void useItemOn(ItemStack arg0, BlockState arg1, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult arg6, CallbackInfoReturnable<ItemInteractionResult> cir, @Local CampfireBlockEntity campfireblockentity, @Local(ordinal = 1) ItemStack itemstack) {
         if (!ServerConfig.NEED_FIRE_POKER.get() && player.isCrouching() && itemstack.isEmpty() && (campfireblockentity instanceof IFueledCampfire)) {
             Util.dispatchCampfireInfo(level, pos, arg1, player, (IFueledCampfire)campfireblockentity);
             cir.setReturnValue(ItemInteractionResult.SUCCESS);
@@ -82,19 +79,19 @@ public abstract class JemsCampfireBlockMixins extends BaseEntityBlock {
     }
 
     @Override
+    public boolean hasDynamicLightEmission(BlockState state) {
+        // Should return based on the ServerConfig.FUEL_BASED_LIGHTING.get()? Dunno if there is a noticeable reason
+        return true;
+    }
+
+    @Override
     public int getLightEmission(BlockState state, BlockGetter level, BlockPos pos) {
         if (!state.getValue(BlockStateProperties.LIT) || !ServerConfig.FUEL_BASED_LIGHTING.get()) return super.getLightEmission(state, level, pos);
 
-        // I am not entirely sure if this is needed, because the light source isn't position dependant, but it can't hurt to keep.
-        if (pos == BlockPos.ZERO) return 1;
+        AuxiliaryLightManager lightManager = level.getAuxLightManager(pos);
+        if (lightManager == null) return super.getLightEmission(state, level, pos);
 
-        IFueledCampfire cfTileEntity = Util.getCFTE(level, pos);
-        if ((cfTileEntity == null) || (cfTileEntity.jems_fueled_campfires$getEternal() && !ServerConfig.FUEL_BASED_LIGHTING_ETERNAL.get())) return super.getLightEmission(state, level, pos);
-        int light = cfTileEntity.jems_fueled_campfires$getFuelLightLevel();
-
-        // Note: Thought this was helping the initial lighting flicker, but doesn't seem to be true.
-        //  Also, it completely fries Starlight.
-//        cfTileEntity.updateLighting();
+        int light = lightManager.getLightAt(pos);
         return (light < 1) ? super.getLightEmission(state, level, pos) : light;
     }
 }

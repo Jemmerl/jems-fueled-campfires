@@ -47,8 +47,6 @@ public class FuelOverrideDataManager {
         }
     }
 
-
-
     public static int getCustomFuelVal(Item item) {
         if (reloadCache) reloadCacheMap();
 
@@ -116,8 +114,6 @@ public class FuelOverrideDataManager {
     }
 
 
-
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private static MergeableCodecDataManager<FuelOverrides, List<FuelOverrideEntry>> DATA_LOADER = null;
@@ -131,7 +127,6 @@ public class FuelOverrideDataManager {
     public static MergeableCodecDataManager<FuelOverrides, List<FuelOverrideEntry>> getDataLoader() {
         return DATA_LOADER;
     }
-
 
 
     // Takes in all the fuel overrides of the same id (jemscamp:file_name) from every mod, then reduces to a map.

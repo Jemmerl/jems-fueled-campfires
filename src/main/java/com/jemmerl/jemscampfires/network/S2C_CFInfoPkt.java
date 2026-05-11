@@ -1,16 +1,13 @@
 package com.jemmerl.jemscampfires.network;
 
 import com.jemmerl.jemscampfires.JemsCampfires;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.Utf8String;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record S2C_CFInfoPkt(Byte bitMap, ChatFormatting timeColor, int fuelTicks) implements CustomPacketPayload {
     public static final CustomPacketPayload.Type<S2C_CFInfoPkt> TYPE =

@@ -1,12 +1,13 @@
 package com.jemmerl.jemscampfires.mixin.compat.farmersdelight;
 
-
 import com.jemmerl.jemscampfires.init.ModTags;
 import com.jemmerl.jemscampfires.init.ServerConfig;
 import com.jemmerl.jemscampfires.util.IFueledCampfire;
 import com.jemmerl.jemscampfires.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EntitySelector;
@@ -282,23 +283,23 @@ public abstract class FDStoveTEMixins extends BlockEntity implements IFueledCamp
     //                                            Data Handling Stuff                                              //
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//    @Inject(at = @At("RETURN"), method = "load(Lnet/minecraft/nbt/CompoundTag;)V", require = 0)
-//    private void loadFueled(CompoundTag compound, CallbackInfo ci) {
-//        if (compound.contains("FuelTicks", 3)) {
-//            setFuelTicks(compound.getInt("FuelTicks"));
-//        }
-//        if (compound.contains("IsEternal", 99)) {
-//            setEternal(compound.getBoolean("IsEternal"));
-//        }
-//    }
-//
-//    @Inject(at = @At("RETURN"), method = "saveAdditional", require = 0)
-//    private void saveFueled(CallbackInfo ci) {
-//        if (compound != null) {
-//            compound.putInt("FuelTicks", this.fuelTicks);
-//            compound.putBoolean("IsEternal", this.isEternal);
-//        }
-//    }
+    @Inject(at = @At("RETURN"), method = "loadAdditional", require = 0)
+    private void loadFueled(CompoundTag tag, HolderLookup.Provider registries, CallbackInfo ci) {
+        if (tag.contains("FuelTicks", 3)) {
+            jems_fueled_campfires$setFuelTicks(tag.getInt("FuelTicks"));
+        }
+        if (tag.contains("IsEternal", 99)) {
+            jems_fueled_campfires$setEternal(tag.getBoolean("IsEternal"));
+        }
+    }
+
+    @Inject(at = @At("RETURN"), method = "saveAdditional", require = 0)
+    private void saveFueled(CompoundTag tag, HolderLookup.Provider registries, CallbackInfo ci) {
+        if (tag != null) {
+            tag.putInt("FuelTicks", this.jems_fueled_campfires$fuelTicks);
+            tag.putBoolean("IsEternal", this.jems_fueled_campfires$isEternal);
+        }
+    }
 }
 
 

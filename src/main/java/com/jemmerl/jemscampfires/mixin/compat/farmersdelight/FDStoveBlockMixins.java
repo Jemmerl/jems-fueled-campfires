@@ -4,13 +4,17 @@ import com.jemmerl.jemscampfires.init.ServerConfig;
 import com.jemmerl.jemscampfires.util.IFueledCampfire;
 import com.jemmerl.jemscampfires.util.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.phys.BlockHitResult;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -52,18 +56,16 @@ public abstract class FDStoveBlockMixins extends BaseEntityBlock {
                 .setValue(BlockStateProperties.LIT, ServerConfig.PLACE_CAMPFIRE_LIT.get()));
     }
 
-//    @Inject(at = @At(value = "HEAD"),
-//            locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true,
-//            method = "use(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/phys/BlockHitResult;)Lnet/minecraft/world/InteractionResult;",
-//            require = 0)
-//    public void use(BlockState state, Level arg1, BlockPos arg2, Player arg3, InteractionHand arg4, BlockHitResult arg5, CallbackInfoReturnable<InteractionResult> cir) {
-//        if (!ServerConfig.FARMERS_DELIGHT_STOVE_COMPAT.get()) return;
-//
-//        ItemStack heldStack = arg3.getItemInHand(arg4);
-//        BlockEntity tileEntity = arg1.getBlockEntity(arg2);
-//        if (!ServerConfig.NEED_FIRE_POKER.get() && arg3.isCrouching() && heldStack.isEmpty() && (tileEntity instanceof IFueledCampfire campfireEntity)) {
-//            Util.dispatchCampfireInfo(arg1, arg2, state, arg3, campfireEntity);
-//            cir.setReturnValue(InteractionResult.SUCCESS);
-//        }
-//    }
+    @Inject(at = @At(value = "HEAD"), cancellable = true, method = "useItemOn", require = 0)
+    public void useItemOn(ItemStack arg0, BlockState state, Level arg2, BlockPos arg3, Player arg4, InteractionHand arg5, BlockHitResult arg6, CallbackInfoReturnable<ItemInteractionResult> cir) {
+        if (!ServerConfig.FARMERS_DELIGHT_STOVE_COMPAT.get()) return;
+        IFueledCampfire campfireEntity = Util.getCFTE(arg2, arg3);
+        if (campfireEntity == null) return;
+
+        ItemStack heldStack = arg4.getItemInHand(arg5);
+        if (!ServerConfig.NEED_FIRE_POKER.get() && arg4.isCrouching() && heldStack.isEmpty()) {
+            Util.dispatchCampfireInfo(arg2, arg3, state, arg4, campfireEntity);
+            cir.setReturnValue(ItemInteractionResult.SUCCESS);
+        }
+    }
 }

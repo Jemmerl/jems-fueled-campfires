@@ -8,19 +8,13 @@ import com.jemmerl.jemscampfires.network.ClientPacketHandler;
 import com.jemmerl.jemscampfires.network.S2C_CFInfoPkt;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.fml.loading.FMLConfig;
-import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-import net.neoforged.neoforge.network.handlers.ServerPayloadHandler;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -46,7 +40,7 @@ public class JemsCampfires
     public JemsCampfires(final IEventBus modEventBus, final ModContainer modContainer) {
 
         modEventBus.addListener(this::buildContents);
-
+        modEventBus.addListener(this::registerPacket);
         ModItems.register(modEventBus);
 
         NeoForge.EVENT_BUS.addListener(this::onAddReloadListeners);
@@ -54,19 +48,7 @@ public class JemsCampfires
 
         modContainer.registerConfig(ModConfig.Type.CLIENT, ClientConfig.CLIENT_SPEC);
         modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.SERVER_SPEC);
-//        ServerConfig.loadConfig(ServerConfig.SERVER_SPEC, FMLPaths.GAMEDIR.get()
-//                .resolve(FMLConfig.defaultConfigPath()).resolve(MOD_ID + "-server.toml"));
-
-//        StarlightCompat.init();
     }
-
-//    private void setup(final FMLCommonSetupEvent event) {
-//        event.enqueueWork(() -> {
-//            JCPacketHandler.register();
-//        });
-//    }
-
-//    private void doClientStuff(final FMLClientSetupEvent event) {}
 
     public void buildContents(final BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
@@ -78,5 +60,14 @@ public class JemsCampfires
     public void onAddReloadListeners(AddReloadListenerEvent event) {
         FuelOverrideDataManager.buildDataLoader(event.getRegistryAccess());
         event.addListener(FuelOverrideDataManager.getDataLoader());
+    }
+
+    public void registerPacket(RegisterPayloadHandlersEvent event) {
+        final PayloadRegistrar registrar = event.registrar("1");
+        registrar.playToClient(
+                S2C_CFInfoPkt.TYPE,
+                S2C_CFInfoPkt.STREAM_CODEC,
+                ClientPacketHandler::handle
+        );
     }
 }

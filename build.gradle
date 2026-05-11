@@ -3,7 +3,6 @@ plugins {
     id 'maven-publish'
     id 'net.neoforged.moddev' version '2.0.141'
     id 'idea'
-//    id 'org.spongepowered.mixin' version '0.7.+'
 }
 
 tasks.named('wrapper', Wrapper).configure {
@@ -28,7 +27,6 @@ sourceSets.main.resources {
 }
 
 repositories {
-//	maven { url = 'https://repo.spongepowered.org/maven' }
     maven {
         url 'https://www.cursemaven.com'
         // FG4: It's recommended to uncomment the following block
@@ -127,17 +125,12 @@ configurations {
 
 dependencies {
 
-    implementation "curse.maven:farmers-delight-398521:8007613"
+    compileOnly("curse.maven:farmers-delight-398521:8007613")
 
     // For more info:
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 }
-
-//mixin {
-//    add sourceSets.main, 'jemscampfires.mixin-refmap.json'
-//    config 'jemscampfires.mixin.json'
-//}
 
 // This block of code expands all declared replace properties in the specified resource targets.
 // A missing property will result in an error. Properties are expanded using ${} Groovy notation.

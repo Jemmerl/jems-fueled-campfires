@@ -6,8 +6,8 @@
   "mixins": [
     "JemsCampfireBlockMixins",
     "JemsCampfireTEMixins",
-    "compat.farmersdelight.FDStoveTEMixins",
-    "compat.farmersdelight.FDStoveBlockMixins"
+    "compat.farmersdelight.FDStoveBlockMixins",
+    "compat.farmersdelight.FDStoveTEMixins"
   ],
   "client": [
     "JemsCampfireBlockClientMixins"

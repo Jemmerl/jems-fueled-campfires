@@ -33,7 +33,6 @@ public class Util {
     }
 
     public static IFueledCampfire getCFTE(BlockGetter worldIn, BlockPos posIn) {
-//        BlockEntity tileentity = StarlightCompat.getBlockEntitySafely(worldIn, posIn);
         BlockEntity blockEntity = worldIn.getBlockEntity(posIn);
         if ((blockEntity instanceof IFueledCampfire)) {
             return (IFueledCampfire) blockEntity;
@@ -56,7 +55,7 @@ public class Util {
     // TODO: This hashmap is for fuels that are in containers (ex: lava buckets)
     //       Modders/pack-devs can use mixin injects (or any other way, idk) to add new items, make sure not to
     //       overwrite/clear the map unless you know what you are doing!
-    // If anyone genuinely uses this feature and does not like this method, just ask! I will do an API for it.
+    // If anyone genuinely uses this feature and does not like this method, just ask! I will do an API or datapack for it.
     // But I don't feel like it right now, because I don't know how to do an API and do not expect ppl to use this -Jem
     public static HashMap<Item, Item> fuelContainers = new HashMap<>();
     static {
