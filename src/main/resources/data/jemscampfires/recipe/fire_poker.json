@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "equipment",
   "pattern": [
     " I ",
     " SI",
@@ -14,7 +15,7 @@
     }
   },
   "result": {
-    "item": "jemscampfires:fire_poker",
+    "id": "jemscampfires:fire_poker",
     "count": 1
   }
 }
