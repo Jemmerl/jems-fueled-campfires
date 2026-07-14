@@ -38,6 +38,7 @@ public class FuelOverrideDataManager {
 
     @SubscribeEvent
     public static void reloadFuelOverrides(TagsUpdatedEvent event) {
+        if (DATA_LOADER == null) return;
         if (event.shouldUpdateStaticData()) {
             fuelOverrides.clear();
             invalidateCache();
