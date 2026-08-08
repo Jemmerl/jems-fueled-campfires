@@ -34,6 +34,8 @@ repositories {
         //     includeGroup "curse.maven"
         // }
     }
+
+    maven { url = "https://maven.createmod.net" } // Create, Ponder, Flywheel
 }
 
 base {
@@ -126,6 +128,8 @@ configurations {
 dependencies {
 
     compileOnly("curse.maven:farmers-delight-398521:8007613")
+
+    compileOnly("net.createmod.ponder:ponder-neoforge:1.0.82+mc${minecraft_version}")
 
     // For more info:
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html

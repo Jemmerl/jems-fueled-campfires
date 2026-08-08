@@ -1,11 +1,11 @@
 package com.jemmerl.jemscampfires.mixin;
 
-import com.jemmerl.jemscampfires.JemsCampfires;
 import com.jemmerl.jemscampfires.init.ModTags;
 import com.jemmerl.jemscampfires.init.ServerConfig;
 import com.jemmerl.jemscampfires.util.IFueledCampfire;
 import com.jemmerl.jemscampfires.util.Util;
 import com.llamalad7.mixinextras.sugar.Local;
+import net.createmod.ponder.api.level.PonderLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -110,6 +110,7 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
                 }
 
                 if (!ServerConfig.FUEL_BASED_LIGHTING.get() || (jems_fueled_campfires$isEternal && !ServerConfig.FUEL_BASED_LIGHTING_ETERNAL.get())) {
+                    // Ensures the campfire is reset to the correct, non-dynamic lighting
                     jems_fueled_campfires$updateLighting();
                     return;
                 }
@@ -548,7 +549,9 @@ public abstract class JemsCampfireTEMixins extends BlockEntity implements IFuele
 
     @Override
     public void jems_fueled_campfires$updateLighting() {
+        if (level instanceof PonderLevel) return;
         AuxiliaryLightManager lightManager = level.getAuxLightManager(worldPosition);
+
         if (lightManager != null) {
             lightManager.setLightAt(worldPosition, jems_fueled_campfires$fuelLightLevel);
         }

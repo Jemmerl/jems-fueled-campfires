@@ -4,6 +4,7 @@ import com.jemmerl.jemscampfires.init.ServerConfig;
 import com.jemmerl.jemscampfires.util.IFueledCampfire;
 import com.jemmerl.jemscampfires.util.Util;
 import com.llamalad7.mixinextras.sugar.Local;
+import net.createmod.ponder.api.level.PonderLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.InteractionHand;
@@ -24,9 +25,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -86,6 +85,8 @@ public abstract class JemsCampfireBlockMixins extends BaseEntityBlock {
 
     @Override
     public int getLightEmission(BlockState state, BlockGetter level, BlockPos pos) {
+        if (level instanceof PonderLevel) return super.getLightEmission(state, level, pos);
+
         if (!state.getValue(BlockStateProperties.LIT) || !ServerConfig.FUEL_BASED_LIGHTING.get()) return super.getLightEmission(state, level, pos);
 
         AuxiliaryLightManager lightManager = level.getAuxLightManager(pos);
